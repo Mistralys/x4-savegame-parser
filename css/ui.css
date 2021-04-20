@@ -1,0 +1,14 @@
+TD.align-center,
+TH.align-center{
+    text-align: center;
+}
+
+TD.align-right,
+TH.align-right{
+    text-align: right;
+}
+
+.table.table-horizontal TH{
+    white-space: nowrap;
+    width: 1%;
+}
