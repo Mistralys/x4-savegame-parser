@@ -1,0 +1,27 @@
+{
+  "name": "mistralys/x4-savegame-parser",
+  "description": "Savegame parser for X4: Foundations. Convert relevant parts of the XML file and access useful game information.",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sebastian Mordziol",
+      "email": "s.mordziol@mistralys.eu"
+    }
+  ],
+  "autoload": {
+    "classmap": [
+      "src"
+    ]
+  },
+  "require": {
+    "mistralys/application-utils": ">=1.4.3",
+    "ext-simplexml": "*",
+    "ext-json": "*",
+    "twbs/bootstrap": ">=v4.6.0",
+    "components/jquery": ">=3.5.1",
+    "fortawesome/font-awesome": ">=5.15.3",
+    "react/http": "v1.3.*"
+  }
+}
