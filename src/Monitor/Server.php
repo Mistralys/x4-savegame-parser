@@ -22,7 +22,7 @@ class X4Server
      */
     private int $tick = 1;
 
-    private int $tickCounter = 0;
+    private int $tickCounter = 1;
 
     private SaveManager $manager;
 
@@ -92,16 +92,26 @@ class X4Server
 
     private function renderSummary() : string
     {
+        $text = new StringBuilder();
+        $text->add('Server tick:')->add((string)$this->tickCounter)->para();
+
         $currentSave = $this->manager->getCurrentSave();
 
         if(!$currentSave) {
-            return 'No savegames found.';
+            return (string)$text->bold('No savegames found.');
+        }
+
+        if(!$currentSave->isDataValid()) {
+            return (string)$text
+                ->bold('Savegame is not finished unpacking.')->nl()
+                ->add('Please wait until the next server tick for it to be updated.');
         }
 
         $reader = $currentSave->getReader();
+
         $destroyed = $reader->getLog()->getDestroyed();
 
-        $text = (new StringBuilder())
+        $text
             ->add('Amount of savegames:')->add($this->manager->countSaves())->nl()
             ->add('Latest savegame:')->add($currentSave->getName())->nl()
             ->add('Losses:')->add($destroyed->countEntries())->nl()
