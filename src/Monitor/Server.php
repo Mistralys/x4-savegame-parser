@@ -81,19 +81,26 @@ class X4Server
 
     public function handleRequest(ServerRequestInterface $request) : Response
     {
+        $delay = ($this->tick * 60) + 30;
+
         return new Response(
             200,
             array(
                 'Content-Type' => 'text/html'
             ),
-            $this->renderSummary()
+            $this->renderSummary().
+            '<script>setTimeout(function() {document.location.reload()}, '.($delay * 1000).')</script>'
         );
     }
 
     private function renderSummary() : string
     {
-        $text = new StringBuilder();
-        $text->add('Server tick:')->add((string)$this->tickCounter)->para();
+        $text = (new StringBuilder())
+            ->add('Server tick:')
+            ->add((string)$this->tickCounter)
+            ->add('@')
+            ->time()
+            ->para();
 
         $currentSave = $this->manager->getCurrentSave();
 
