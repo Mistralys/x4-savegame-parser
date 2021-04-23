@@ -89,7 +89,14 @@ class X4Server
                 'Content-Type' => 'text/html'
             ),
             $this->renderSummary().
-            '<script>setTimeout(function() {document.location.reload()}, '.($delay * 1000).')</script>'
+            '<script>
+                setTimeout(
+                    function() {
+                        document.location.reload()
+                    }, 
+                    '.($delay * 1000).'
+                );
+            </script>'
         );
     }
 
