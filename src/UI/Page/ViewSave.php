@@ -39,6 +39,10 @@ class ViewSave extends Page
             array(
                 'label' => 'Factions',
                 'url' => '?page='.$this->getID().'&amp;saveName='.$this->save->getName().'&amp;view=factions'
+            ),
+            array(
+                'label' => 'Player inventory',
+                'url' => '?page='.$this->getID().'&amp;saveName='.$this->save->getName().'&amp;view=inventory'
             )
         );
     }
@@ -52,9 +56,40 @@ class ViewSave extends Page
             case 'losses': $this->renderLosses(); break;
             case 'blueprints': $this->renderBlueprints(); break;
             case 'factions': $this->renderFactions(); break;
+            case 'inventory': $this->renderInventory(); break;
             case 'faction-relations': $this->renderFactionRelations(); break;
             default: $this->renderHome(); break;
         }
+    }
+
+    private function renderInventory() : void
+    {
+        $inventory = $this->reader->getInventory();
+
+        ?>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th class="align-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                    $wares = $inventory->getWares();
+                    foreach ($wares as $ware) {
+                        ?>
+                            <tr>
+                                <td><?php echo $ware->getName() ?></td>
+                                <td class="align-right"><?php echo $ware->getAmount() ?></td>
+                            </tr>
+                        <?php
+                    }
+                ?>
+                </tbody>
+            </table>
+        <?php
     }
 
     private function renderFactions() : void
@@ -238,7 +273,23 @@ class ViewSave extends Page
 
     private function renderBlueprints() : void
     {
-        $blueprints = $this->reader->getBlueprints();
+        $categories = $this->reader->getBlueprints()->getCategories();
+
+        foreach($categories as $category) {
+            ?>
+                <h4><?php echo $category->getLabel() ?></h4>
+                <ul>
+                    <?php
+                        $blueprints = $category->getBlueprints();
+                        foreach ($blueprints as $blueprint) {
+                            ?>
+                                <li><?php echo $blueprint->getName() ?></li>
+                            <?php
+                        }
+                    ?>
+                </ul>
+            <?php
+        }
     }
 
     private function renderHome() : void
