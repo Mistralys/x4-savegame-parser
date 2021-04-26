@@ -29,7 +29,7 @@ class SavesList extends Page
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Unpacked?</th>
+                    <th class="align-right">Losses</th>
                     <th>Modified</th>
                     <th>Size</th>
                     <th></th>
@@ -45,12 +45,12 @@ class SavesList extends Page
                                         if($save->isDataValid()) {
                                             ?>
                                             <td><a href="?page=ViewSave&amp;saveName=<?php echo $save->getName() ?>"><?php echo $save->getName() ?></a></td>
-                                            <td>YES</td>
+                                            <td class="align-right"><?php echo $save->getReader()->countLosses() ?></td>
                                             <?php
                                         } else {
                                             ?>
                                             <td><?php echo $save->getName() ?></td>
-                                            <td>NO</td>
+                                            <td class="align-right">-</td>
                                             <?php
                                         }
                                     ?>
