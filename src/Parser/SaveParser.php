@@ -7,6 +7,8 @@ namespace Mistralys\X4Saves;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use Mistralys\X4Saves\Data\SaveReader\Blueprints;
+use SimpleXMLElement;
 
 class SaveParser
 {
@@ -29,7 +31,8 @@ class SaveParser
         //'economylog',
         'log',
         'stats',
-        'messages'
+        'messages',
+        'inventory'
     );
 
     /**
@@ -115,12 +118,15 @@ class SaveParser
         foreach($this->analysis['parts'] as $tagName => $def)
         {
             $this->log(sprintf('Processing part [%s].', $tagName));
+            $this->log(sprintf('Found [%s] files to process.', count($def['xmlFiles'])));
 
-            $file = $this->outputFolder.'/'.array_pop($def['xmlFiles']);
-            $element = simplexml_load_string(FileHelper::readContents($file));
+            foreach($def['xmlFiles'] as $file) {
+                $path = $this->outputFolder . '/' . $file;
+                $element = simplexml_load_string(FileHelper::readContents($path));
 
-            $method = 'unpack_' . $tagName;
-            $this->$method($element);
+                $method = 'unpack_' . $tagName;
+                $this->$method($element);
+            }
         }
     }
 
@@ -266,15 +272,24 @@ class SaveParser
         }
     }
 
-    private function unpack_stats(\SimpleXMLElement $node) : void
+    private function unpack_stats(SimpleXMLElement $node) : void
     {
         $stats = array();
+        $found = false;
 
-        foreach($node->stat as $stat) {
-            $stats[(string)$stat['id']] = floatval($stat['value']);
+        foreach($node->stat as $stat)
+        {
+            $name = (string)$stat['id'];
+            $stats[$name] = floatval($stat['value']);
+
+            if($name === 'time_total') {
+                $found = true;
+            }
         }
 
-        $this->saveData('statistics', $stats);
+        if($found) {
+            $this->saveData('statistics', $stats);
+        }
     }
 
     protected array $terms = array(
@@ -305,7 +320,7 @@ class SaveParser
         'war update' => 'war',
     );
 
-    private function unpack_log(\SimpleXMLElement $node) : void
+    private function unpack_log(SimpleXMLElement $node) : void
     {
         $data = array();
         foreach ($node->entry as $entry)
@@ -350,7 +365,7 @@ class SaveParser
         }
     }
 
-    private function unpack_messages(\SimpleXMLElement $node) : void
+    private function unpack_messages(SimpleXMLElement $node) : void
     {
         $messages = array();
 
@@ -366,7 +381,7 @@ class SaveParser
         $this->saveData('messages', $messages);
     }
 
-    private function unpack_factions(\SimpleXMLElement $node) : void
+    private function unpack_factions(SimpleXMLElement $node) : void
     {
         $factions = array();
         foreach($node->faction as $factionNode)
@@ -448,52 +463,62 @@ class SaveParser
         $this->saveData('factions', $factions);
     }
 
-    private function unpack_blueprints(\SimpleXMLElement $node) : void
+    private function unpack_inventory(SimpleXMLElement $node) : void
     {
-        $data = array(
-            'modules' => array(),
-            'shields' => array(),
-            'weapons' => array(),
-            'turrets' => array(),
-            'engines' => array(),
-            'ships' => array(),
-            'thruster' => array(),
-            'deployables' => array(),
-            'modifications' => array(),
-            'skins' => array(),
-            'countermeasures' => array(),
-            'missiles' => array(),
-            'unknown' => array()
+        $data = array();
+        $found = false;
+        
+        foreach($node->ware as $ware)
+        {
+            $name = (string)$ware['ware'];
+            $data[$name] = (int)$ware['amount'];
+            
+            if($name === 'weapon_gen_spacesuit_repairlaser_01_mk1') {
+                $found = true;
+            }
+        }
+
+        if($found) {
+            $this->saveData('inventory', $data);
+        }
+    }
+
+    private function unpack_blueprints(SimpleXMLElement $node) : void
+    {
+        $partDefs = array(
+            'turret' => Blueprints::CATEGORY_TURRETS,
+            'ship' => Blueprints::CATEGORY_SHIPS,
+            'shield' => Blueprints::CATEGORY_SHIELDS,
+            'module' => Blueprints::CATEGORY_MODULES,
+            'engine' => Blueprints::CATEGORY_ENGINES,
+            'mod' => Blueprints::CATEGORY_MODIFICATIONS,
+            'weapon' => Blueprints::CATEGORY_WEAPONS,
+            'satellite' => Blueprints::CATEGORY_DEPLOYABLES,
+            'resourceprobe' => Blueprints::CATEGORY_DEPLOYABLES,
+            'waypointmarker' => Blueprints::CATEGORY_DEPLOYABLES,
+            'survey' => Blueprints::CATEGORY_DEPLOYABLES,
+            'paintmod' => Blueprints::CATEGORY_SKINS,
+            'clothingmod' => Blueprints::CATEGORY_SKINS,
+            'countermeasure' => Blueprints::CATEGORY_COUNTERMEASURES,
+            'missile' => Blueprints::CATEGORY_MISSILES,
+            'thruster' => Blueprints::CATEGORY_THRUSTERS
         );
 
-        $partDefs = array(
-            'turret' => 'turrets',
-            'ship' => 'ships',
-            'shield' => 'shields',
-            'module' => 'modules',
-            'engine' => 'engines',
-            'mod' => 'modifications',
-            'weapon' => 'weapons',
-            'satellite' => 'deployables',
-            'resourceprobe' => 'deployables',
-            'waypointmarker' => 'deployables',
-            'survey' => 'deployables',
-            'paintmod' => 'skins',
-            'clothingmod' => 'skins',
-            'countermeasure' => 'countermeasures',
-            'missile' => 'missiles',
-            'thruster' => 'thrusters'
-        );
+        $data = array();
 
         foreach($node->blueprint as $blueprint)
         {
             $id = (string)$blueprint['ware'];
             $parts = explode('_', $id);
             $type = array_shift($parts);
-            $category = 'unknown';
+            $category = Blueprints::CATEGORY_UNKNOWN;
 
             if(isset($partDefs[$type])) {
                 $category = $partDefs[$type];
+            }
+
+            if(!isset($data[$category])) {
+                $data[$category] = array();
             }
 
             $data[$category][] = $id;
@@ -502,7 +527,7 @@ class SaveParser
         $this->saveData('blueprints', $data);
     }
 
-    private function unpack_info(\SimpleXMLElement $node) : void
+    private function unpack_info(SimpleXMLElement $node) : void
     {
         $data = array(
             'saveDate' => (int)$node->save['date'],
