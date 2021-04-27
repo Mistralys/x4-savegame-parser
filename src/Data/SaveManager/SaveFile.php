@@ -92,4 +92,13 @@ class SaveFile
     {
         return FileHelper::parseJSONFile($this->getDataFolder().'/analysis.json');
     }
+
+    public function getLabel() : string
+    {
+        if($this->isDataValid()) {
+            return $this->getFileName().' - '.$this->getReader()->getPlayer()->getSaveName();
+        }
+
+        return $this->getFileName();
+    }
 }

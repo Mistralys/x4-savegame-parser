@@ -44,7 +44,7 @@ class SavesList extends Page
                                     <?php
                                         if($save->isDataValid()) {
                                             ?>
-                                            <td><a href="?page=ViewSave&amp;saveName=<?php echo $save->getName() ?>"><?php echo $save->getName() ?></a></td>
+                                            <td><a href="?page=ViewSave&amp;saveName=<?php echo $save->getName() ?>"><?php echo $save->getLabel() ?></a></td>
                                             <td class="align-right"><?php echo $save->getReader()->countLosses() ?></td>
                                             <?php
                                         } else {

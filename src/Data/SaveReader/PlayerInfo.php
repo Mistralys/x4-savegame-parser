@@ -11,6 +11,11 @@ class PlayerInfo extends Info
         return 'player';
     }
 
+    public function getSaveName() : string
+    {
+        return $this->getStringKey('saveName');
+    }
+
     public function getPlayerName() : string
     {
         return $this->getStringKey('playerName');
