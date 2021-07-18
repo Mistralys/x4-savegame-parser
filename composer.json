@@ -19,7 +19,7 @@
     "mistralys/application-utils": ">=1.4.3",
     "ext-simplexml": "*",
     "ext-json": "*",
-    "twbs/bootstrap": ">=v4.6.0",
+    "twbs/bootstrap": "^v4.6.0",
     "components/jquery": ">=3.5.1",
     "fortawesome/font-awesome": ">=5.15.3",
     "react/http": "v1.3.*"
