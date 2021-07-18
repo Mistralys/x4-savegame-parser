@@ -32,4 +32,9 @@ class PlayerInfo extends Info
     {
         return $this->getIntKey(SaveInfoTag::KEY_PLAYER_MONEY);
     }
+
+    public function getMoneyPretty() : string
+    {
+        return number_format($this->getMoney(), 0, '.', ' ');
+    }
 }
