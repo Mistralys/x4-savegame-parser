@@ -45,11 +45,28 @@ class SaveReader
         return new Inventory($this);
     }
 
+    public function saveData(string $dataID, array $data) : void
+    {
+        FileHelper::saveAsJSON($data, $this->getDataPath($dataID), true);
+    }
+
     public function getRawData(string $dataID) : array
     {
-        $path = $this->saveFile->getJSONPath().'/'.$dataID.'.json';
+        return FileHelper::parseJSONFile($this->getDataPath($dataID));
+    }
 
-        return FileHelper::parseJSONFile($path);
+    public function dataExists(string $dataID) : bool
+    {
+        return file_exists($this->getDataPath($dataID));
+    }
+
+    public function getDataPath(string $dataID) : string
+    {
+        return sprintf(
+            '%s/%s.json',
+            $this->saveFile->getJSONPath(),
+            $dataID
+        );
     }
 
     public function countLosses() : int
