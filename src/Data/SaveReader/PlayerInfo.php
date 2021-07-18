@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4Saves\Data\SaveReader;
 
+use AppUtils\Microtime;
 use Mistralys\X4Saves\SaveParser\Tags\Tag\SaveInfoTag;
 
 class PlayerInfo extends Info
@@ -18,9 +19,11 @@ class PlayerInfo extends Info
         return $this->getStringKey(SaveInfoTag::KEY_SAVE_NAME);
     }
 
-    public function getSaveDate() : int
+    public function getSaveDate() : Microtime
     {
-        return $this->getIntKey(SaveInfoTag::KEY_SAVE_DATE);
+        $date = new Microtime();
+        $date->setTimestamp($this->getIntKey(SaveInfoTag::KEY_SAVE_DATE));
+        return $date;
     }
 
     public function getPlayerName() : string
