@@ -19,14 +19,21 @@ abstract class Info
         $this->reader = $reader;
 
         $name = $this->getAutoDataName();
-        if(!empty($name)) {
-            $data = $reader->getRawData($name);
-            $this->startAt = intval($data['startAt']);
-            $this->endAt = intval($data['endAt']);
-            $this->data = $data['data'];
+        if(!empty($name))
+        {
+            $this->autoLoad($name);
         }
 
         $this->init();
+    }
+
+    protected function autoLoad(string $dataID) : void
+    {
+        $data = $this->reader->getRawData($dataID);
+
+        $this->startAt = intval($data['startAt']);
+        $this->endAt = intval($data['endAt']);
+        $this->data = $data['data'];
     }
 
     protected function init() : void
