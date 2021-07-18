@@ -59,7 +59,7 @@ abstract class Page
             $this->redirect('?');
         }
 
-        return $this->manager->getByName($save1Name);
+        return $this->manager->getByName($saveName);
     }
 
     protected function renderBool(bool $boolean) : string
