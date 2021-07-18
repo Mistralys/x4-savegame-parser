@@ -59,7 +59,7 @@ abstract class Page
             $this->redirect('?');
         }
 
-        return $this->manager->getByName($saveName);
+        return $this->manager->getByName($save1Name);
     }
 
     protected function renderBool(bool $boolean) : string
@@ -70,4 +70,15 @@ abstract class Page
 
         return '<i class="fa fa-times"></i>';
     }
+
+    public function getURL(array $params=array()) : string
+    {
+        $params['page'] = $this->getID();
+
+        $params = array_merge($params, $this->getURLParams());
+
+        return '?'.http_build_query($params);
+    }
+
+    abstract protected function getURLParams() : array;
 }
