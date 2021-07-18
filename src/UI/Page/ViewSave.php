@@ -11,6 +11,7 @@ use Mistralys\X4Saves\UI\Pages\ViewSave\Factions;
 use Mistralys\X4Saves\UI\Pages\ViewSave\Home;
 use Mistralys\X4Saves\UI\Pages\ViewSave\Inventory;
 use Mistralys\X4Saves\UI\Pages\ViewSave\Losses;
+use Mistralys\X4Saves\UI\Pages\ViewSave\Statistics;
 use Mistralys\X4Saves\UI\PageWithNav;
 
 class ViewSave extends PageWithNav
@@ -36,7 +37,8 @@ class ViewSave extends PageWithNav
             new Blueprints($this),
             new Losses($this),
             new Factions($this),
-            new Inventory($this)
+            new Inventory($this),
+            new Statistics($this)
         );
     }
 
