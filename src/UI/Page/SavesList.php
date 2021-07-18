@@ -29,6 +29,8 @@ class SavesList extends Page
                 <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Character</th>
+                    <th class="align-right">Money</th>
                     <th class="align-right">Losses</th>
                     <th>Modified</th>
                     <th>Size</th>
@@ -42,14 +44,20 @@ class SavesList extends Page
                             ?>
                                 <tr>
                                     <?php
-                                        if($save->isDataValid()) {
+                                        if($save->isDataValid())
+                                        {
+                                            $reader = $save->getReader();
                                             ?>
                                             <td><a href="?page=ViewSave&amp;saveName=<?php echo $save->getName() ?>"><?php echo $save->getLabel() ?></a></td>
-                                            <td class="align-right"><?php echo $save->getReader()->countLosses() ?></td>
+                                            <td><?php echo $reader->getPlayer()->getPlayerName() ?></td>
+                                            <td class="align-right"><?php echo $reader->getPlayer()->getMoneyPretty() ?></td>
+                                            <td class="align-right"><?php echo $reader->countLosses() ?></td>
                                             <?php
                                         } else {
                                             ?>
                                             <td><?php echo $save->getName() ?></td>
+                                            <td>-</td>
+                                            <td class="align-right">-</td>
                                             <td class="align-right">-</td>
                                             <?php
                                         }
