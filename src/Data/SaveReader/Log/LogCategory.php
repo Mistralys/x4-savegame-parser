@@ -4,16 +4,25 @@ declare(strict_types=1);
 
 namespace Mistralys\X4Saves\Data\SaveReader\Log;
 
-use Mistralys\X4Saves\Data\SaveReader\Info;
+use Mistralys\X4Saves\Data\SaveReader\Log;
 
-abstract class LogCategory extends Info
+abstract class LogCategory
 {
+    private Log $log;
+
     /**
      * @var LogEntry[]
      */
     private array $entries = array();
 
     private bool $entriesLoaded = false;
+
+    public function __construct(Log $log)
+    {
+        $this->log = $log;
+    }
+
+    abstract public function getCategoryID() : string;
 
     /**
      * @return LogEntry[]
@@ -33,15 +42,7 @@ abstract class LogCategory extends Info
 
         $this->entriesLoaded = true;
 
-        foreach ($this->data as $data) {
-            $this->entries[] = new LogEntry(
-                (string)$data['category'],
-                (float)$data['time'],
-                (string)$data['title'],
-                (string)$data['text'],
-                (string)$data['faction']
-            );
-        }
+        $this->entries = $this->log->getByCategory(LogEntry::CATEGORY_DESTROYED);
     }
 
     public function countEntries() : int

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Mistralys\X4Saves\Data\SaveReader;
 
+use Mistralys\X4Saves\SaveParser\Tags\Tag\PlayerComponentTag;
+
 class Inventory extends Info
 {
     /**
@@ -13,13 +15,13 @@ class Inventory extends Info
 
     protected function getAutoDataName(): string
     {
-        return 'inventory';
+        return PlayerComponentTag::SAVE_NAME;
     }
 
     protected function init(): void
     {
-        foreach($this->data as $name => $amount) {
-            $this->wares[] = new Ware($name, $amount);
+        foreach($this->data[PlayerComponentTag::KEY_INVENTORY] as $name => $amount) {
+            $this->wares[] = new Ware($name, intval($amount));
         }
 
         usort($this->wares, function (Ware $a, Ware $b) {

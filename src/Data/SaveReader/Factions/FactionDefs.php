@@ -143,6 +143,11 @@ class FactionDefs
         )
     );
 
+    public static function exists(string $factionName) : bool
+    {
+        return isset(self::$defs[$factionName]);
+    }
+
     public static function getLabel(string $factionName) : string
     {
         return self::getKey($factionName, 'label');

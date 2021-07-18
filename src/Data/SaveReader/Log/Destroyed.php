@@ -6,8 +6,8 @@ namespace Mistralys\X4Saves\Data\SaveReader\Log;
 
 class Destroyed extends LogCategory
 {
-    protected function getAutoDataName(): string
+    public function getCategoryID() : string
     {
-        return 'log/destroyed';
+        return LogEntry::CATEGORY_DESTROYED;
     }
 }

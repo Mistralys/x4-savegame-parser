@@ -75,7 +75,6 @@ class SaveFile
     {
         $parser = new SaveParser($this->getName());
         $parser->unpack();
-        $parser->convert();
     }
 
     public function getDataFolder() : string
@@ -85,7 +84,7 @@ class SaveFile
 
     public function getJSONPath() : string
     {
-        return $this->getDataFolder().'/json';
+        return $this->getDataFolder();
     }
 
     public function getAnalysis() : array

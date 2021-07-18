@@ -6,6 +6,7 @@ namespace Mistralys\X4Saves\Data\SaveReader;
 
 use AppUtils\BaseException;
 use Mistralys\X4Saves\Data\SaveFile;
+use Mistralys\X4Saves\SaveParser\Tags\Tag\FactionsTag;
 
 class Faction
 {
@@ -64,13 +65,13 @@ class Faction
 
     public function isActive() : bool
     {
-        return $this->data['active'] === true;
+        return $this->data[FactionsTag::KEY_ACTIVE] === true;
     }
 
     public function getPlayerDiscount() : float
     {
-        if(isset($this->data['discounts']) && isset($this->data['discounts']['player'])) {
-            return floatval($this->data['discounts']['player']);
+        if(isset($this->data[FactionsTag::KEY_BOOSTERS]) && isset($this->data[FactionsTag::KEY_BOOSTERS]['player'])) {
+            return floatval($this->data[FactionsTag::KEY_BOOSTERS]['player'][FactionsTag::KEY_BOOSTER_AMOUNT]);
         }
 
         return 0;
@@ -78,7 +79,7 @@ class Faction
 
     public function areRelationsLocked() : bool
     {
-        return $this->data['relationsLocked'] === true;
+        return $this->data[FactionsTag::KEY_RELATIONS_LOCKED] === true;
     }
 
     /**
@@ -88,13 +89,13 @@ class Faction
     {
         $result = array();
 
-        if(is_array($this->data['relations']))
+        if(is_array($this->data[FactionsTag::KEY_RELATIONS]))
         {
-            foreach ($this->data['relations'] as $factionName => $relation)
+            foreach ($this->data[FactionsTag::KEY_RELATIONS] as $factionName => $relation)
             {
                 $result[] = new FactionRelation(
                     $this,
-                    (string)$factionName,
+                    $factionName,
                     floatval($relation),
                     $this->getBoosterWith($factionName)
                 );
@@ -111,8 +112,8 @@ class Faction
 
     private function getBoosterWith(string $name) : float
     {
-        if(isset($this->data['relationBoosters']) && isset($this->data['relationBoosters'][$name])) {
-            return floatval($this->data['relationBoosters'][$name]);
+        if(isset($this->data[FactionsTag::KEY_BOOSTERS]) && isset($this->data[FactionsTag::KEY_BOOSTERS][$name])) {
+            return floatval($this->data[FactionsTag::KEY_BOOSTERS][$name][FactionsTag::KEY_BOOSTER_AMOUNT]);
         }
 
         return 0;

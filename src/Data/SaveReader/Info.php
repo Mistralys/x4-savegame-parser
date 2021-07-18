@@ -11,6 +11,8 @@ abstract class Info
     protected SaveReader $reader;
 
     protected array $data = array();
+    private int $startAt;
+    private int $endAt;
 
     public function __construct(SaveReader $reader)
     {
@@ -18,7 +20,10 @@ abstract class Info
 
         $name = $this->getAutoDataName();
         if(!empty($name)) {
-            $this->data = $reader->getRawData($name);
+            $data = $reader->getRawData($name);
+            $this->startAt = intval($data['startAt']);
+            $this->endAt = intval($data['endAt']);
+            $this->data = $data['data'];
         }
 
         $this->init();

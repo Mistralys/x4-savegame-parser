@@ -22,7 +22,6 @@ class UnpackSave extends Page
 
         $parser = new SaveParser($save->getName());
         $parser->unpack();
-        $parser->convert();
 
         $this->redirect('?');
     }

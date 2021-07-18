@@ -6,6 +6,7 @@ namespace Mistralys\X4Saves\Data\SaveReader;
 
 use AppUtils\BaseException;
 use Mistralys\X4Saves\Data\SaveFile;
+use Mistralys\X4Saves\SaveParser\Tags\Tag\FactionsTag;
 
 class Factions extends Info
 {
@@ -56,17 +57,24 @@ class Factions extends Info
 
     protected function getAutoDataName(): string
     {
-        return 'factions';
+        return FactionsTag::SAVE_NAME;
     }
 
     protected function init(): void
     {
-        foreach($this->data as $def)
+        foreach($this->data as $factionDef)
         {
+            $factionID = (string)$factionDef[FactionsTag::KEY_FACTION_ID];
+
+            if(!FactionDefs::exists($factionID))
+            {
+                continue;
+            }
+
             $this->factions[] = new Faction(
                 $this,
-                (string)$def['id'],
-                $def
+                $factionID,
+                $factionDef
             );
         }
 
