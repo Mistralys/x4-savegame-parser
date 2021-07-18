@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Mistralys\X4Saves\UI\Pages;
 
-use AppUtils\ConvertHelper;
 use Mistralys\X4Saves\Data\SaveFile;
 use Mistralys\X4Saves\Data\SaveReader;
-use Mistralys\X4Saves\UI\Page;
+use Mistralys\X4Saves\UI\Pages\ViewSave\Blueprints;
+use Mistralys\X4Saves\UI\Pages\ViewSave\Factions;
+use Mistralys\X4Saves\UI\Pages\ViewSave\Home;
+use Mistralys\X4Saves\UI\Pages\ViewSave\Inventory;
+use Mistralys\X4Saves\UI\Pages\ViewSave\Losses;
+use Mistralys\X4Saves\UI\PageWithNav;
 
-class ViewSave extends Page
+class ViewSave extends PageWithNav
 {
-    private SaveFile $save;
-    private SaveReader $reader;
+    protected SaveFile $save;
+    protected SaveReader $reader;
 
     protected function init(): void
     {
@@ -20,296 +24,47 @@ class ViewSave extends Page
         $this->reader = $this->save->getReader();
     }
 
-    public function getTitle(): string
+    public function getDefaultSubPageID() : string
     {
-        return 'Savegame: '.$this->save->getName();
+        return Home::URL_PARAM;
     }
 
-    public function getNavItems(): array
+    protected function initSubPages() : void
     {
-        return array(
-            array(
-                'label' => 'Blueprints',
-                'url' => '?page='.$this->getID().'&amp;saveName='.$this->save->getName().'&amp;view=blueprints'
-            ),
-            array(
-                'label' => 'Losses',
-                'url' => '?page='.$this->getID().'&amp;saveName='.$this->save->getName().'&amp;view=losses'
-            ),
-            array(
-                'label' => 'Factions',
-                'url' => '?page='.$this->getID().'&amp;saveName='.$this->save->getName().'&amp;view=factions'
-            ),
-            array(
-                'label' => 'Player inventory',
-                'url' => '?page='.$this->getID().'&amp;saveName='.$this->save->getName().'&amp;view=inventory'
-            )
+        $this->subPages = array(
+            new Home($this),
+            new Blueprints($this),
+            new Losses($this),
+            new Factions($this),
+            new Inventory($this)
         );
     }
 
-    protected function _render(): void
+    protected function getURLParams() : array
     {
-        $view = $this->request->getParam('view');
-
-        switch($view)
-        {
-            case 'losses': $this->renderLosses(); break;
-            case 'blueprints': $this->renderBlueprints(); break;
-            case 'factions': $this->renderFactions(); break;
-            case 'inventory': $this->renderInventory(); break;
-            case 'faction-relations': $this->renderFactionRelations(); break;
-            default: $this->renderHome(); break;
-        }
+        return array(
+            'saveName' => $this->save->getName()
+        );
     }
 
-    private function renderInventory() : void
+    /**
+     * @return SaveFile
+     */
+    public function getSave() : SaveFile
     {
-        $inventory = $this->reader->getInventory();
-
-        ?>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th class="align-right">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                    $wares = $inventory->getWares();
-                    foreach ($wares as $ware) {
-                        ?>
-                            <tr>
-                                <td><?php echo $ware->getName() ?></td>
-                                <td class="align-right"><?php echo $ware->getAmount() ?></td>
-                            </tr>
-                        <?php
-                    }
-                ?>
-                </tbody>
-            </table>
-        <?php
+        return $this->save;
     }
 
-    private function renderFactions() : void
+    /**
+     * @return SaveReader
+     */
+    public function getReader() : SaveReader
     {
-        $factions = $this->reader->getFactions();
-
-        ?>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Discount</th>
-                    <th class="align-center">Active?</th>
-                    <th class="align-center">Relations locked?</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                    $items = $factions->getAll();
-                    foreach($items as $faction)
-                    {
-                        ?>
-                            <tr>
-                                <td><a href="<?php echo $faction->getURLDetails($this->save) ?>"><?php echo $faction->getName() ?></a></td>
-                                <td><?php echo number_format($faction->getPlayerDiscount() * 100, 0) ?>%</td>
-                                <td class="align-center"><?php echo $this->renderBool($faction->isActive()) ?></td>
-                                <td class="align-center"><?php echo $this->renderBool($faction->areRelationsLocked()) ?></td>
-                            </tr>
-                        <?php
-                    }
-                ?>
-            </tbody>
-        </table>
-        <?php
+        return $this->reader;
     }
 
-    private function renderFactionRelations() : void
+    public function getTitle(): string
     {
-        $factions = $this->reader->getFactions();
-
-        $factionName = $this->request->getParam('faction');
-        if(!$factions->nameExists($factionName)) {
-            $this->redirect($factions->getURLList($this->save));
-        }
-
-        $faction = $factions->getByName($factionName);
-
-        $relations = $faction->getRelations();
-        $booster = false;
-        $player = $factions->getPlayerFaction();
-
-        if($faction->hasRelationWith($player)) {
-            $booster = $faction->getRelationWith($player)->hasBooster();
-        }
-
-        ?>
-            <h4>Faction: <?php echo $faction->getLabel() ?></h4>
-            <table class="table table-horizontal">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <td><?php echo $faction->getName() ?></td>
-                    </tr>
-                    <tr>
-                        <th>Active?</th>
-                        <td>
-                            <?php echo $this->renderBool($faction->isActive()) ?>
-                            <?php
-                                if(!$faction->isActive()) {
-                                    ?>
-                                        <span class="text-muted"> - They have no stations and no economy.</span>
-                                    <?php
-                                }
-
-                            ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Discount</th>
-                        <td>
-                            <?php echo number_format($faction->getPlayerDiscount(), 0) ?>%
-                            <span class="text-muted"> - Applied to all ship and blueprint offers.</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <h4>Relations</h4>
-            <table class="table table-horizontal">
-                <tbody>
-                <tr>
-                    <th>Relations locked</th>
-                    <td>
-                        <?php echo $this->renderBool($faction->areRelationsLocked()) ?>
-                        <?php if($faction->areRelationsLocked()) {
-                            ?>
-                                <span class="text-muted"> - The relations will stay at their defined level. Time limited boosters are still possible.</span>
-                            <?php
-                        } ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Booster enabled?</th>
-                    <td>
-                        <?php echo $this->renderBool($booster) ?>
-                        <?php
-                            if($booster) {
-                                ?>
-                                    <span class="text-muted"> - The player relation takes the active booster into account.</span>
-                                <?php
-                            }
-
-                        ?>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>State</th>
-                        <th class="align-right">Current value</th>
-                        <th class="align-right">Base value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-                    foreach ($relations as $relation)
-                    {
-                        $targetFaction = $relation->getTargetFaction();
-
-                        if(!$targetFaction->isMajor()) {
-                            continue;
-                        }
-
-                        ?>
-                            <tr>
-                                <td><a href="<?php echo $targetFaction->getURLDetails($this->save) ?>"><?php echo $targetFaction->getName() ?></a></td>
-                                <td><?php echo $relation->getState(true) ?></td>
-                                <td class="align-right"><?php echo number_format($relation->getBoosterValue(), 4, '.', ' ') ?></td>
-                                <td class="align-right"><?php echo number_format($relation->getValue(), 4, '.', ' ') ?></td>
-                            </tr>
-                        <?php
-                    }
-                ?>
-                </tbody>
-            </table>
-        <?php
-    }
-
-    private function renderLosses() : void
-    {
-        $log = $this->reader->getLog()->getDestroyed();
-
-        $entries = $log->getEntries();
-
-        usort($entries, function (SaveReader\Log\LogEntry $a, SaveReader\Log\LogEntry $b) {
-            return $b->getTime() - $a->getTime();
-        });
-
-        ?>
-            <h2>Ship and station losses</h2>
-            <p>Ordered by most recent first.</p>
-            <ul>
-                <?php
-                    foreach ($entries as $entry)
-                    {
-                          ?>
-                            <li>
-                                <b title="<?php echo ConvertHelper::interval2string($entry->getInterval()) ?>" style="cursor: help">
-                                    Hour <?php echo $entry->getHours() ?>
-                                </b>
-                                <?php echo $entry->getTitle().' '.$entry->getText() ?>
-                            </li>
-                        <?php
-                    }
-                ?>
-            </ul>
-        <?php
-    }
-
-    private function renderBlueprints() : void
-    {
-        $categories = $this->reader->getBlueprints()->getCategories();
-
-        foreach($categories as $category) {
-            ?>
-                <h4><?php echo $category->getLabel() ?></h4>
-                <ul>
-                    <?php
-                        $blueprints = $category->getBlueprints();
-                        foreach ($blueprints as $blueprint) {
-                            ?>
-                                <li><?php echo $blueprint->getName() ?></li>
-                            <?php
-                        }
-                    ?>
-                </ul>
-            <?php
-        }
-    }
-
-    private function renderHome() : void
-    {
-        $player = $this->reader->getPlayer();
-
-        ?>
-            <h2><?php echo $this->save->getName() ?></h2>
-            <table class="table table-horizontal">
-                <tbody>
-                    <tr>
-                        <th>Player name</th>
-                        <td><?php echo $player->getPlayerName()  ?></td>
-                    </tr>
-                    <tr>
-                        <th>Money</th>
-                        <td><?php echo number_format($player->getMoney(), 0, '.', ' ') ?></td>
-                    </tr>
-                </tbody>
-            </table>
-        <?php
+        return 'Savegame: '.$this->save->getName();
     }
 }
