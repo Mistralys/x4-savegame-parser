@@ -19,6 +19,11 @@ class SavesList extends Page
         return array();
     }
 
+    protected function getURLParams() : array
+    {
+        return array();
+    }
+
     protected function _render(): void
     {
         $saves = $this->manager->getSaves();
@@ -33,7 +38,7 @@ class SavesList extends Page
                     <th class="align-right">Money</th>
                     <th class="align-right">Losses</th>
                     <th>Modified</th>
-                    <th>Size</th>
+                    <th class="align-right">Size</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -62,8 +67,8 @@ class SavesList extends Page
                                             <?php
                                         }
                                     ?>
-                                    <td><?php echo $save->getDateModified()->format('d.m.Y H:i:s') ?></td>
-                                    <td><?php echo ConvertHelper::bytes2readable($save->getFileSize()) ?></td>
+                                    <td><?php echo ConvertHelper::date2listLabel($save->getDateModified(), true, true) ?></td>
+                                    <td class="align-right"><?php echo ConvertHelper::bytes2readable($save->getFileSize()) ?></td>
                                     <td>
                                         <?php
                                             if(!$save->isDataValid()) {
