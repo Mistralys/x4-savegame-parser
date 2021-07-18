@@ -14,6 +14,13 @@ class UnpackSave extends Page
         return 'Unpack savegame';
     }
 
+    protected function getURLParams() : array
+    {
+        return array(
+            'save' => $this->requireSave()->getName()
+        );
+    }
+
     protected function _render(): void
     {
         $save = $this->requireSave();
