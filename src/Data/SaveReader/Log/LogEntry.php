@@ -10,6 +10,8 @@ use Mistralys\X4Saves\SaveParser\Tags\Tag\LogTag;
 
 class LogEntry
 {
+    const CATEGORY_MISSIONS = 'missions';
+    const CATEGORY_TIPS = 'tips';
     const CATEGORY_EVENT = 'event';
     const CATEGORY_REPUTATION = 'reputation';
     const CATEGORY_PROMOTION = 'promotion';
