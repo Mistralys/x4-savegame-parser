@@ -10,6 +10,7 @@ use Mistralys\X4Saves\Data\SaveReader\Factions;
 use Mistralys\X4Saves\Data\SaveReader\Inventory;
 use Mistralys\X4Saves\Data\SaveReader\Log;
 use Mistralys\X4Saves\Data\SaveReader\PlayerInfo;
+use Mistralys\X4Saves\Data\SaveReader\Statistics;
 
 class SaveReader
 {
@@ -28,6 +29,11 @@ class SaveReader
     public function getBlueprints() : Blueprints
     {
         return new Blueprints($this);
+    }
+
+    public function getStatistics() : Statistics
+    {
+        return new Statistics($this);
     }
 
     public function getLog() : Log
