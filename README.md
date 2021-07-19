@@ -66,3 +66,17 @@ php start-server.php
 
 To access the server's output, point your browser to the local server
 you configured in the `config.php` file.
+
+## Technical details
+
+After several attempts to parse the game's large XML files (1.1 GB), 
+I gave up on trying to use existing PHP libraries: performance ranged 
+from very poor to impossible. Instead, I built a very basic XML parser 
+that reads the savegame files line by line. Every line is analyzed to 
+check if it matches any of the tags that I want information from.
+
+A tag stack is used to keep track of where the current tag is located
+in the XML structure, so it's possible to match tags like `universe.factions.faction`,
+or tags with specific attributes, like `<component class="player">`.
+
+
