@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Mistralys\X4Saves\UI;
 
-use AppUtils\Request;use Mistralys\X4Saves\UI\Pages\SavesList;use Mistralys\X4Saves\UI\Pages\UnpackSave;use Mistralys\X4Saves\UI\Pages\ViewSave;
+use AppUtils\Request;
+use Mistralys\X4Saves\UI\Pages\CreateBackup;
+use Mistralys\X4Saves\UI\Pages\SavesList;
+use Mistralys\X4Saves\UI\Pages\UnpackSave;
+use Mistralys\X4Saves\UI\Pages\ViewSave;
 
 class UserInterface
 {
@@ -13,6 +17,12 @@ class UserInterface
     private Page $activePage;
 
     private Request $request;
+
+    private array $pages = array(
+        CreateBackup::URL_NAME => CreateBackup::class,
+        ViewSave::URL_NAME => ViewSave::class,
+        UnpackSave::URL_NAME => UnpackSave::class
+    );
 
     public function __construct()
     {
@@ -24,12 +34,10 @@ class UserInterface
     {
         $pageID = $this->request->getParam('page');
 
-        if($pageID === 'ViewSave') {
-            return new ViewSave();
-        }
-
-        if($pageID === 'UnpackSave') {
-            return new UnpackSave();
+        if(isset($this->pages[$pageID]))
+        {
+            $class = $this->pages[$pageID];
+            return new $class();
         }
 
         return new SavesList();
