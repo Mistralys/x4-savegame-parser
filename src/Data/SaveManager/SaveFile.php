@@ -7,9 +7,13 @@ namespace Mistralys\X4Saves\Data;
 use AppUtils\FileHelper;
 use DateTime;
 use Mistralys\X4Saves\SaveParser;
+use Mistralys\X4Saves\UI\Pages\UnpackSave;
+use Mistralys\X4Saves\UI\Pages\ViewSave;
 
 class SaveFile
 {
+    const PARAM_SAVE_NAME = 'saveName';
+
     private SaveManager $manager;
 
     private string $saveName;
@@ -99,5 +103,21 @@ class SaveFile
         }
 
         return $this->getFileName();
+    }
+
+    public function getURLView() : string
+    {
+        return '?'.http_build_query(array(
+            'page' => ViewSave::URL_NAME,
+            self::PARAM_SAVE_NAME => $this->getName()
+        ));
+    }
+
+    public function getURLUnpack() : string
+    {
+        return '?'.http_build_query(array(
+            'page' => UnpackSave::URL_NAME,
+            self::PARAM_SAVE_NAME => $this->getName()
+        ));
     }
 }
