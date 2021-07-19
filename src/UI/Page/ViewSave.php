@@ -16,6 +16,8 @@ use Mistralys\X4Saves\UI\PageWithNav;
 
 class ViewSave extends PageWithNav
 {
+    const URL_NAME = 'ViewSave';
+
     protected SaveFile $save;
     protected SaveReader $reader;
 
@@ -45,7 +47,7 @@ class ViewSave extends PageWithNav
     protected function getURLParams() : array
     {
         return array(
-            'saveName' => $this->save->getName()
+            SaveFile::PARAM_SAVE_NAME => $this->save->getName()
         );
     }
 
