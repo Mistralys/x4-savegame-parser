@@ -7,21 +7,43 @@ namespace Mistralys\X4Saves\Data;
 use AppUtils\FileHelper;
 use DateTime;
 use Mistralys\X4Saves\SaveParser;
+use Mistralys\X4Saves\UI\Pages\CreateBackup;
 use Mistralys\X4Saves\UI\Pages\UnpackSave;
 use Mistralys\X4Saves\UI\Pages\ViewSave;
+use Mistralys\X4Saves\X4Exception;
 
 class SaveFile
 {
+    const ERROR_BACKUP_INVALID_DATA = 89601;
+
     const PARAM_SAVE_NAME = 'saveName';
 
     private SaveManager $manager;
 
     private string $saveName;
 
+    private string $id = '';
+
     public function __construct(SaveManager $manager, string $saveName)
     {
         $this->manager = $manager;
         $this->saveName = $saveName;
+    }
+
+    public function getID() : string
+    {
+        if(empty($this->id))
+        {
+            $player = $this->getReader()->getPlayer();
+
+            $this->id = md5(sprintf(
+                '%s-%s',
+                $player->getGameGUID(),
+                $player->getGameCode()
+            ));
+        }
+
+        return $this->id;
     }
 
     public function getPath() : string
@@ -119,5 +141,37 @@ class SaveFile
             'page' => UnpackSave::URL_NAME,
             self::PARAM_SAVE_NAME => $this->getName()
         ));
+    }
+
+    public function getURLBackup() : string
+    {
+        return '?'.http_build_query(array(
+                'page' => CreateBackup::URL_NAME,
+                self::PARAM_SAVE_NAME => $this->getName()
+            ));
+    }
+
+    public function hasBackup() : bool
+    {
+        return $this->createBackup()->exists();
+    }
+
+    private function createBackup() : SaveBackup
+    {
+        return new SaveBackup($this);
+    }
+
+    public function writeBackup() : void
+    {
+        if(!$this->isDataValid())
+        {
+            throw new X4Exception(
+                'Cannot create backup, data not valid',
+                'The analysis and data must have been created to make a backup.',
+                self::ERROR_BACKUP_INVALID_DATA
+            );
+        }
+
+        $this->createBackup()->write();
     }
 }
