@@ -73,9 +73,17 @@ class SavesList extends Page
                                         <?php
                                             if(!$save->isDataValid()) {
                                                 ?>
-                                                    <a href="<?php echo $save->getURLUnpack() ?>" class="btn btn-primary btn-sm">
-                                                        Unpack
-                                                    </a>
+                                                <a href="<?php echo $save->getURLUnpack() ?>" class="btn btn-primary btn-sm">
+                                                    Unpack
+                                                </a>
+                                                <?php
+                                            }
+                                            else if(!$save->hasBackup())
+                                            {
+                                                ?>
+                                                <a href="<?php echo $save->getURLBackup() ?>" class="btn btn-secondary btn-sm">
+                                                    Backup
+                                                </a>
                                                 <?php
                                             }
                                         ?>
