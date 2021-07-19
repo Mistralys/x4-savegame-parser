@@ -53,7 +53,7 @@ class SavesList extends Page
                                         {
                                             $reader = $save->getReader();
                                             ?>
-                                            <td><a href="?page=ViewSave&amp;saveName=<?php echo $save->getName() ?>"><?php echo $save->getLabel() ?></a></td>
+                                            <td><a href="<?php echo $save->getURLView() ?>"><?php echo $save->getLabel() ?></a></td>
                                             <td><?php echo $reader->getPlayer()->getPlayerName() ?></td>
                                             <td class="align-right"><?php echo $reader->getPlayer()->getMoneyPretty() ?></td>
                                             <td class="align-right"><?php echo $reader->countLosses() ?></td>
@@ -73,7 +73,7 @@ class SavesList extends Page
                                         <?php
                                             if(!$save->isDataValid()) {
                                                 ?>
-                                                    <a href="?page=UnpackSave&amp;saveName=<?php echo $save->getName() ?>" class="btn btn-primary btn-small">
+                                                    <a href="<?php echo $save->getURLUnpack() ?>" class="btn btn-primary btn-sm">
                                                         Unpack
                                                     </a>
                                                 <?php
