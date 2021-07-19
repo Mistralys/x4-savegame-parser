@@ -90,7 +90,14 @@ abstract class Tag
 
     abstract protected function close(int $number) : void;
 
-    protected function getAttributes(string $line) : array
+    /**
+     * Slightly slower than using the regex.
+     *
+     * @param string $line
+     * @return array
+     * @throws \Exception
+     */
+    protected function getAttributes_simplexml(string $line) : array
     {
         // Ensure that even opening tags end like self-closing tags for the parsing to work
         $line = rtrim($line, '/>').'/>';
@@ -101,6 +108,48 @@ abstract class Tag
         foreach($attributes as $name => $val)
         {
             $result[$name] = (string)$val;
+        }
+
+        return $result;
+    }
+    
+    protected function getAttributes(string $line) :array
+    {
+        preg_match_all('/ ([a-z]+)="(.*)"/sU', $line, $matches, PREG_PATTERN_ORDER);
+        
+        $result = array();
+        foreach ($matches[1] as $idx => $tagName)
+        {
+            $result[$tagName] = $matches[2][$idx];
+        }
+
+        return $result;
+    }
+
+    /**
+     * This has the worst performance.
+     *
+     * @param string $line
+     * @return array
+     */
+    protected function getAttributes_stringbased(string $line) : array
+    {
+        $result = array();
+
+        if(strpos($line, '"') === false) {
+            return $result;
+        }
+
+        $line = substr($line, strpos($line, ' ')+1);
+        $line = trim($line, '"/>');
+        $parts = explode('" ', $line);
+
+        foreach($parts as $part)
+        {
+            $tagName = substr($part, 0, strpos($part, '='));
+            $value = substr($part, strpos($part, '"')+1);
+
+            $result[$tagName] = $value;
         }
 
         return $result;
