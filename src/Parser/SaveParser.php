@@ -16,6 +16,8 @@ class SaveParser
     const ERROR_XML_FILE_NOT_FOUND = 84401;
     const ERROR_INVALID_TAG_CLASS = 84402;
 
+    private $logging = false;
+
     private string $saveName;
 
     private string $outputFolder;
@@ -119,14 +121,21 @@ class SaveParser
         FileHelper::deleteTree($this->outputFolder);
     }
 
-    private function log(string $message) : void
+    private function log() : void
     {
-        echo $message.PHP_EOL.'<br>';
+        if($this->logging === false) {
+            return;
+        }
+
+        $args = func_get_args();
+
+        echo call_user_func('sprintf', $args).PHP_EOL;
     }
 
     private function splitFile() : void
     {
         $this->log(sprintf('Splitting the XML file [%s.].', $this->saveName));
+        $microtime = microtime(true);
 
         if($this->isUnpacked()) {
             $this->log('Already split, skipping.');
@@ -167,6 +176,9 @@ class SaveParser
         FileHelper::saveAsJSON($this->analysis, $this->analysisFile, true);
 
         $this->log('Done extracting.');
+
+        $diff = microtime(true) - $microtime;
+        $this->log('Took %s seconds.', number_format($diff, 4, '.', ' '));
     }
 
     private function createFolders() : void
@@ -270,7 +282,7 @@ class SaveParser
             }
 
             $this->log('----------------------------------------------------------------');
-            $this->log(sprintf('Opening tag [%s], ID [%s].', $tagName, $tagID));
+            $this->log('Opening tag [%s], ID [%s].', $tagName, $tagID);
 
             if(!isset($this->activeTags[$tagID]))
             {
@@ -302,7 +314,7 @@ class SaveParser
         {
             $tagPath = substr($activePath, strlen($parentPath)+1);
 
-            $this->log('...Child tag opened ['.$tagName.'].');
+            $this->log('...Child tag opened [%s].', $tagName);
 
             $tag->childTagOpened($tagPath, $tagName, $line, $number);
         }
@@ -329,7 +341,7 @@ class SaveParser
         {
             foreach($this->activeTags[$tagID]['tags'] as $tag)
             {
-                $this->log(sprintf('...Closing tag [%s].', $tagName));
+                $this->log('...Closing tag [%s].', $tagName);
 
                 $tag->tagClosed($activePath, $tagName, $number);
             }
@@ -345,7 +357,7 @@ class SaveParser
 
             foreach($this->activeTags[$tagID]['tags'] as $tag)
             {
-                $this->log(sprintf('...Closing child tag [%s].', $tagName));
+                $this->log('...Closing child tag [%s].', $tagName);
 
                 $tagPath = substr($activePath, strlen($parentPath)+1);
 
