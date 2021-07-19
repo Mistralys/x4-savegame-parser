@@ -40,4 +40,14 @@ class PlayerInfo extends Info
     {
         return number_format($this->getMoney(), 0, '.', ' ');
     }
+
+    public function getGameGUID() : string
+    {
+        return $this->getStringKey(SaveInfoTag::KEY_GAME_GUID);
+    }
+
+    public function getGameCode() : int
+    {
+        return $this->getIntKey(SaveInfoTag::KEY_GAME_CODE);
+    }
 }
