@@ -14,12 +14,16 @@ class SaveInfoTag extends Tag
     const KEY_PLAYER_MONEY = 'money';
     const KEY_SAVE_NAME = 'saveName';
     const KEY_SAVE_DATE = 'saveDate';
+    const KEY_GAME_GUID = 'guid';
+    const KEY_GAME_CODE = 'code';
 
-    private $info = array(
+    private array $info = array(
         self::KEY_PLAYER_NAME => '',
         self::KEY_PLAYER_MONEY => '',
         self::KEY_SAVE_NAME => '',
-        self::KEY_SAVE_DATE => ''
+        self::KEY_SAVE_DATE => '',
+        self::KEY_GAME_CODE => '',
+        self::KEY_GAME_GUID => ''
     );
 
     public function getTagPath() : string
@@ -38,6 +42,13 @@ class SaveInfoTag extends Tag
 
     protected function close(int $number) : void
     {
+    }
+
+    protected function open_game(string $line, int $number) : void
+    {
+        $atts = $this->getAttributes($line);
+        $this->info[self::KEY_GAME_GUID] = $atts['guid'];
+        $this->info[self::KEY_GAME_CODE] = $atts['code'];
     }
 
     protected function open_save(string $line, int $number) : void
