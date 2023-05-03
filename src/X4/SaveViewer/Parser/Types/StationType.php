@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Parser\Types;
 
-class StationType extends BaseComponentType
+use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerInterface;
+use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerTrait;
+
+class StationType extends BaseComponentType implements ShipContainerInterface
 {
+    use ShipContainerTrait;
+
     public const TYPE_ID = 'station';
 
     public const KEY_MACRO = 'macro';
@@ -14,11 +19,30 @@ class StationType extends BaseComponentType
     public const KEY_CLASS = 'class';
     public const KEY_NAME = 'name';
 
+    private ZoneType $zone;
+
     public function __construct(ZoneType $zone, string $connectionID, string $componentID)
     {
+        $this->zone = $zone;
+
         parent::__construct($zone->getCollections(), $connectionID, $componentID);
 
         $this->setParentComponent($zone);
+    }
+
+    public function getZone() : ZoneType
+    {
+        return $this->zone;
+    }
+
+    public function getSector() : SectorType
+    {
+        return $this->getZone()->getSector();
+    }
+
+    public function getCluster() : ClusterType
+    {
+        return $this->getSector()->getCluster();
     }
 
     protected function getDefaultData() : array
