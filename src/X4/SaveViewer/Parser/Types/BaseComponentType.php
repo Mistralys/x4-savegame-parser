@@ -86,10 +86,10 @@ abstract class BaseComponentType extends ArrayDataCollection implements Componen
     }
 
     /**
-     * @param BaseComponentType $component
+     * @param ComponentInterface $component
      * @return $this
      */
-    protected function setParentComponent(BaseComponentType $component) : self
+    protected function setParentComponent(ComponentInterface $component) : self
     {
         return $this->setKey(self::KEY_PARENT_COMPONENT, $component->getUniqueID());
     }
