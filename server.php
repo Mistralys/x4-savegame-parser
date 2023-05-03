@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-use Mistralys\X4Saves\Monitor\X4Server;
+use Mistralys\X4\SaveViewer\Monitor\X4Server;
 
 require_once 'vendor/autoload.php';
 require_once 'config.php';
