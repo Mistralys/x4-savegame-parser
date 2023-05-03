@@ -146,16 +146,24 @@ class ClusterConnectionFragment extends BaseDOMFragment
 
         foreach($connections as $connection)
         {
-            if($connection->componentClass === 'buildmodule')
+            if($connection->connectionID === 'modules')
             {
-                $this->parseStationBuildModule($connection);
+                if($connection->componentClass === 'buildmodule')
+                {
+                    $this->parseStationBuildModule($station, $connection);
+                }
+
+                if($connection->componentClass === 'dockarea')
+                {
+                    $this->parseStationDockArea($station, $connection);
+                }
             }
         }
 
         // TODO: Add productions
     }
 
-    private function parseStationBuildModule(ConnectionComponent $component) : void
+    private function parseStationDockArea(StationType $station, ConnectionComponent $component) : void
     {
         $connections = $this->findConnectionComponents($component);
 
@@ -163,14 +171,43 @@ class ClusterConnectionFragment extends BaseDOMFragment
         {
             if($connection->componentClass === 'dockingbay')
             {
-                $this->parseStationDockingBay($connection);
+                $this->parseStationDockingBay($station, $connection);
             }
         }
     }
 
-    private function parseStationDockingBay(ConnectionComponent $component) : void
+    private function parseStationBuildModule(StationType $station, ConnectionComponent $component) : void
     {
-        
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            if($connection->componentClass === 'dockingbay')
+            {
+                $this->parseStationDockingBay($station, $connection);
+            }
+        }
+    }
+
+    /**
+     * @param StationType $station
+     * @param ConnectionComponent $component
+     * @return void
+     */
+    private function parseStationDockingBay(StationType $station, ConnectionComponent $component) : void
+    {
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            if($connection->connectionID === 'dock')
+            {
+                $ship = $this->collections->ships()->createShip($station, $connection->connectionID, $connection->componentID);
+                $station->addShip($ship);
+
+                $this->parseShipComponent($ship, $connection->componentNode);
+            }
+        }
     }
 
     // endregion
@@ -212,6 +249,39 @@ class ClusterConnectionFragment extends BaseDOMFragment
     {
         if($entry->componentClass === 'cockpit') {
             $this->parseShipCockpit($ship, $entry->componentNode);
+        }
+
+        if($entry->componentClass === 'dockarea') {
+            $this->parseShipDockArea($ship, $entry->componentNode);
+        }
+    }
+
+    private function parseShipDockArea(ShipType $ship, DOMElement $componentNode) : void
+    {
+        $connections = $this->findConnectionComponents($componentNode);
+
+        foreach($connections as $connection)
+        {
+            if($connection->componentClass === 'dockingbay')
+            {
+                $this->parseShipDockingBay($ship, $connection);
+            }
+        }
+    }
+
+    private function parseShipDockingBay(ShipType $ship, ConnectionComponent $component) : void
+    {
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            if($connection->connectionID === 'dock')
+            {
+                $dockedShip = $this->collections->ships()->createShip($ship, $connection->connectionID, $connection->componentID);
+                $ship->addShip($dockedShip);
+
+                $this->parseShipComponent($dockedShip, $connection->componentNode);
+            }
         }
     }
 
