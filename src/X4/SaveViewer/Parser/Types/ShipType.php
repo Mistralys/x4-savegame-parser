@@ -9,10 +9,12 @@ use AppUtils\ClassHelper\BaseClassHelperException;
 use Mistralys\X4\SaveViewer\Parser\Traits\PersonContainerInterface;
 use Mistralys\X4\SaveViewer\Parser\Traits\PersonContainerTrait;
 use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerInterface;
+use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerTrait;
 
-class ShipType extends BaseComponentType implements PersonContainerInterface
+class ShipType extends BaseComponentType implements PersonContainerInterface, ShipContainerInterface
 {
     use PersonContainerTrait;
+    use ShipContainerTrait;
 
     public const TYPE_ID = 'ship';
 
@@ -32,28 +34,38 @@ class ShipType extends BaseComponentType implements PersonContainerInterface
     public const KEY_MACRO = 'macro';
     public const KEY_CLUSTER = 'cluster';
 
+    private ShipContainerInterface $container;
+
     public function __construct(ShipContainerInterface $parentComponent, string $connectionID, string $componentID)
     {
+        $this->container = $parentComponent;
+
         parent::__construct($parentComponent->getCollections(), $connectionID, $componentID);
 
         $this->setParentComponent($parentComponent);
     }
 
+    public function getZone() : ZoneType
+    {
+        return $this->container->getZone();
+    }
+
+    public function getSector() : SectorType
+    {
+        return $this->container->getSector();
+    }
+
     /**
      * @return ShipContainerInterface
-     * @throws BaseClassHelperException
      */
     public function getContainer() : ShipContainerInterface
     {
-        return ClassHelper::requireObjectInstanceOf(
-            ShipContainerInterface::class,
-            $this->getParentComponent()
-        );
+        return $this->container;
     }
 
     public function getCluster() : ClusterType
     {
-        return $this->getContainer()->getCluster();
+        return $this->container->getCluster();
     }
 
     protected function getDefaultData() : array
