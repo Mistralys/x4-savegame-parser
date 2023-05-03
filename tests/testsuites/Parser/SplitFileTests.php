@@ -23,5 +23,7 @@ final class SplitFileTests extends X4ParserTestCase
         $parser->setLoggingEnabled(true);
         $parser->setSaveGameFolder($this->filesFolder);
         $parser->postProcessFragments();
+
+        $this->assertFileExists($parser->getOutputPath().'/analysis.json');
     }
 }
