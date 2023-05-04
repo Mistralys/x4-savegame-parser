@@ -33,6 +33,7 @@
   "require-dev": {
     "phpunit/phpunit": ">=9.6.7",
     "phpstan/phpstan": ">=1.10",
-    "roave/security-advisories": "dev-latest"
+    "roave/security-advisories": "dev-latest",
+    "ext-zlib": "*"
   }
 }
