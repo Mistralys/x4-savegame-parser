@@ -14,6 +14,7 @@ use DOMNode;
 use Mistralys\X4\SaveViewer\Parser\BaseFragment;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\ConnectionComponent;
+use Mistralys\X4\SaveViewer\Parser\DataProcessing\DataProcessingHub;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\X4Exception;
 use XMLReader;
@@ -258,6 +259,9 @@ abstract class BaseXMLParser
 
         $this->analysis->save();
         $this->collections->save();
+
+        $processor = new DataProcessingHub($this->collections);
+        $processor->process();
 
         return $this;
     }
