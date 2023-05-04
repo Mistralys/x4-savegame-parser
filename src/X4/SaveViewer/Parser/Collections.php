@@ -8,6 +8,7 @@ use Mistralys\X4\SaveViewer\Parser\Collections\BaseCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\CelestialsCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\ClustersCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\PeopleCollection;
+use Mistralys\X4\SaveViewer\Parser\Collections\PlayerCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\RegionsCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\SectorsCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\ShipsCollection;
@@ -30,6 +31,8 @@ class Collections
     private StationsCollection $stations;
     private ZonesCollection $zones;
     private PeopleCollection $people;
+    private PlayerCollection $player;
+
     /**
      * @var BaseCollection[]
      */
@@ -47,6 +50,7 @@ class Collections
         $this->stations = new StationsCollection($this);
         $this->zones = new ZonesCollection($this);
         $this->people = new PeopleCollection($this);
+        $this->player = new PlayerCollection($this);
 
         $this
             ->add($this->celestials)
@@ -56,7 +60,8 @@ class Collections
             ->add($this->ships)
             ->add($this->stations)
             ->add($this->zones)
-            ->add($this->people);
+            ->add($this->people)
+            ->add($this->player);
     }
 
     public function getOutputFolder() : string
@@ -117,6 +122,11 @@ class Collections
     public function people() : PeopleCollection
     {
         return $this->people;
+    }
+
+    public function player() : PlayerCollection
+    {
+        return $this->player;
     }
 
     /**
