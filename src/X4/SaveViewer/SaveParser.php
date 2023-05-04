@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package X4SaveViewer
+ * @subpackage Parser
+ * @see \Mistralys\X4\SaveViewer\SaveParser
+ */
 
 declare(strict_types=1);
 
@@ -13,11 +18,23 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\FactionsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\PlayerStatsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
 
+/**
+ * Main parser class that dispatches the extraction of the
+ * game data from an XML savegame to subclasses specialized
+ * for the different XML structures.
+ *
+ * See the <code>Fragments</code> subfolder for the XML
+ * node reading classes.
+ *
+ * @package X4SaveViewer
+ * @subpackage Parser
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class SaveParser extends BaseXMLParser
 {
     /**
-     * @param FileInfo $saveFile
-     * @param string $outputFolder
+     * @param FileInfo $saveFile Path to the XML save file to parse.
+     * @param string $outputFolder Path the folder in which the savegame's data will be extracted into a subfolder.
      * @param DateTime|null $modTime Modification time of the save. Used when the
      *         savegame was zipped, to use the time the archive file was modified
      *         instead of the extracted XML file. Default is to use the modification
@@ -80,20 +97,5 @@ class SaveParser extends BaseXMLParser
         $this->registerIgnore('savegame.ui');
         $this->registerIgnore('savegame.universe.uianchorhelper');
         $this->registerIgnore('savegame.universe.cameraanchor');
-    }
-
-    private function parseName(string $fileName) : string
-    {
-        $fileName = basename($fileName);
-
-        if(strpos($fileName, '.') === false) {
-            return $fileName;
-        }
-
-        $parts = explode('.', $fileName);
-
-        array_pop($parts);
-
-        return implode('.', $parts);
     }
 }
