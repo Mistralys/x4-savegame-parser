@@ -19,6 +19,7 @@ use Mistralys\X4\SaveViewer\SaveViewerException;
 class Collections
 {
     public const ERROR_INVALID_UNIQUE_ID = 135001;
+    public const ERROR_NO_COMPONENT_FOUND_BY_ID = 135002;
 
     private string $outputFolder;
     private CelestialsCollection $celestials;
@@ -121,7 +122,7 @@ class Collections
     /**
      * @param string $uniqueID
      * @return BaseComponentType|null
-     * @throws SaveViewerException
+     * @throws SaveViewerException {@see self::ERROR_INVALID_UNIQUE_ID}
      */
     public function getByUniqueID(string $uniqueID) : ?BaseComponentType
     {
@@ -151,5 +152,28 @@ class Collections
         }
 
         return null;
+    }
+
+    /**
+     * @param string $uniqueID
+     * @return BaseComponentType
+     * @throws SaveViewerException {@see self::ERROR_INVALID_UNIQUE_ID} or {@see self::ERROR_NO_COMPONENT_FOUND_BY_ID}
+     */
+    public function requireByUniqueID(string $uniqueID) : BaseComponentType
+    {
+        $component = $this->getByUniqueID($uniqueID);
+
+        if($component !== null) {
+            return $component;
+        }
+
+        throw new SaveViewerException(
+            'Component not found by unique ID.',
+            sprintf(
+                'Could not find any component matching the ID [%s].',
+                $uniqueID
+            ),
+            self::ERROR_NO_COMPONENT_FOUND_BY_ID
+        );
     }
 }
