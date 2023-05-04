@@ -85,6 +85,15 @@ abstract class BaseCollection
     }
 
     /**
+     * @param string $type
+     * @return BaseComponentType[]
+     */
+    public function getComponentsByType(string $type) : array
+    {
+        return $this->components[$type] ?? array();
+    }
+
+    /**
      * Retrieves the type IDs of the components stored in the collection.
      * @return string[]
      */
