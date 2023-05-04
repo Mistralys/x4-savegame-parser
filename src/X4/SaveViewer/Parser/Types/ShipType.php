@@ -8,13 +8,20 @@ use AppUtils\ClassHelper;
 use AppUtils\ClassHelper\BaseClassHelperException;
 use Mistralys\X4\SaveViewer\Parser\Traits\PersonContainerInterface;
 use Mistralys\X4\SaveViewer\Parser\Traits\PersonContainerTrait;
+use Mistralys\X4\SaveViewer\Parser\Traits\PlayerContainerInterface;
+use Mistralys\X4\SaveViewer\Parser\Traits\PlayerContainerTrait;
 use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerInterface;
 use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerTrait;
 
-class ShipType extends BaseComponentType implements PersonContainerInterface, ShipContainerInterface
+class ShipType extends BaseComponentType
+    implements
+    PersonContainerInterface,
+    ShipContainerInterface,
+    PlayerContainerInterface
 {
     use PersonContainerTrait;
     use ShipContainerTrait;
+    use PlayerContainerTrait;
 
     public const TYPE_ID = 'ship';
 
