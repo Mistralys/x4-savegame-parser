@@ -8,10 +8,12 @@ use DOMDocument;
 use DOMElement;
 use Mistralys\X4\SaveViewer\Parser\BaseDOMFragment;
 use Mistralys\X4\SaveViewer\Parser\ConnectionComponent;
+use Mistralys\X4\SaveViewer\Parser\Traits\PlayerContainerInterface;
 use Mistralys\X4\SaveViewer\Parser\Types\BaseComponentType;
 use Mistralys\X4\SaveViewer\Parser\Types\CelestialBodyType;
 use Mistralys\X4\SaveViewer\Parser\Types\ClusterType;
 use Mistralys\X4\SaveViewer\Parser\Types\PersonType;
+use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 use Mistralys\X4\SaveViewer\Parser\Types\RegionType;
 use Mistralys\X4\SaveViewer\Parser\Types\SectorType;
 use Mistralys\X4\SaveViewer\Parser\Types\ShipType;
@@ -392,19 +394,62 @@ class ClusterConnectionFragment extends BaseDOMFragment
 
     /**
      * @param ConnectionComponent $entry
-     * @param BaseComponentType|null $parent Can be a ship (in one of the ship's rooms, like the cockpit) or a station.
+     * @param PlayerContainerInterface $parent Can be a ship (in one of the ship's rooms, like the cockpit) or a station.
      * @return void
      */
-    private function parsePlayer(ConnectionComponent $entry, ?BaseComponentType $parent) : void
+    private function parsePlayer(ConnectionComponent $entry, PlayerContainerInterface $parent) : void
     {
-        // TODO: Parse player data
+        $player = $this->collections->player()->createPlayer($parent, $entry->connectionID, $entry->componentID)
+            ->setCode($entry->componentAttr('code'))
+            ->setName($entry->componentAttr('name'));
+
+        $parent->registerPlayer($player);
 
         // TODO: Find out all the locations a player can be stored
         // - In space (spacesuit)
         // - In a ship room (brig, etc)
-        // - In a special ship room (court or curbs)
+        // - In a special ship room (court of curbs)
         // - In a station room (HQ laboratory, etc)
         // - ...?
+
+        $inventoryNode = $this->getFirstChildByName($entry->componentNode, 'inventory');
+        if($inventoryNode !== null) {
+            $this->parsePlayerInventory($player, $inventoryNode);
+        }
+
+        $blueprintsNode = $this->getFirstChildByName($entry->componentNode, 'blueprints');
+        if($blueprintsNode !== null) {
+            $this->parsePlayerBlueprints($player, $blueprintsNode);
+        }
+    }
+
+    private function parsePlayerBlueprints(PlayerType $player, DOMElement $blueprintsNode) : void
+    {
+        foreach($blueprintsNode->childNodes as $childNode)
+        {
+            $blueprintNode = $this->checkIsElement($childNode, 'blueprint');
+
+            if($blueprintNode !== null)
+            {
+                $player->addBlueprint($blueprintNode->getAttribute('ware'));
+            }
+        }
+    }
+
+    private function parsePlayerInventory(PlayerType $player, DOMElement $inventoryNode) : void
+    {
+        foreach($inventoryNode->childNodes as $childNode)
+        {
+            $wareNode = $this->checkIsElement($childNode, 'ware');
+
+            if($wareNode !== null)
+            {
+                $player->addWare(
+                    $wareNode->getAttribute('ware'),
+                    (int)$wareNode->getAttribute('amount')
+                );
+            }
+        }
     }
 
     // endregion
