@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\Parser\Collections;
 
 use AppUtils\FileHelper\JSONFile;
 use Mistralys\X4\SaveViewer\Parser\Collections;
+use Mistralys\X4\SaveViewer\Parser\Traits\ComponentInterface;
 use Mistralys\X4\SaveViewer\Parser\Types\BaseComponentType;
 
 abstract class BaseCollection
@@ -73,7 +74,7 @@ abstract class BaseCollection
         return null;
     }
 
-    protected function addComponent(BaseComponentType $component) : void
+    protected function addComponent(ComponentInterface $component) : void
     {
         $type = $component->getTypeID();
 
