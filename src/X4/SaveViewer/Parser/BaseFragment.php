@@ -19,8 +19,8 @@ abstract class BaseFragment extends BaseXMLParser
     protected function saveJSONFragment(string $name, array $data) : void
     {
         $file = sprintf(
-            '%s/JSON/%s.json',
-            $this->getOutputPath(),
+            '%s/%s.json',
+            $this->collections->getOutputFolder(),
             $name
         );
 

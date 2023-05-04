@@ -35,7 +35,7 @@ abstract class BaseCollection
     public function getFilePath() : string
     {
         return sprintf(
-            '%s/JSON/collection-%s.json',
+            '%s/collection-%s.json',
             $this->collections->getOutputFolder(),
             $this->getCollectionID()
         );

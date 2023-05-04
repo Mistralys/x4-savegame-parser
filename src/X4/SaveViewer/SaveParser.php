@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer;
 
+use AppUtils\FileHelper\FileInfo;
+use DateTime;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\EventLogFragment;
@@ -13,17 +15,32 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
 
 class SaveParser extends BaseXMLParser
 {
-    private string $saveName;
-    private string $outputFolder;
-    private string $xmlFile;
-
-    public function __construct(string $saveName)
+    /**
+     * @param FileInfo $saveFile
+     * @param string $outputFolder
+     * @param DateTime|null $modTime Modification time of the save. Used when the
+     *         savegame was zipped, to use the time the archive file was modified
+     *         instead of the extracted XML file. Default is to use the modification
+     *         time of the specified file.
+     */
+    public function __construct(FileInfo $saveFile, string $outputFolder, ?DateTime $modTime=null)
     {
-        $this->saveName = $this->parseName($saveName);
+        if($modTime === null) {
+            $modTime = $saveFile->getModifiedDate();
+        }
 
-        $this->setSaveGameFolder(X4_SAVES_FOLDER);
+        $saveFolder = sprintf(
+            '%s/unpack-%s-%s',
+            $outputFolder,
+            $modTime->format('Ymdhis'),
+            $saveFile->getBaseName()
+        );
 
-        parent::__construct(new Collections($this->outputFolder), $this->xmlFile, $this->outputFolder);
+        parent::__construct(
+            new Collections($saveFolder.'/JSON'),
+            $saveFile->getPath(),
+            $saveFolder
+        );
     }
 
     public function getCollections() : Collections
@@ -63,16 +80,6 @@ class SaveParser extends BaseXMLParser
         $this->registerIgnore('savegame.ui');
         $this->registerIgnore('savegame.universe.uianchorhelper');
         $this->registerIgnore('savegame.universe.cameraanchor');
-    }
-
-    public function setSaveGameFolder(string $folderPath) : self
-    {
-        $folder = $folderPath;
-
-        $this->outputFolder = $folder .'/unpack_'.$this->saveName;
-        $this->xmlFile = $folder .'/'.$this->saveName.'.xml';
-
-        return $this;
     }
 
     private function parseName(string $fileName) : string

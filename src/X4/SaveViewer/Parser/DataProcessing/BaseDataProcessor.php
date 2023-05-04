@@ -33,7 +33,7 @@ abstract class BaseDataProcessor
     public function getJSONFilePath(string $fileID) : string
     {
         return sprintf(
-            '%s/JSON/data-%s.json',
+            '%s/data-%s.json',
             $this->collections->getOutputFolder(),
             $fileID
         );
