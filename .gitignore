@@ -6,4 +6,4 @@ composer.phar
 # composer.lock
 config.php
 .phpunit.result.cache
-/tests/files/unpack_*
+/tests/files/unpack*
