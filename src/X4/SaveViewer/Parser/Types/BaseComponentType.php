@@ -86,6 +86,23 @@ abstract class BaseComponentType extends ArrayDataCollection implements Componen
     }
 
     /**
+     * @param string $key
+     * @return BaseComponentType[]
+     * @throws SaveViewerException {@see Collections::ERROR_INVALID_UNIQUE_ID} or {@see Collections::ERROR_NO_COMPONENT_FOUND_BY_ID}
+     */
+    public function getComponentsByKey(string $key) : array
+    {
+        $result = array();
+        $ids = $this->getArray($key);
+
+        foreach($ids as $id) {
+            $result[] = $this->collections->requireByUniqueID($id);
+        }
+
+        return $result;
+    }
+
+    /**
      * @param ComponentInterface $component
      * @return $this
      */
@@ -94,6 +111,10 @@ abstract class BaseComponentType extends ArrayDataCollection implements Componen
         return $this->setKey(self::KEY_PARENT_COMPONENT, $component->getUniqueID());
     }
 
+    /**
+     * @return BaseComponentType|null
+     * @throws SaveViewerException {@see Collections::ERROR_INVALID_UNIQUE_ID}
+     */
     public function getParentComponent() : ?BaseComponentType
     {
         $uniqueID = $this->getKey(self::KEY_PARENT_COMPONENT);
