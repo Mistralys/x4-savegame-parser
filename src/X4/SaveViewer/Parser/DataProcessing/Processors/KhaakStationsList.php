@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Parser\DataProcessing\Processors;
 
 use Mistralys\X4\SaveViewer\Parser\DataProcessing\BaseDataProcessor;
+use Mistralys\X4\SaveViewer\Parser\Types\SectorType;
 use Mistralys\X4\SaveViewer\Parser\Types\StationType;
 
 /**
@@ -31,7 +32,6 @@ class KhaakStationsList extends BaseDataProcessor
     protected function _process() : void
     {
         $stations = $this->collections->stations()->getAll();
-        $data = array();
 
         foreach($stations as $station)
         {
@@ -55,6 +55,17 @@ class KhaakStationsList extends BaseDataProcessor
         }
 
         $sector = $station->getSector();
+        $sectorID = $sector->getUniqueID();
+
+        if(!isset($this->data[$sectorID])) {
+            $this->data[$sectorID] = array(
+                'sectorName' => $sector->getName(),
+                'sectorID' => $sector->getUniqueID(),
+                'sectorConnectionID' => $sector->getConnectionID(),
+                'khaakStations' => array(),
+                'playerAssets' => $this->resolveSectorAssets($sector)
+            );
+        }
 
         $type = 'nest';
         if(strpos($macro, 'kha_hive') !== false)
@@ -62,23 +73,18 @@ class KhaakStationsList extends BaseDataProcessor
             $type = 'hive';
         }
 
-        $this->data[] = array(
-            'type' => $type,
-            'sectorName' => $sector->getName(),
-            'sectorID' => $sector->getUniqueID(),
-            'sectorConnectionID' => $sector->getConnectionID(),
-            'playerAssets' => $this->resolveAssets($station)
+        $this->data[$sectorID]['khaakStations'][] = array(
+            'stationID' => $station->getUniqueID(),
+            'type' => $type
         );
     }
 
-    private function resolveAssets(StationType $khaakStation) : array
+    private function resolveSectorAssets(SectorType $sector) : array
     {
         $result = array(
             'ships' => array(),
             'stations' => array()
         );
-
-        $sector = $khaakStation->getSector();
 
         $stations = $sector->getPlayerStations();
         $ships = $sector->getPlayerShips();
