@@ -45,6 +45,33 @@ class ShipType extends BaseComponentType implements PersonContainerInterface, Sh
         $this->setParentComponent($parentComponent);
     }
 
+    public function getOwner() : string
+    {
+        return $this->getString(self::KEY_OWNER);
+    }
+
+    public function getLabel() : string
+    {
+        $label = $this->getCode();
+        $name = $this->getName();
+
+        if(!empty($name)) {
+            $label .= ' '.$name;
+        }
+
+        return $label;
+    }
+
+    public function getName() : string
+    {
+        return $this->getString('name');
+    }
+
+    public function getCode() : string
+    {
+        return $this->getString(self::KEY_CODE);
+    }
+
     public function getZone() : ZoneType
     {
         return $this->container->getZone();

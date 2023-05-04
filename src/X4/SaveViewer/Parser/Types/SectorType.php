@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\Parser\Types;
 
 use AppUtils\ClassHelper;
 use AppUtils\ClassHelper\BaseClassHelperException;
+use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class SectorType extends BaseComponentType
 {
@@ -13,13 +14,107 @@ class SectorType extends BaseComponentType
 
     public const KEY_ZONES = 'zones';
     public const KEY_OWNER = 'owner';
-    const KEY_NAME = 'name';
+    public const KEY_NAME = 'name';
 
     public function __construct(ClusterType $cluster, string $connectionID, string $componentID)
     {
         parent::__construct($cluster->getCollections(), $connectionID, $componentID);
 
         $this->setParentComponent($cluster);
+    }
+
+    /**
+     * @return StationType[]
+     */
+    public function getPlayerStations() : array
+    {
+        $stations = $this->getStations();
+        $result = array();
+
+        foreach($stations as $station)
+        {
+            if($station->getOwner() === 'player')
+            {
+                $result[] = $station;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return StationType[]
+     */
+    public function getStations() : array
+    {
+        $stations = $this->collections->stations()->getAll();
+        $id = $this->getUniqueID();
+        $result = array();
+
+        foreach($stations as $station)
+        {
+            if($station->getSector()->getUniqueID() === $id) {
+                $result[] = $station;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return ZoneType[]
+     * @throws SaveViewerException
+     */
+    public function getZones() : array
+    {
+        $list = $this->getComponentsByKey(self::KEY_ZONES);
+        $result = array();
+
+        foreach ($list as $item)
+        {
+            if($item instanceof ZoneType) {
+                $result[] = $item;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return ShipType[]
+     */
+    public function getPlayerShips() : array
+    {
+        $ships = $this->getShips();
+        $result = array();
+
+        foreach($ships as $ship)
+        {
+            if($ship->getOwner() === 'player') {
+                $result[] = $ship;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return ShipType[]
+     */
+    public function getShips() : array
+    {
+        $ships = $this->collections->ships()->getAll();
+        $result = array();
+        $id = $this->getUniqueID();
+
+        foreach($ships as $ship)
+        {
+            if($ship->getSector()->getUniqueID() === $id) {
+                $result[] = $ship;
+            }
+        }
+
+        return $result;
     }
 
     protected function getDefaultData() : array
@@ -123,7 +218,7 @@ class SectorType extends BaseComponentType
         'cluster_113_sector001' => 'Segaris',
         'cluster_114_sector001' => 'Gaian Prophecy',
         'cluster_18_sector001' => 'Trinity Sanctum III',
-        'cluster_425_sector001' => ' Heart of Acrimony I The Boneyard'
+        'cluster_425_sector001' => ' Heart of Acrimony I The Boneyard',
     );
 
     public function getName() : string

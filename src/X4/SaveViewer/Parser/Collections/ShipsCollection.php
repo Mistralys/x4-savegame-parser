@@ -24,4 +24,22 @@ class ShipsCollection extends BaseCollection
 
         return $ship;
     }
+
+    /**
+     * @return ShipType[]
+     */
+    public function getAll() : array
+    {
+        $entries = $this->getComponentsByType(ShipType::TYPE_ID);
+        $result = array();
+
+        foreach($entries as $entry)
+        {
+            if($entry instanceof ShipType) {
+                $result[] = $entry;
+            }
+        }
+
+        return $result;
+    }
 }

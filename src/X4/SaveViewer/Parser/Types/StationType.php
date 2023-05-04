@@ -45,6 +45,38 @@ class StationType extends BaseComponentType implements ShipContainerInterface
         return $this->getSector()->getCluster();
     }
 
+    public function getOwner() : string
+    {
+        return $this->getString(self::KEY_OWNER);
+    }
+
+    public function getMacro() : string
+    {
+        return $this->getString(self::KEY_MACRO);
+    }
+
+    public function getLabel() : string
+    {
+        $label = $this->getCode();
+        $name = $this->getName();
+
+        if(!empty($name)) {
+            $label .= ' '.$name;
+        }
+
+        return $label;
+    }
+
+    public function getName() : string
+    {
+        return $this->getString(self::KEY_NAME);
+    }
+
+    public function getCode() : string
+    {
+        return $this->getString(self::KEY_CODE);
+    }
+
     protected function getDefaultData() : array
     {
         return array(
