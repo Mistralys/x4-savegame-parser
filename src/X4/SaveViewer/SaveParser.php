@@ -10,13 +10,14 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer;
 
 use AppUtils\FileHelper\FileInfo;
-use DateTime;
+use AppUtils\FileHelper_Exception;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\EventLogFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\FactionsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\PlayerStatsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 
 /**
  * Main parser class that dispatches the extraction of the
@@ -32,31 +33,59 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
  */
 class SaveParser extends BaseXMLParser
 {
+    public const ERROR_SAVEGAME_MUST_BE_UNZIPPED = 5454654;
+
+    private SaveGameFile $saveFile;
+    private string $outputFolder;
+    private bool $createBackup = false;
+
     /**
-     * @param FileInfo $saveFile Path to the XML save file to parse.
+     * @param SaveGameFile $saveFile Path to the XML save file to parse. Must have been unzipped first via {@see SaveGameFile::unzip()}.
      * @param string $outputFolder Path the folder in which the savegame's data will be extracted into a subfolder.
-     * @param DateTime|null $modTime Modification time of the save. Used when the
-     *         savegame was zipped, to use the time the archive file was modified
-     *         instead of the extracted XML file. Default is to use the modification
-     *         time of the specified file.
+     * @throws SaveViewerException {@see self::ERROR_SAVEGAME_MUST_BE_UNZIPPED}
      */
-    public function __construct(FileInfo $saveFile, string $outputFolder, ?DateTime $modTime=null)
+
+    public static function create(SaveGameFile $saveFile, string $outputFolder) : SaveParser
     {
-        if($modTime === null) {
-            $modTime = $saveFile->getModifiedDate();
+        return new SaveParser($saveFile, $outputFolder);
+    }
+
+    /**
+     * @throws SaveViewerException
+     */
+    public function __construct(SaveGameFile $saveFile, string $outputFolder)
+    {
+        if(!$saveFile->isUnzipped())
+        {
+            throw new SaveViewerException(
+                'A savegame must be unzipped before parsing.',
+                sprintf(
+                    'Use the savegame\'s %s method to unzip it.',
+                    array(SaveGameFile::class, 'unzip')[1]
+                ),
+                self::ERROR_SAVEGAME_MUST_BE_UNZIPPED
+            );
         }
 
-        $saveFolder = sprintf(
-            '%s/unpack-%s-%s',
-            $outputFolder,
-            $modTime->format('Ymdhis'),
-            $saveFile->getBaseName()
-        );
+        $this->saveFile = $saveFile;
+        $this->outputFolder = $outputFolder;
+
+        $folder = $this->getSaveFolderPath();
 
         parent::__construct(
-            new Collections($saveFolder.'/JSON'),
-            $saveFile->getPath(),
-            $saveFolder
+            new Collections($folder.'/JSON'),
+            $saveFile->requireXMLFile()->getPath(),
+            $folder
+        );
+    }
+
+    public function getSaveFolderPath() : string
+    {
+        return sprintf(
+            '%s/unpack-%s-%s',
+            $this->outputFolder,
+            $this->saveFile->getDateModified()->format('Ymdhis'),
+            $this->saveFile->getID()
         );
     }
 
@@ -65,10 +94,58 @@ class SaveParser extends BaseXMLParser
         return $this->collections;
     }
 
-    public function unpack() : void
+    public function unpack() : self
     {
+        if($this->createBackup) {
+            $this->createBackup();
+        }
+
         $this->processFile();
         $this->postProcessFragments();
+
+        return $this;
+    }
+
+    public function setAutoBackupEnabled(bool $enabled=true) : self
+    {
+        $this->createBackup = $enabled;
+        return $this;
+    }
+
+
+    /**
+     * Creates a copy of the savegame ZIP file into the parser's
+     * output folder as a backup.
+     *
+     * NOTE: This is done automatically if the option is enabled
+     * using {@see self::setAutoBackupEnabled()}.
+     *
+     * @return $this
+     * @throws SaveViewerException
+     * @throws FileHelper_Exception
+     */
+    public function createBackup() : self
+    {
+        $zipFile = $this->saveFile->requireZipFile();
+        $targetFile = $this->getBackupFile();
+
+        if(!$targetFile->exists())
+        {
+            $zipFile->copyTo($targetFile);
+        }
+
+        return $this;
+    }
+
+    public function hasBackup() : bool
+    {
+        return $this->getBackupFile()->exists();
+    }
+
+    public function getBackupFile() : FileInfo
+    {
+        $zipFile = $this->saveFile->requireZipFile();
+        return FileInfo::factory($this->getSaveFolderPath().'/'.$zipFile->getName());
     }
 
     protected function registerActions() : void
