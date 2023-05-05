@@ -41,10 +41,10 @@ abstract class BaseXMLParser
     private string $id;
     protected Collections $collections;
 
-    public function __construct(Collections $collections, string $filePath, string $outputPath)
+    public function __construct(Collections $collections, string $xmlFilePath, string $outputPath)
     {
-        $this->id = ConvertHelper::string2shortHash($filePath);
-        $this->xmlFile = $filePath;
+        $this->id = ConvertHelper::string2shortHash($xmlFilePath);
+        $this->xmlFile = $xmlFilePath;
         $this->outputPath = $outputPath;
         $this->analysis = FileAnalysis::create($this->outputPath);
         $this->collections = $collections;
