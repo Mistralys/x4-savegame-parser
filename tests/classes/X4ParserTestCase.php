@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace X4\SaveGameParserTests\TestClasses;
 
 use AppUtils\ClassHelper;
+use Mistralys\X4\SaveViewer\Traits\DebuggableInterface;
+use Mistralys\X4\SaveViewer\Traits\DebuggableTrait;
 use PHPUnit\Framework\TestCase;
 
-abstract class X4ParserTestCase extends TestCase
+abstract class X4ParserTestCase extends TestCase implements DebuggableInterface
 {
+    use DebuggableTrait;
+
     protected string $filesFolder;
     protected string $saveGameFile;
-    private bool $logging = false;
-    private ?string $logPrefix = null;
 
     protected function setUp() : void
     {
@@ -24,42 +26,11 @@ abstract class X4ParserTestCase extends TestCase
         $this->disableLogging();
     }
 
-    public function enableLogging() : void
+    public function getLogIdentifier() : string
     {
-        $this->logging = true;
-    }
-
-    public function disableLogging() : void
-    {
-        $this->logging = false;
-    }
-
-    public function isLoggingEnabled() : bool
-    {
-        return $this->logging;
-    }
-
-    protected function log(string $message, ...$params) : void
-    {
-        if($this->logging === false) {
-            return;
-        }
-
-        if(!isset($this->logPrefix)) {
-            $this->logPrefix = sprintf(
-                'Test [%s] | ',
-                ClassHelper::getClassTypeName($this)
-            );
-        }
-
-        if(empty($params)) {
-            echo $this->logPrefix.$message.PHP_EOL;
-            return;
-        }
-
-        echo sprintf(
-            $this->logPrefix.$message.PHP_EOL,
-            ...$params
+        return sprintf(
+            'Test [%s] | ',
+            ClassHelper::getClassTypeName($this)
         );
     }
 }
