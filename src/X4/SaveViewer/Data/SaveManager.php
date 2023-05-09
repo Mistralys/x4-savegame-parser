@@ -5,45 +5,49 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Data;
 
 use AppUtils\BaseException;
-use AppUtils\FileHelper;
+use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper_Exception;
+use DirectoryIterator;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
+use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
+use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class SaveManager
 {
     public const ERROR_CANNOT_FIND_BY_NAME = 12125;
 
-    private string $sourceFolder;
-
     /**
-     * @var SaveFile[]
+     * @var BaseSaveFile[]
      */
     private array $saves = array();
+    private SaveSelector $selector;
 
     /**
+     * @param SaveSelector $selector
      * @throws FileHelper_Exception
+     * @throws SaveViewerException
      */
-    public function __construct()
+    public function __construct(SaveSelector $selector)
     {
-        $this->sourceFolder = X4_SAVES_FOLDER;
-
-        if(!file_exists($this->sourceFolder))
-        {
-            die(
-                '<p>Saves folder not found at location:</p>'.
-                '<pre>'.X4_SAVES_FOLDER.'</pre>'
-            );
-        }
+        $this->selector = $selector;
 
         $this->loadSaves();
     }
 
-    public function getSourceFolder(): string
+    public function getSavesFolder() : FolderInfo
     {
-        return $this->sourceFolder;
+        return $this->selector->getSavesFolder();
+    }
+
+    public function getStorageFolder(): FolderInfo
+    {
+        return $this->selector->getStorageFolder();
     }
 
     /**
-     * @return SaveFile[]
+     * @return BaseSaveFile[]
      */
     public function getSaves() : array
     {
@@ -53,30 +57,64 @@ class SaveManager
     /**
      * @return void
      * @throws FileHelper_Exception
+     * @throws SaveViewerException
      */
     private function loadSaves() : void
     {
-        $saves = FileHelper::createFileFinder($this->sourceFolder)
-            ->includeExtension('xml')
-            ->setPathmodeStrip()
-            ->stripExtensions()
-            ->getAll();
+        $this->loadMainSaves();
+        $this->loadArchivedSaves();
 
-        $result = array();
-
-        foreach($saves as $save) {
-            $result[] = new SaveFile($this, $save);
-        }
-
-        usort($result, static function (SaveFile $a, SaveFile $b)
+        usort($this->saves, static function (BaseSaveFile $a, BaseSaveFile $b) : int
         {
-            return $a->getDateModified() < $b->getDateModified();
+            return $b->getDateModified()->getTimestamp() - $a->getDateModified()->getTimestamp();
         });
-
-        $this->saves = $result;
     }
 
-    public function getCurrentSave() : ?SaveFile
+    private function loadMainSaves() : void
+    {
+        $mainSaves = $this->selector->getSaveGames();
+
+        foreach($mainSaves as $mainSave)
+        {
+            $this->saves[] = new MainSave($this, $mainSave);
+        }
+    }
+
+    private function loadArchivedSaves() : void
+    {
+        $storageFolder = $this->selector->getStorageFolder();
+
+        if(!$storageFolder->exists())
+        {
+            return;
+        }
+
+        $d = new DirectoryIterator($storageFolder->getPath());
+
+        foreach($d as $item)
+        {
+            if(!$item->isDir() || $item->isDot()) {
+                continue;
+            }
+
+            $zipPath = $item->getPathname().'/'.SaveGameFile::BACKUP_ARCHIVE_FILE_NAME;
+
+            if(!file_exists($zipPath))
+            {
+                continue;
+            }
+
+            $this->saves[] = new ArchivedSave(
+                $this,
+                SaveGameFile::create(
+                    $storageFolder,
+                    FileInfo::factory($zipPath)
+                )
+            );
+        }
+    }
+
+    public function getCurrentSave() : ?BaseSaveFile
     {
         if(!empty($this->saves)) {
             return $this->saves[0];
@@ -103,10 +141,10 @@ class SaveManager
 
     /**
      * @param string $saveName
-     * @return SaveFile
+     * @return BaseSaveFile
      * @throws BaseException
      */
-    public function getByName(string $saveName) : SaveFile
+    public function getByName(string $saveName) : BaseSaveFile
     {
         foreach ($this->saves as $save) {
             if($save->getName() === $saveName) {
