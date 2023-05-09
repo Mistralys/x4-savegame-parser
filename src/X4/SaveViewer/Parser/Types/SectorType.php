@@ -220,7 +220,9 @@ class SectorType extends BaseComponentType
         'cluster_18_sector001' => 'Trinity Sanctum III',
         'cluster_425_sector001' => ' Heart of Acrimony I The Boneyard',
         'cluster_06_sector002' => 'Black Hole Sun V',
-        'cluster_27_sector001' => 'The Void'
+        'cluster_27_sector001' => 'The Void',
+        'cluster_45_sector001' => 'Silent Witness',
+        'cluster_44_sector001' => 'Silent Witness XI'
     );
 
     public function getName() : string
