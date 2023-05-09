@@ -142,7 +142,8 @@ class ClusterConnectionFragment extends BaseDOMFragment
             ->setName($component->getAttribute('name'))
             ->setMacro($component->getAttribute('macro'))
             ->setOwner($component->getAttribute('owner'))
-            ->setCode($component->getAttribute('code'));
+            ->setCode($component->getAttribute('code'))
+            ->setState($component->getAttribute('state'));
 
         $connections = $this->findConnectionComponents($component);
 
