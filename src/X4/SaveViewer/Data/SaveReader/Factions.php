@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
 use AppUtils\BaseException;
-use Mistralys\X4\SaveViewer\Data\SaveFile;
+use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Parser\Tags\Tag\FactionsTag;
 
 class Factions extends Info
@@ -44,7 +44,7 @@ class Factions extends Info
      */
     private array $factions = array();
 
-    public function getURLList(SaveFile $save) : string
+    public function getURLList(BaseSaveFile $save) : string
     {
         $data = array(
             'page' => 'ViewSave',

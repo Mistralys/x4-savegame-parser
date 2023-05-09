@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
 use AppUtils\BaseException;
-use Mistralys\X4\SaveViewer\Data\SaveFile;
+use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Parser\Tags\Tag\FactionsTag;
 
 class Faction
@@ -170,7 +170,7 @@ class Faction
         );
     }
 
-    public function getURLDetails(SaveFile $file) : string
+    public function getURLDetails(BaseSaveFile $file) : string
     {
         return '?page=ViewSave&amp;saveName='.$file->getName().'&view=faction-relations&amp;faction='.$this->getName();
     }
