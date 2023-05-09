@@ -14,5 +14,16 @@ require_once 'config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-$server = new X4Server();
-$server->start();
+try
+{
+    $server = new X4Server();
+    $server->start();
+}
+catch (Throwable $e)
+{
+    die(
+        'An exception occurred. '.PHP_EOL.
+        'Message: ['.$e->getMessage().'] '.PHP_EOL.
+        'Code: ['.$e->getCode().'] '.PHP_EOL
+    );
+}
