@@ -5,42 +5,39 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Data;
 
 use AppUtils\FileHelper;
+use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\FolderInfo;
 use DateTime;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveParser;
 use Mistralys\X4\SaveViewer\UI\Pages\CreateBackup;
 use Mistralys\X4\SaveViewer\UI\Pages\UnpackSave;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 
-class SaveFile
+abstract class BaseSaveFile
 {
-    const ERROR_BACKUP_INVALID_DATA = 89601;
+    public const ERROR_BACKUP_INVALID_DATA = 89601;
 
-    const PARAM_SAVE_NAME = 'saveName';
+    public const PARAM_SAVE_NAME = 'saveName';
 
     private SaveManager $manager;
 
-    private string $saveName;
-
+    private string $saveID;
     private string $id = '';
+    private SaveGameFile $saveFile;
 
-    public function __construct(SaveManager $manager, string $saveName)
+    public function __construct(SaveManager $manager, SaveGameFile $saveFile)
     {
         $this->manager = $manager;
-        $this->saveName = $saveName;
+        $this->saveFile = $saveFile;
     }
 
     public function getID() : string
     {
         if(empty($this->id))
         {
-            $player = $this->getReader()->getPlayer();
-
-            $this->id = md5(sprintf(
-                '%s-%s',
-                $player->getGameGUID(),
-                $player->getGameCode()
-            ));
+            $this->id = 'S'.$this->saveFile->getTimestamp();
         }
 
         return $this->id;
@@ -48,32 +45,27 @@ class SaveFile
 
     public function getPath() : string
     {
-        return $this->manager->getSourceFolder().'/'.$this->getFileName();
+        return $this->saveFile->getReferenceFile()->getPath();
     }
 
     public function getFileName() : string
     {
-        return $this->saveName.'.xml';
+        return $this->saveFile->getReferenceFile()->getName();
     }
 
     public function getFileSize() : int
     {
-        return filesize($this->getPath());
+        return filesize($this->saveFile->getReferenceFile()->getPath());
     }
 
     public function getDateModified() : DateTime
     {
-        return FileHelper::getModifiedDate($this->getPath());
+        return $this->saveFile->getReferenceFile()->getModifiedDate();
     }
 
     public function getName(): string
     {
-        return $this->saveName;
-    }
-
-    public function getManager(): SaveManager
-    {
-        return $this->manager;
+        return $this->saveID;
     }
 
     public function getReader() : SaveReader
@@ -97,15 +89,17 @@ class SaveFile
         return $analysis['date'] === filemtime($this->getPath());
     }
 
+    /**
+     * @return void
+     * @deprecated
+     */
     public function unpackAndConvert() : void
     {
-        $parser = new SaveParser($this->getName());
-        $parser->unpack();
     }
 
-    public function getDataFolder() : string
+    public function getDataFolder() : FolderInfo
     {
-        return $this->manager->getSourceFolder().'/unpack_'.$this->saveName;
+        return $this->saveFile->getStorageFolder();
     }
 
     public function getJSONPath() : string
@@ -161,9 +155,9 @@ class SaveFile
         return $this->createBackup()->exists();
     }
 
-    public function createBackup() : SaveBackup
+    public function createBackup() : ArchivedSave
     {
-        return new SaveBackup($this);
+        return new ArchivedSave($this);
     }
 
     public function writeBackup() : void

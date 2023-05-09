@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\Monitor;
 
 use AppUtils\StringBuilder;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Factory;
@@ -14,7 +15,7 @@ use React\Http\Server;
 
 class X4Server
 {
-    const ERROR_NOT_COMMAND_LINE = 85201;
+    public const ERROR_NOT_COMMAND_LINE = 85201;
 
     /**
      * The amount of minutes between updates.
@@ -34,12 +35,12 @@ class X4Server
     {
         $this->requireCLI();
 
-        $this->manager = new SaveManager();
+        $this->manager = new SaveManager(SaveSelector::create(X4_SAVES_FOLDER, X4_STORAGE_FOLDER));
     }
 
     private function isCLI() : bool
     {
-        return php_sapi_name() === "cli";
+        return PHP_SAPI === "cli";
     }
 
     /**
