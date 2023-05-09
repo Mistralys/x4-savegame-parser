@@ -49,6 +49,11 @@ class KhaakStationsList extends BaseDataProcessor
     {
         $macro = $station->getMacro();
 
+        // Ignore installations that have already been wrecked
+        if($station->isWreck()) {
+            return;
+        }
+
         // Ignore the individual weapon platforms
         if(strpos($macro, 'weaponplatform') !== false) {
             return;
