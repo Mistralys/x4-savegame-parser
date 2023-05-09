@@ -26,7 +26,6 @@
   "require": {
     "mistralys/x4-core": "dev-main",
     "mistralys/version-parser": ">=1.0.0",
-    "ext-simplexml": "*",
     "ext-xmlreader": "*",
     "ext-dom": "*"
   },
