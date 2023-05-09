@@ -25,10 +25,22 @@ class SaveSelector implements DebuggableInterface
      * @var SaveGameFile[]|null
      */
     private ?array $cachedFiles = null;
+    private FolderInfo $storageFolder;
 
-    public function __construct(FolderInfo $savesFolder)
+    public function __construct(FolderInfo $savesFolder, FolderInfo $storageFolder)
     {
         $this->savesFolder = $savesFolder;
+        $this->storageFolder = $storageFolder;
+    }
+
+    public function getSavesFolder() : FolderInfo
+    {
+        return $this->savesFolder;
+    }
+
+    public function getStorageFolder() : FolderInfo
+    {
+        return $this->storageFolder;
     }
 
     public function getLogIdentifier() : string
@@ -37,13 +49,17 @@ class SaveSelector implements DebuggableInterface
     }
 
     /**
-     * @param string|FolderInfo $targetFolder
+     * @param string|FolderInfo $savesFolder
+     * @param string|FolderInfo $storageFolder
      * @return SaveSelector
      * @throws FileHelper_Exception
      */
-    public static function create($targetFolder) : SaveSelector
+    public static function create($savesFolder, $storageFolder) : SaveSelector
     {
-        return new SaveSelector(FolderInfo::factory($targetFolder));
+        return new SaveSelector(
+            FolderInfo::factory($savesFolder),
+            FolderInfo::factory($storageFolder)
+        );
     }
 
     /**
@@ -106,7 +122,11 @@ class SaveSelector implements DebuggableInterface
 
         foreach($info as $item)
         {
-            $result[] = new SaveGameFile($item['gz'], $item['xml']);
+            $result[] = new SaveGameFile(
+                $this->storageFolder,
+                $item['gz'],
+                $item['xml']
+            );
         }
 
         usort($result, static function (SaveGameFile $a, SaveGameFile $b) : int
