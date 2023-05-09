@@ -7,6 +7,10 @@ Background: I often let my game run overnight for constructions to finish, or si
 traders fill the coffers. In the morning, it was becoming a hassle to find the status information 
 that I needed in the logs, like whether I lost any of my ships to pirate attacks.
 
+> NOTE: This is currently undergoing extensive refactoring
+> to be more stable. No working releases are available at
+> this time.
+
 ## Features
 
 - Browser-based user interface
@@ -15,13 +19,13 @@ that I needed in the logs, like whether I lost any of my ships to pirate attacks
 - Faction standings 
 - Categorized log messages (reputation changes, ship losses...)
 - Convert relevant info to JSON files
-- On the PHP side, object oriented access to information
+- On the PHP side, object-oriented access to information
 - Process large savegames (1+ GB)
 
 ## Requirements
 
 - PHP 7.4+
-- Local webserver
+- ZLIB extension
 - [Composer](https://getcomposer.org)
 
 ## Install
@@ -30,17 +34,8 @@ that I needed in the logs, like whether I lost any of my ships to pirate attacks
 - Run `composer install`
 - Rename `config.dist.php` to `config.php`
 - Edit the file to enter the relevant settings
-- Extract some savegame XML files (see below)
-- Open the repository in a browser
-
-## Extract XML files
-
-By default, X4 compresses savegame files as `.gz` archives. To be able to use the
-tool, the target savegames must first be uncompressed. This can be done in two
-ways:
-
-1. Extract the XML files using a tool like [7-zip](https://7-zip.org)
-2. Turn off savegame compression in X4's game settings
+- Start the server with `php start-server.php`
+- Open the server in a browser
 
 ## Usage
 
@@ -69,14 +64,35 @@ you configured in the `config.php` file.
 
 ## Technical details
 
-After several attempts to parse the game's large XML files (1.1 GB), 
-I gave up on trying to use existing PHP libraries: performance ranged 
-from very poor to impossible. Instead, I built a very basic XML parser 
-that reads the savegame files line by line. Every line is analyzed to 
-check if it matches any of the tags that I want information from.
+After trying a number of technologies to parse the game's large XML 
+files (1+ GB), I finally settled on a mix of technologies to access 
+the relevant information. The result is a multi-tiered parsing process:
 
-A tag stack is used to keep track of where the current tag is located
-in the XML structure, so it's possible to match tags like `universe.factions.faction`,
-or tags with specific attributes, like `<component class="player">`.
+### 1) Extract XML fragments
+
+Using PHP's [XMLReader][], all the interesting parts of the XML are
+extracted, and saved as separate XML files. This works well because
+the XMLReader does not load the whole file into memory. The save parser
+also skips as many parts as possible of the XML that is not used.
+
+### 2) Parse XML fragments
+
+Now that the XML file sizes are manageable, they are read using
+PHP's [DOMDocument][] to access their information. To make the data
+easier to work with, all types (ships, stations, npcs) are collected
+in global collections (see the [collection classes][]).
+
+All this data is stored in prettified JSON files for easy access.
+
+### 3) Data processing and analysis
+
+Once all the data has been collected, the [data processing classes][]
+can use this to generate additional, specialized reports that also
+get saved as JSON data files.
 
 
+[XMLReader]:https://www.php.net/manual/en/book.xmlreader.php
+[DOMDocument]:https://www.php.net/manual/en/class.domdocument.php
+[fragment parser classes]:https://github.com/Mistralys/x4-savegame-parser/tree/main/src/X4/SaveViewer/Parser/Fragment
+[collection classes]:https://github.com/Mistralys/x4-savegame-parser/tree/main/src/X4/SaveViewer/Parser/Collections
+[data processing classes]:https://github.com/Mistralys/x4-savegame-parser/tree/main/src/X4/SaveViewer/Parser/DataProcessing
