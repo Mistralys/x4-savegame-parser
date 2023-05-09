@@ -9,9 +9,9 @@ use Mistralys\X4\SaveViewer\BaseXMLParser;
 
 abstract class BaseFragment extends BaseXMLParser
 {
-    public function __construct(Collections $collections, string $xmlFile, string $outputPath)
+    public function __construct(Collections $collections, FileAnalysis $analysis, string $xmlFile, string $outputPath)
     {
-        parent::__construct($collections, $xmlFile, $outputPath);
+        parent::__construct($collections, $analysis, $xmlFile, $outputPath);
 
         $this->processFile();
     }
