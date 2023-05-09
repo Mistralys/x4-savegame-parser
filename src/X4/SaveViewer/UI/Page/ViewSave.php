@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages;
 
-use Mistralys\X4\SaveViewer\Data\SaveFile;
+use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Backup;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Blueprints;
@@ -19,7 +19,7 @@ class ViewSave extends PageWithNav
 {
     const URL_NAME = 'ViewSave';
 
-    protected SaveFile $save;
+    protected BaseSaveFile $save;
     protected SaveReader $reader;
 
     protected function init(): void
@@ -49,14 +49,14 @@ class ViewSave extends PageWithNav
     protected function getURLParams() : array
     {
         return array(
-            SaveFile::PARAM_SAVE_NAME => $this->save->getName()
+            BaseSaveFile::PARAM_SAVE_NAME => $this->save->getName()
         );
     }
 
     /**
-     * @return SaveFile
+     * @return BaseSaveFile
      */
-    public function getSave() : SaveFile
+    public function getSave() : BaseSaveFile
     {
         return $this->save;
     }

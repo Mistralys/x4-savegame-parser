@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\UI\Pages;
 
 use AppUtils\ConvertHelper;
-use Mistralys\X4\SaveViewer\Data\SaveFile;
+use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\UI\Page;
 
 class SavesList extends Page
@@ -32,11 +32,11 @@ class SavesList extends Page
         $grid = $this->ui->createDataGrid();
 
         $grid->addColumn('name', 'Name')
-            ->useObjectValues()->fetchByMethod(array(SaveFile::class, 'getName'))
-            ->decorateWith()->linkByMethod(array(SaveFile::class, 'getURLView'));
+            ->useObjectValues()->fetchByMethod(array(BaseSaveFile::class, 'getName'))
+            ->decorateWith()->linkByMethod(array(BaseSaveFile::class, 'getURLView'));
 
         $grid->addColumn('char', 'Character')
-            ->useObjectValues()->fetchByMethod(array(SaveFile::class, 'getPlayerName'));
+            ->useObjectValues()->fetchByMethod(array(BaseSaveFile::class, 'getPlayerName'));
     }
 
     protected function _render(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages;
 
-use Mistralys\X4\SaveViewer\Data\SaveFile;
+use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\SaveParser;
 use Mistralys\X4\SaveViewer\UI\Page;
 
@@ -20,7 +20,7 @@ class UnpackSave extends Page
     protected function getURLParams() : array
     {
         return array(
-            SaveFile::PARAM_SAVE_NAME => $this->requireSave()->getName()
+            BaseSaveFile::PARAM_SAVE_NAME => $this->requireSave()->getName()
         );
     }
 
