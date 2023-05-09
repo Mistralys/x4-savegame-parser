@@ -25,14 +25,12 @@ abstract class BaseXMLParser
     private string $xmlFile;
     private string $outputPath;
     private XMLReader $xml;
-    protected FileAnalysis $analysis;
 
     private array $tagPath = array();
     private string $tagPathString = '';
 
     public const ACTION_WRITE = 'write';
     public const ACTION_IGNORE = 'ignore';
-    public const ACTION_DOM = 'dom';
 
     /**
      * @var array<string,array{action:string,params:array<string,mixed>}>
@@ -40,14 +38,16 @@ abstract class BaseXMLParser
     private array $tagActions = array();
     private string $id;
     protected Collections $collections;
+    protected FileAnalysis $analysis;
+    protected bool $stopSignal = false;
 
-    public function __construct(Collections $collections, string $xmlFilePath, string $outputPath)
+    public function __construct(Collections $collections, FileAnalysis $analysis, string $xmlFilePath, string $outputPath)
     {
         $this->id = ConvertHelper::string2shortHash($xmlFilePath);
         $this->xmlFile = $xmlFilePath;
         $this->outputPath = $outputPath;
-        $this->analysis = FileAnalysis::create($this->outputPath);
         $this->collections = $collections;
+        $this->analysis = $analysis;
 
         $this->registerActions();
     }
@@ -121,17 +121,6 @@ abstract class BaseXMLParser
         );
     }
 
-    protected function registerDOM(string $tagPath, callable $callback) : void
-    {
-        $this->registerAction(
-            $tagPath,
-            self::ACTION_DOM,
-            array(
-                'callback' => $callback
-            )
-        );
-    }
-
     public function processFile() : self
     {
         if($this->analysis->hasProcessDate($this->xmlFile)) {
@@ -156,6 +145,10 @@ abstract class BaseXMLParser
 
         while($this->xml->read())
         {
+            if($this->stopSignal === true) {
+                break;
+            }
+
             if ($this->xml->nodeType === XMLReader::ELEMENT)
             {
                 $this->appendPath();
@@ -168,26 +161,30 @@ abstract class BaseXMLParser
             }
 
             if($action === self::ACTION_IGNORE) {
-                $this->log('ProcessFile | Tag [%s] | Ignore.', $this->tagPathString);
-                $this->xml->next();
+                $this->processActionIgnore();
                 continue;
             }
 
             if($action === self::ACTION_WRITE) {
-                $this->log('ProcessFile | Tag [%s] | Write XML to file.', $this->tagPathString);
-                $this->writeFragment();
-                $this->xml->next();
-                continue;
-            }
-
-            if($action === self::ACTION_DOM) {
-                $this->DOMifyFragment($this->tagActions[$this->tagPathString]['params']['callback']);
-                $this->xml->next();
+                $this->processActionWrite();
                 continue;
             }
 
             $this->log('ProcessFile | Tag [%s] | No action configured.', $this->tagPathString);
         }
+    }
+
+    protected function processActionIgnore() : void
+    {
+        $this->log('ProcessFile | Tag [%s] | Ignore.', $this->tagPathString);
+        $this->xml->next();
+    }
+
+    protected function processActionWrite() : void
+    {
+        $this->log('ProcessFile | Tag [%s] | Write XML to file.', $this->tagPathString);
+        $this->writeFragment();
+        $this->xml->next();
     }
 
     /**
@@ -228,7 +225,7 @@ abstract class BaseXMLParser
 
                 $processors[$file] = ClassHelper::requireObjectInstanceOf(
                     BaseFragment::class,
-                    new $class($this->collections, $file, $this->outputPath)
+                    new $class($this->collections, $this->analysis, $file, $this->outputPath)
                 )
                     ->setLoggingEnabled($this->logging);
             }
@@ -257,7 +254,7 @@ abstract class BaseXMLParser
                 ->postProcessFragments();
         }
 
-        $this->analysis->save();
+        $this->analysis->registerSave();
         $this->collections->save();
 
         $processor = new DataProcessingHub($this->collections);
@@ -267,11 +264,6 @@ abstract class BaseXMLParser
     }
 
     private static int $fileCounter = 0;
-
-    private function DOMifyFragment() : void
-    {
-        $callback($this->xml->expand());
-    }
 
     private function writeFragment() : void
     {
