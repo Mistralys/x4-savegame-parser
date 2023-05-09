@@ -35,25 +35,23 @@ class SaveParser extends BaseXMLParser
 {
     public const ERROR_SAVEGAME_MUST_BE_UNZIPPED = 5454654;
 
-    private SaveGameFile $saveFile;
-    private string $outputFolder;
-    private bool $createBackup = false;
+    protected SaveGameFile $saveFile;
+    protected bool $createBackup = false;
 
     /**
      * @param SaveGameFile $saveFile Path to the XML save file to parse. Must have been unzipped first via {@see SaveGameFile::unzip()}.
-     * @param string $outputFolder Path the folder in which the savegame's data will be extracted into a subfolder.
      * @throws SaveViewerException {@see self::ERROR_SAVEGAME_MUST_BE_UNZIPPED}
      */
 
-    public static function create(SaveGameFile $saveFile, string $outputFolder) : SaveParser
+    public static function create(SaveGameFile $saveFile) : SaveParser
     {
-        return new SaveParser($saveFile, $outputFolder);
+        return new SaveParser($saveFile);
     }
 
     /**
      * @throws SaveViewerException
      */
-    public function __construct(SaveGameFile $saveFile, string $outputFolder)
+    public function __construct(SaveGameFile $saveFile)
     {
         if(!$saveFile->isUnzipped())
         {
@@ -68,24 +66,14 @@ class SaveParser extends BaseXMLParser
         }
 
         $this->saveFile = $saveFile;
-        $this->outputFolder = $outputFolder;
 
-        $folder = $this->getSaveFolderPath();
+        $folder = $this->saveFile->getStorageFolder()->getPath();
 
         parent::__construct(
             new Collections($folder.'/JSON'),
+            $saveFile->getAnalysis(),
             $saveFile->requireXMLFile()->getPath(),
             $folder
-        );
-    }
-
-    public function getSaveFolderPath() : string
-    {
-        return sprintf(
-            '%s/unpack-%s-%s',
-            $this->outputFolder,
-            $this->saveFile->getDateModified()->format('Ymdhis'),
-            $this->saveFile->getID()
         );
     }
 
@@ -144,8 +132,7 @@ class SaveParser extends BaseXMLParser
 
     public function getBackupFile() : FileInfo
     {
-        $zipFile = $this->saveFile->requireZipFile();
-        return FileInfo::factory($this->getSaveFolderPath().'/'.$zipFile->getName());
+        return $this->saveFile->getBackupFile();
     }
 
     protected function registerActions() : void

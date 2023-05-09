@@ -4,25 +4,37 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Parser\SaveSelector;
 
+use AppUtils\ConvertHelper;
 use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\FolderInfo;
+use AppUtils\FileHelper_Exception;
 use DateTime;
+use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class SaveGameFile
 {
     public const ERROR_BOTH_FILES_EMPTY = 6678001;
-    public const ERROR_CANNOT_GET_MODIFIED_DATE = 6678002;
     public const ERROR_XML_FILE_NOT_AVAILABLE = 6678003;
     public const ERROR_ZIP_FILE_NOT_AVAILABLE = 6678004;
+    public const BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
 
     private ?FileInfo $zipFile;
     private ?FileInfo $xmlFile;
     private FileInfo $referenceFile;
+    private FolderInfo $outputFolder;
+    private FileAnalysis $analysis;
 
-    public function __construct(?FileInfo $zipFile, ?FileInfo $xmlFile)
+    public static function create($storageFolder, ?FileInfo $zipFile=null, ?FileInfo $xmlFile=null) : SaveGameFile
+    {
+        return new self(FolderInfo::factory($storageFolder), $zipFile, $xmlFile);
+    }
+
+    public function __construct(FolderInfo $outputFolder, ?FileInfo $zipFile, ?FileInfo $xmlFile)
     {
         $this->zipFile = $zipFile;
         $this->xmlFile = $xmlFile;
+        $this->outputFolder = $outputFolder;
 
         if(isset($this->zipFile)) {
             $this->referenceFile = $this->zipFile;
@@ -35,13 +47,46 @@ class SaveGameFile
                 self::ERROR_BOTH_FILES_EMPTY
             );
         }
+
+        $this->analysis = FileAnalysis::createAnalysis($this);
+    }
+
+    public function getBackupFile() : FileInfo
+    {
+        return FileInfo::factory(sprintf(
+            '%s/%s',
+            $this->getStorageFolder(),
+            self::BACKUP_ARCHIVE_FILE_NAME
+        ));
+    }
+
+    public function getID() : string
+    {
+        return $this->analysis->getSaveID();
+    }
+
+    /**
+     * The storage folder for this savegame.
+     *
+     * @return FolderInfo
+     * @throws SaveViewerException
+     * @throws FileHelper_Exception
+     */
+    public function getStorageFolder() : FolderInfo
+    {
+        return FolderInfo::factory(sprintf(
+            '%s/unpack-%s-%s',
+            $this->outputFolder,
+            $this->getDateModified()->format('Ymdhis'),
+            $this->getBaseName()
+        ));
     }
 
     /**
      * File name without extension, e.g. "quicksave".
      * @return string
      */
-    public function getID() : string
+    public function getBaseName() : string
     {
         return str_replace(
             array('.xml.gz', '.xml'),
@@ -61,19 +106,11 @@ class SaveGameFile
 
     public function getDateModified() : DateTime
     {
-        $date = $this->referenceFile->getModifiedDate();
-        if($date !== null) {
-            return $date;
+        if(!isset($this->analysis)) {
+            return $this->referenceFile->getModifiedDate();
         }
 
-        throw new SaveViewerException(
-            'Cannot get modified date from the savegame file.',
-            sprintf(
-                'Affected file: [%s].',
-                $this->referenceFile->getPath()
-            ),
-            self::ERROR_CANNOT_GET_MODIFIED_DATE
-        );
+        return $this->analysis->getDateModified();
     }
 
     public function getTimestamp() : int
@@ -158,5 +195,15 @@ class SaveGameFile
     private function log(string $message, ...$params) : void
     {
 
+    }
+
+    public function getReferenceFile() : FileInfo
+    {
+        return $this->referenceFile;
+    }
+
+    public function getAnalysis() : FileAnalysis
+    {
+        return $this->analysis;
     }
 }
