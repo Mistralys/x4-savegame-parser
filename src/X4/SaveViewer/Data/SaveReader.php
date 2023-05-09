@@ -14,9 +14,9 @@ use Mistralys\X4\SaveViewer\Data\SaveReader\Statistics;
 
 class SaveReader
 {
-    private SaveFile $saveFile;
+    private BaseSaveFile $saveFile;
 
-    public function __construct(SaveFile $saveFile)
+    public function __construct(BaseSaveFile $saveFile)
     {
         $this->saveFile = $saveFile;
     }
