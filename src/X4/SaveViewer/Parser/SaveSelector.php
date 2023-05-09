@@ -17,7 +17,8 @@ class SaveSelector implements DebuggableInterface
 {
     use DebuggableTrait;
 
-    public const ERROR_MOST_RECENT_FILE_NOT_FOUND = 100001;
+    public const ERROR_MOST_RECENT_FILE_NOT_FOUND = 136001;
+    public const ERROR_SAVEGAME_NOT_FOUND = 136002;
 
     private FolderInfo $savesFolder;
 
@@ -177,5 +178,49 @@ class SaveSelector implements DebuggableInterface
         $this->log('Found [%s] savegame files.', count($list));
 
         return $list;
+    }
+
+    /**
+     * @param string|FileInfo $saveGameFile
+     * @return SaveGameFile
+     */
+    public function getSaveGameByName($saveGameFile) : SaveGameFile
+    {
+        $saves = $this->getSaveGames();
+        $name = FileInfo::factory($saveGameFile)->getName();
+
+        foreach($saves as $save)
+        {
+            if($save->getName() === $name) {
+                return $name;
+            }
+        }
+
+        throw new SaveViewerException(
+            'Cannot find savegame by name.',
+            sprintf(
+                'The savegame [%s] was not found. The available saves are: '.PHP_EOL.
+                '- %s',
+                $name,
+                implode(PHP_EOL.'- ', $this->getSaveNames())
+            ),
+            self::ERROR_SAVEGAME_NOT_FOUND
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSaveNames() : array
+    {
+        $names = array();
+        $saves = $this->getSaveGames();
+
+        foreach($saves as $save)
+        {
+            $names[] = $save->getName();
+        }
+
+        return $names;
     }
 }
