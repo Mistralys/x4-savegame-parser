@@ -18,6 +18,10 @@ class StationType extends BaseComponentType implements ShipContainerInterface
     public const KEY_CODE = 'code';
     public const KEY_CLASS = 'class';
     public const KEY_NAME = 'name';
+    public const KEY_STATE = 'state';
+
+    public const STATE_NORMAL = 'normal';
+    public const STATE_WRECK = 'wreck';
 
     private ZoneType $zone;
 
@@ -75,6 +79,25 @@ class StationType extends BaseComponentType implements ShipContainerInterface
     public function getCode() : string
     {
         return $this->getString(self::KEY_CODE);
+    }
+
+    public function setState(string $state) : self
+    {
+        if(empty($state)) {
+            $state = self::STATE_NORMAL;
+        }
+
+        return $this->setKey(self::KEY_STATE, $state);
+    }
+
+    public function getState() : string
+    {
+        return $this->getString(self::KEY_STATE);
+    }
+
+    public function isWreck() : bool
+    {
+        return $this->getState() === self::STATE_WRECK;
     }
 
     protected function getDefaultData() : array
