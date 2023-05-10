@@ -4,65 +4,27 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
+use AppUtils\ArrayDataCollection;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
+use Mistralys\X4\SaveViewer\Parser\Collections;
 
-abstract class Info
+abstract class Info extends ArrayDataCollection
 {
     protected SaveReader $reader;
-
-    protected array $data = array();
-    private int $startAt;
-    private int $endAt;
+    protected Collections $collections;
 
     public function __construct(SaveReader $reader)
     {
-        $this->reader = $reader;
+        parent::__construct();
 
-        $name = $this->getAutoDataName();
-        if(!empty($name))
-        {
-            $this->autoLoad($name);
-        }
+        $this->reader = $reader;
+        $this->collections = $reader->getCollections();
 
         $this->init();
-    }
-
-    protected function autoLoad(string $dataID) : void
-    {
-        if(!$this->reader->dataExists($dataID))
-        {
-            return;
-        }
-
-        $data = $this->reader->getRawData($dataID);
-
-        $this->startAt = (int)$data['startAt'];
-        $this->endAt = (int)$data['endAt'];
-        $this->data = $data['data'];
     }
 
     protected function init() : void
     {
 
-    }
-
-    abstract protected function getAutoDataName() : string;
-
-    protected function getStringKey(string $name) : string
-    {
-        if(isset($this->data[$name])) {
-            return strval($this->data[$name]);
-        }
-
-        return '';
-    }
-
-    protected function getIntKey(string $name) : int
-    {
-        if(isset($this->data[$name])) {
-            return intval($this->data[$name]);
-        }
-
-        return 0;
     }
 }
