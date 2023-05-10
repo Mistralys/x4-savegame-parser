@@ -10,15 +10,34 @@ use Mistralys\X4\SaveViewer\Data\SaveReader\Factions;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Inventory;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 use Mistralys\X4\SaveViewer\Data\SaveReader\PlayerInfo;
+use Mistralys\X4\SaveViewer\Data\SaveReader\SaveInfo;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Statistics;
+use Mistralys\X4\SaveViewer\Parser\Collections;
 
 class SaveReader
 {
     private BaseSaveFile $saveFile;
+    protected Collections $collections;
 
     public function __construct(BaseSaveFile $saveFile)
     {
         $this->saveFile = $saveFile;
+        $this->collections = new Collections($saveFile->getStorageFolder()->getPath());
+    }
+
+    public function getSaveFile() : BaseSaveFile
+    {
+        return $this->saveFile;
+    }
+
+    public function getCollections() : Collections
+    {
+        return $this->collections;
+    }
+
+    public function getSaveInfo() : SaveInfo
+    {
+        return new SaveInfo($this);
     }
 
     public function getPlayer() : PlayerInfo
@@ -63,7 +82,7 @@ class SaveReader
 
     public function dataExists(string $dataID) : bool
     {
-        return file_exists($this->getDataPath($dataID));
+        return false;
     }
 
     public function getDataPath(string $dataID) : string
