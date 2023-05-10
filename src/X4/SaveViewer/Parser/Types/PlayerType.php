@@ -8,13 +8,18 @@ class PlayerType extends BaseComponentType
 {
     public const TYPE_ID = 'player';
 
+    public const KEY_NAME = 'name';
+    public const KEY_CODE = 'code';
+    public const KEY_WARES = 'wares';
+    public const KEY_BLUEPRINTS = 'blueprints';
+
     protected function getDefaultData() : array
     {
         return array(
-            'name' => '',
-            'code' => '',
-            'wares' => array(),
-            'blueprints' => array()
+            self::KEY_NAME => '',
+            self::KEY_CODE => '',
+            self::KEY_WARES => array(),
+            self::KEY_BLUEPRINTS => array()
         );
     }
 
@@ -25,10 +30,10 @@ class PlayerType extends BaseComponentType
 
     public function addBlueprint(string $blueprintID) : self
     {
-        $list = $this->getArray('blueprints');
+        $list = $this->getArray(self::KEY_BLUEPRINTS);
         if(!in_array($blueprintID, $list, true)) {
             $list[] = $blueprintID;
-            $this->setKey('blueprints', $list);
+            $this->setKey(self::KEY_BLUEPRINTS, $list);
         }
 
         return $this;
@@ -40,19 +45,19 @@ class PlayerType extends BaseComponentType
             $amount = 1;
         }
 
-        $wares = $this->getArray('wares');
+        $wares = $this->getArray(self::KEY_WARES);
         $wares[$wareID] = $amount;
 
-        return $this->setKey('wares', $wares);
+        return $this->setKey(self::KEY_WARES, $wares);
     }
 
     public function setCode(string $code) : self
     {
-        return $this->setKey('code', $code);
+        return $this->setKey(self::KEY_CODE, $code);
     }
 
     public function setName(string $name) : self
     {
-        return $this->setKey('name', $name);
+        return $this->setKey(self::KEY_NAME, $name);
     }
 }
