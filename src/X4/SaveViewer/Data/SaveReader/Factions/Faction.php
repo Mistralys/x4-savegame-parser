@@ -172,6 +172,6 @@ class Faction
 
     public function getURLDetails(BaseSaveFile $file) : string
     {
-        return '?page=ViewSave&amp;saveName='.$file->getName().'&view=faction-relations&amp;faction='.$this->getName();
+        return '?page=ViewSave&amp;saveName='.$file->getSaveName().'&view=faction-relations&amp;faction='.$this->getName();
     }
 }
