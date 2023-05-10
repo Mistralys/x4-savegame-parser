@@ -38,6 +38,9 @@ class Collections
      */
     private array $collections = array();
 
+    /**
+     * @param string $outputFolder The savegame's data storage folder.
+     */
     public function __construct(string $outputFolder)
     {
         $this->outputFolder = $outputFolder;
