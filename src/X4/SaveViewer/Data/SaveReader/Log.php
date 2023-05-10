@@ -16,11 +16,6 @@ class Log extends Info
      */
     private array $entries = array();
 
-    protected function getAutoDataName(): string
-    {
-        return '';
-    }
-
     public function getDestroyed() : Destroyed
     {
         return new Destroyed($this);
@@ -55,7 +50,6 @@ class Log extends Info
             'date' => (new Microtime())->getMySQLDate()
         ));
 
-        $this->autoLoad(LogTag::SAVE_NAME);
         $this->createEntries();
         $this->writeDataFiles();
     }
