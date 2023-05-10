@@ -27,6 +27,19 @@ use Mistralys\X4\SaveViewer\Parser\Types\StationType;
  */
 class KhaakStationsList extends BaseDataProcessor
 {
+    public const FILE_ID = 'khaak-stations';
+    const KEY_SECTOR_NAME = 'sectorName';
+    const KEY_SECTOR_ID = 'sectorID';
+    const KEY_SECTOR_CONNECTION_ID = 'sectorConnectionID';
+    const KEY_STATIONS = 'khaakStations';
+    const KEY_PLAYER_ASSETS = 'playerAssets';
+    const TYPE_NEST = 'nest';
+    const TYPE_HIVE = 'hive';
+    const KEY_STATION_ID = 'stationID';
+    const KEY_STATION_TYPE = 'type';
+    const KEY_PLAYER_SHIPS = 'ships';
+    const KEY_PLAYER_STATIONS = 'stations';
+
     private array $data = array();
 
     protected function _process() : void
@@ -42,7 +55,7 @@ class KhaakStationsList extends BaseDataProcessor
             $this->processStation($station);
         }
 
-        $this->saveAsJSON($this->data, 'khaak-stations');
+        $this->saveAsJSON($this->data, self::FILE_ID);
     }
 
     private function processStation(StationType $station) : void
@@ -64,31 +77,31 @@ class KhaakStationsList extends BaseDataProcessor
 
         if(!isset($this->data[$sectorID])) {
             $this->data[$sectorID] = array(
-                'sectorName' => $sector->getName(),
-                'sectorID' => $sector->getUniqueID(),
-                'sectorConnectionID' => $sector->getConnectionID(),
-                'khaakStations' => array(),
-                'playerAssets' => $this->resolveSectorAssets($sector)
+                self::KEY_SECTOR_NAME => $sector->getName(),
+                self::KEY_SECTOR_ID => $sector->getUniqueID(),
+                self::KEY_SECTOR_CONNECTION_ID => $sector->getConnectionID(),
+                self::KEY_STATIONS => array(),
+                self::KEY_PLAYER_ASSETS => $this->resolveSectorAssets($sector)
             );
         }
 
-        $type = 'nest';
+        $type = self::TYPE_NEST;
         if(strpos($macro, 'kha_hive') !== false)
         {
-            $type = 'hive';
+            $type = self::TYPE_HIVE;
         }
 
-        $this->data[$sectorID]['khaakStations'][] = array(
-            'stationID' => $station->getUniqueID(),
-            'type' => $type
+        $this->data[$sectorID][self::KEY_STATIONS][] = array(
+            self::KEY_STATION_ID => $station->getUniqueID(),
+            self::KEY_STATION_TYPE => $type
         );
     }
 
     private function resolveSectorAssets(SectorType $sector) : array
     {
         $result = array(
-            'ships' => array(),
-            'stations' => array()
+            self::KEY_PLAYER_SHIPS => array(),
+            self::KEY_PLAYER_STATIONS => array()
         );
 
         $stations = $sector->getPlayerStations();
@@ -96,14 +109,14 @@ class KhaakStationsList extends BaseDataProcessor
 
         foreach($stations as $playerStation)
         {
-            $result['stations'][] = array(
+            $result[self::KEY_PLAYER_STATIONS][] = array(
                 'id' => $playerStation->getUniqueID(),
                 'name' => $playerStation->getLabel()
             );
         }
 
         foreach($ships as $ship) {
-            $result['ships'][] = array(
+            $result[self::KEY_PLAYER_SHIPS][] = array(
                 'id' => $ship->getUniqueID(),
                 'name' => $ship->getLabel(),
                 'size' => $ship->getSize()
