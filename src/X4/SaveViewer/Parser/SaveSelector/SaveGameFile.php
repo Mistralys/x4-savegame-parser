@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Parser\SaveSelector;
 
+use AppUtils\BaseException;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper_Exception;
 use DateTime;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\SaveViewerException;
+use function AppUtils\parseVariable;
 
 class SaveGameFile
 {
-    public const ERROR_BOTH_FILES_EMPTY = 6678001;
-    public const ERROR_XML_FILE_NOT_AVAILABLE = 6678003;
-    public const ERROR_ZIP_FILE_NOT_AVAILABLE = 6678004;
+    public const ERROR_BOTH_FILES_EMPTY = 136401;
+    public const ERROR_XML_FILE_NOT_AVAILABLE = 136402;
+    public const ERROR_ZIP_FILE_NOT_AVAILABLE = 136403;
+    public const ERROR_CANNOT_ACCESS_STORAGE_FOLDER = 136404;
+
     public const BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
 
     private ?FileInfo $zipFile;
@@ -25,11 +30,38 @@ class SaveGameFile
     private FolderInfo $outputFolder;
     private FileAnalysis $analysis;
 
+    /**
+     * @param FolderInfo|string $storageFolder
+     * @param FileInfo|null $zipFile
+     * @param FileInfo|null $xmlFile
+     * @return SaveGameFile
+     * @throws SaveViewerException
+     */
     public static function create($storageFolder, ?FileInfo $zipFile=null, ?FileInfo $xmlFile=null) : SaveGameFile
     {
-        return new self(FolderInfo::factory($storageFolder), $zipFile, $xmlFile);
+        try
+        {
+            $storage = FolderInfo::factory($storageFolder);
+        }
+        catch (FileHelper_Exception $e)
+        {
+            throw new SaveViewerException(
+                'Cannot access the storage folder.',
+                '',
+                self::ERROR_CANNOT_ACCESS_STORAGE_FOLDER,
+                $e
+            );
+        }
+
+        return new self($storage, $zipFile, $xmlFile);
     }
 
+    /**
+     * @param FolderInfo $outputFolder
+     * @param FileInfo|null $zipFile
+     * @param FileInfo|null $xmlFile
+     * @throws SaveViewerException
+     */
     public function __construct(FolderInfo $outputFolder, ?FileInfo $zipFile, ?FileInfo $xmlFile)
     {
         $this->zipFile = $zipFile;
@@ -48,7 +80,7 @@ class SaveGameFile
             );
         }
 
-        $this->analysis = FileAnalysis::createAnalysis($this);
+        $this->analysis = FileAnalysis::createFromSaveFile($this);
     }
 
     public function getBackupFile() : FileInfo
@@ -205,5 +237,10 @@ class SaveGameFile
     public function getAnalysis() : FileAnalysis
     {
         return $this->analysis;
+    }
+
+    public function isTempFile() : bool
+    {
+        return $this->getBaseName() === SaveSelector::TEMP_SAVE_NAME;
     }
 }
