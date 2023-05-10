@@ -1,72 +1,93 @@
-# X4 Savegame parser
+# X4 Savegame manager
 
-Savegame parser for X4: Foundations. Convert relevant parts of the XML files to quickly access 
-useful game information.
-
-Background: I often let my game run overnight for constructions to finish, or simply to let my 
-traders fill the coffers. In the morning, it was becoming a hassle to find the status information 
-that I needed in the logs, like whether I lost any of my ships to pirate attacks.
+Savegame manager for X4: Foundations. Used to automatically back up your savegames,
+and to extract interesting information from them.
 
 > NOTE: This is currently undergoing extensive refactoring
-> to be more stable. No working releases are available at
-> this time.
+> to be more stable. 
 
 ## Features
 
-- Browser-based user interface
-- Blueprints list
-- Faction relations
-- Faction standings 
-- Categorized log messages (reputation changes, ship losses...)
-- Convert relevant info to JSON files
-- On the PHP side, object-oriented access to information
+- Savegame folder monitoring and auto-backup
+- Extract useful information
 - Process large savegames (1+ GB)
+- Browser-based user interface
+  - Blueprints list
+  - Faction relations
+  - Faction standings 
+  - Categorized log messages (reputation changes, ship losses...)
+- Storing information in JSON files
+- On the PHP side, object-oriented access to information
 
 ## Requirements
 
 - PHP 7.4+
-- ZLIB extension
+  - ZLIB extension
+  - DOM extension
+  - XMLReader extension
 - [Composer](https://getcomposer.org)
 
-## Install
 
-- Clone the repository somewhere in the webserver document root
-- Run `composer install`
-- Rename `config.dist.php` to `config.php`
-- Edit the file to enter the relevant settings
-- Start the server with `php start-server.php`
-- Open the server in a browser
+## How does it work?
 
-## Usage
+There are two tools available, which can be used together:
 
-The UI lists all available savegames with the `.xml` extension; the `.gz` files are ignored. 
+- **The savegame folder monitor**   
+  Detects new savegames. Extracts information from them,
+  and creates a backup.
+- **The manager UI**  
+  Displays all savegames and available backups. Allows 
+  easy access to all information about each save.
 
-## Automatic updating and alerts
+## Installing
 
-### Introduction
+1. Clone the repository somewhere.
+2. Run `composer install`
+3. Rename `config.dist.php` to `config.php`
+4. Edit `config.php` to adjust the settings
 
-The bundled server can automate the unpacking of the savegames: it runs in the
-background, and periodically checks the savegames for changes. Modified saves
-are unpacked automatically.
+## Quick start
 
-Additionally, the server can display alerts when there are new ship losses.
+1. Open a terminal in the project folder.
+2. Run `php run-ui.php`.
+3. You should see a message that the server is running.
+4. Note the server URL shown.
+5. Open a web browser, and go to the URL.
 
-### Running the server
+You should now see the manager UI and a list of savegames. 
+The usage should be pretty self-explanatory from here - most
+UI elements will have tooltips to explain their function.
 
-Open the command line and execute this to start the server:
+## Advanced usage
 
+### Running the savegame monitor
+
+The monitor runs in the background, and **observes the X4 savegame folder**.
+When a new savegame is written to disk, it is **automatically unpacked and
+backed up** to the storage folder to access its information in the UI.
+
+This tool is especially useful if you leave the game running unattended. If
+something bad happens ingame, it is easy to go back to a previous save - not
+limited to the amount of autosaves the game has.
+
+Simply open a terminal in the project folder, and start the monitor with:
+
+```shell
+php ./run-monitor.php
 ```
-php start-server.php
-```
 
-To access the server's output, point your browser to the local server
-you configured in the `config.php` file.
+The monitor will periodically display a status message in the terminal to
+explain what it's doing. If a new savegame is detected, it will say so
+and unpack it as well as create a backup.
 
-## Technical details
+If you leave your game running unattended with autosave on, each new
+autosave will automatically be processed as well.
+
+## The technology corner
 
 After trying a number of technologies to parse the game's large XML 
-files (1+ GB), I finally settled on a mix of technologies to access 
-the relevant information. The result is a multi-tiered parsing process:
+files (1+ GB), I eventually settled on a mix of tools to access the 
+relevant information. The result is a multi-tiered parsing process:
 
 ### 1) Extract XML fragments
 
