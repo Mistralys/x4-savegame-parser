@@ -6,7 +6,10 @@ namespace Mistralys\X4\SaveViewer\Parser;
 
 use AppUtils\ArrayDataCollection;
 use AppUtils\ConvertHelper;
+use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper\JSONFile;
+use AppUtils\FileHelper_Exception;
 use AppUtils\Microtime;
 use DateTime;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
@@ -16,21 +19,23 @@ class FileAnalysis extends ArrayDataCollection
 {
     public const ERROR_CANNOT_GET_MODIFIED_DATE = 66756002;
 
+    public const ANALYSIS_FILE_NAME = 'analysis.json';
     public const KEY_PROCESS_DATE = 'process-dates';
     public const KEY_SAVE_DATE = 'save-date';
     public const KEY_SAVE_ID = 'save-id';
+    public const KEY_SAVE_NAME = 'save-name';
 
-    /**
-     * @var array<string,FileAnalysis>
-     */
-    private static array $files = array();
     private JSONFile $storageFile;
-    private SaveGameFile $saveFile;
+    private string $saveName;
+    private DateTime $modifiedDate;
+    private FolderInfo $storageFolder;
 
-    private function __construct(SaveGameFile $file)
+    private function __construct(FolderInfo $storageFolder, DateTime $modifiedDate, string $saveName)
     {
-        $this->saveFile = $file;
-        $this->storageFile = JSONFile::factory($file->getStorageFolder().'/analysis.json');
+        $this->storageFolder = $storageFolder;
+        $this->storageFile = JSONFile::factory($storageFolder->getPath().'/'.self::ANALYSIS_FILE_NAME);
+        $this->modifiedDate = $modifiedDate;
+        $this->saveName = $saveName;
 
         parent::__construct();
 
@@ -39,9 +44,40 @@ class FileAnalysis extends ArrayDataCollection
         }
     }
 
-    public static function createAnalysis(SaveGameFile $file) : FileAnalysis
+    public function getStorageFolder() : FolderInfo
     {
-        return new FileAnalysis($file);
+        return $this->storageFolder;
+    }
+
+    public static function createFromSaveFile(SaveGameFile $file) : FileAnalysis
+    {
+        return new FileAnalysis(
+            $file->getStorageFolder(),
+            $file->getReferenceFile()->getModifiedDate(),
+            $file->getBaseName()
+        );
+    }
+
+    /**
+     * @param string|FolderInfo $analysisFile
+     * @return FileAnalysis
+     * @throws FileHelper_Exception
+     */
+    public static function createFromDataFile($analysisFile) : FileAnalysis
+    {
+        $file = FileInfo::factory($analysisFile);
+        $folder = FolderInfo::factory($file->getFolderPath());
+
+        $parts = explode('-', $folder->getName());
+        array_shift($parts); // remove "unpack"
+        $date = DateTime::createFromFormat('YmdHis', array_shift($parts));
+        $baseName = array_shift($parts);
+
+        return new FileAnalysis(
+            $folder,
+            $date,
+            $baseName
+        );
     }
 
     public function exists() : bool
@@ -78,28 +114,36 @@ class FileAnalysis extends ArrayDataCollection
             return $this;
         }
 
+        $this->setKey(self::KEY_SAVE_NAME, $this->saveName);
         $this->setKey(self::KEY_SAVE_DATE, $this->getReferenceDateModified()->format('Y-m-d H:i:s'));
-        $this->setKey(self::KEY_SAVE_ID, $this->getReferenceSaveID());
+        $this->setKey(self::KEY_SAVE_ID, $this->getSaveID());
 
         return $this->save();
     }
 
     public function getSaveID() : string
     {
-        if($this->hasSaveID())
-        {
-            return $this->getString(self::KEY_SAVE_ID);
-        }
+        return ConvertHelper::string2shortHash(sprintf(
+            'X4Save-%s-%s',
+            $this->modifiedDate->getTimestamp(),
+            $this->saveName
+        ));
+    }
 
-        return $this->getReferenceSaveID();
+    /**
+     * @return string The name without extension, e.g. <code>quicksave</code>
+     */
+    public function getSaveName() : string
+    {
+        return $this->saveName;
     }
 
     private function getReferenceSaveID() : string
     {
         return ConvertHelper::string2shortHash(sprintf(
             'X4Save-%s-%s',
-            $this->getReferenceDateModified()->getTimestamp(),
-            $this->saveFile->getBaseName()
+            $this->modifiedDate->getTimestamp(),
+            $this->saveName
         ));
     }
 
@@ -115,19 +159,7 @@ class FileAnalysis extends ArrayDataCollection
 
     private function getReferenceDateModified() : DateTime
     {
-        $date = $this->saveFile->getReferenceFile()->getModifiedDate();
-        if($date !== null) {
-            return $date;
-        }
-
-        throw new SaveViewerException(
-            'Cannot get modified date from the savegame file.',
-            sprintf(
-                'Affected file: [%s].',
-                $this->saveFile->getReferenceFile()->getPath()
-            ),
-            self::ERROR_CANNOT_GET_MODIFIED_DATE
-        );
+        return $this->modifiedDate;
     }
 
     public function hasSaveID() : bool
