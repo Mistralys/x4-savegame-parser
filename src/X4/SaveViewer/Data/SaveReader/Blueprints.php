@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
 use Mistralys\X4\SaveViewer\Data\SaveReader\Blueprints\BlueprintCategory;
 use Mistralys\X4\SaveViewer\Parser\Tags\Tag\PlayerComponentTag;
+use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 
 class Blueprints extends Info
 {
@@ -50,15 +51,10 @@ class Blueprints extends Info
      */
     private array $categories = array();
 
-
-    protected function getAutoDataName(): string
-    {
-        return PlayerComponentTag::SAVE_NAME;
-    }
-
     protected function init() : void
     {
-        $blueprintIDs = $this->data[PlayerComponentTag::KEY_BLUEPRINTS];
+        $data = $this->collections->player()->loadData();
+        $blueprintIDs = $data[PlayerType::KEY_BLUEPRINTS];
 
         foreach($blueprintIDs as $blueprintID)
         {
