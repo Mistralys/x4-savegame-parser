@@ -24,4 +24,15 @@ class PlayerCollection extends BaseCollection
 
         return $player;
     }
+
+    public function loadData() : array
+    {
+        $data = parent::loadData();
+
+        if(!empty($data[PlayerType::TYPE_ID])) {
+            return array_shift($data[PlayerType::TYPE_ID]);
+        }
+
+        return array();
+    }
 }
