@@ -11,6 +11,7 @@ use Mistralys\X4\UI\Button;
 use Mistralys\X4\UI\Icon;
 use Mistralys\X4\UserInterface\DataGrid\DataGrid;
 use function AppLocalize\pt;use function AppLocalize\t;
+use function AppUtils\sb;
 
 class SavesList extends Page
 {
@@ -58,7 +59,7 @@ class SavesList extends Page
                 $saveInfo = $reader->getSaveInfo();
                 $date = $saveInfo->getSaveDate();
 
-                $row->setValue($cName, $saveInfo->getSaveName());
+                $row->setValue($cName, sb()->link($saveInfo->getSaveName(), $save->getURLView()));
                 $row->setValue($cChar, $saveInfo->getPlayerName());
                 $row->setValue($cMoney, $saveInfo->getMoneyPretty());
             }
