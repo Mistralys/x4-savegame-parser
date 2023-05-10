@@ -4,184 +4,260 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Monitor;
 
-use AppUtils\StringBuilder;
-use Mistralys\X4\SaveViewer\Data\SaveManager;
-use Mistralys\X4\SaveViewer\Parser\SaveSelector;
-use Mistralys\X4\SaveViewer\SaveViewerException;
+use AppUtils\ConvertHelper_Exception;
+use AppUtils\FileHelper;
+use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper_Exception;
+use Mistralys\X4\SaveViewer\SaveViewer;
+use Mistralys\X4\UI\UserInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use React\EventLoop\Factory;
+use React\Http\HttpServer;
 use React\Http\Message\Response;
-use React\Http\Server;
+use React\Socket\SocketServer;
+use Throwable;
+use function AppUtils\parseThrowable;
+use function AppUtils\parseURL;
 
-class X4Server
+class X4Server extends BaseMonitor
 {
-    public const ERROR_NOT_COMMAND_LINE = 85201;
+    public const ALLOWED_EXTENSIONS = array(
+        'js',
+        'html',
+        'css',
+        'md',
+        'txt',
+        'json',
+        'map',
 
-    /**
-     * The amount of minutes between updates.
-     * @var int
-     */
-    private int $tick = 1;
+        // Fonts
+        'otf',
+        'woff',
+        'woff2',
+        'eot',
+        'ttf',
 
-    private int $tickCounter = 1;
+        // Images
+        'svg',
+        'jpg',
+        'png',
+        'ico'
+    );
 
-    private SaveManager $manager;
+    private UserInterface $ui;
+    private SaveViewer $app;
+    private int $requestCounter = 0;
 
-    /**
-     * @throws SaveViewerException
-     * @see X4Server::ERROR_NOT_COMMAND_LINE
-     */
-    public function __construct()
+    protected function setup() : void
     {
-        $this->requireCLI();
+        $this->app = new SaveViewer();
+        $this->ui = new UserInterface($this->app, 'http://'.X4_SERVER_HOST.':'.X4_SERVER_PORT);
 
-        $this->manager = new SaveManager(SaveSelector::create(X4_SAVES_FOLDER, X4_STORAGE_FOLDER));
-    }
+        $server = new HttpServer($this->loop, array($this, 'handleRequest'));
 
-    private function isCLI() : bool
-    {
-        return PHP_SAPI === "cli";
-    }
-
-    /**
-     * @throws SaveViewerException
-     */
-    private function requireCLI() : void
-    {
-        if($this->isCLI()) {
-            return;
-        }
-
-        throw new SaveViewerException(
-            'The server can only be run from the command line.',
-            '',
-            self::ERROR_NOT_COMMAND_LINE
-        );
-    }
-
-    /**
-     * Start the server listening.
-     */
-    public function start() : void
-    {
-        $loop = Factory::create();
-        $loop->addPeriodicTimer($this->tick * 60, array($this, 'handleTick'));
-
-        $server = new Server($loop, array($this, 'handleRequest'));
-
-        $socket = new \React\Socket\Server('127.0.0.1:9494', $loop);
+        $socket = new SocketServer(X4_SERVER_HOST.':'.X4_SERVER_PORT, array(), $this->loop);
         $server->listen($socket);
 
         $this->logHeader('X4 Savegame server');
         $this->log('Listening on [%s].', str_replace('tcp:', 'http:', $socket->getAddress()));
-        $this->log('Updates are run every [%s] minutes.', $this->tick);
         $this->log('');
-
-        $loop->run();
     }
 
     public function handleRequest(ServerRequestInterface $request) : Response
     {
-        $delay = ($this->tick * 60) + 30;
+        $this->requestCounter++;
+
+        $this->logHeader('Request %s', $this->requestCounter);
+
+        $response =  $this->handleRequestTarget(
+            $request->getRequestTarget(),
+            array_merge($request->getQueryParams(), $request->getServerParams())
+        );
+
+        $this->log('Request [%s] | Sending response code [%s].', $this->requestCounter, $response->getStatusCode());
+        $this->log('');
+
+        return $response;
+    }
+
+    /**
+     * Analyzes the target of the request, to determine if we should
+     * serve a specific file or display the user interface.
+     *
+     * @param string $target
+     * @param array<string,string|number|array> $requestVars
+     * @return Response
+     *
+     * @throws ConvertHelper_Exception
+     * @throws FileHelper_Exception
+     */
+    private function handleRequestTarget(string $target, array $requestVars) : Response
+    {
+        $info = parseURL($target);
+        $path = $info->getPath();
+
+        $this->log('Request [%s] | Target: [%s]', $this->requestCounter, $target);
+
+        if($path === '/') {
+            return $this->handleUIRequest($requestVars);
+        }
+
+        return $this->handlePathRequest(trim($path, '/'));
+    }
+
+    /**
+     * Handle a path to a specific file.
+     *
+     * @param string $path The target path, e.g. <code>favicon.ico<code>, <code>path/to/file.html</code>.
+     * @return Response
+     * @throws FileHelper_Exception
+     */
+    private function handlePathRequest(string $path) : Response
+    {
+        $this->log('Request [%s] | Handling path | [%s]', $this->requestCounter, $path);
+
+        $parts = explode('/', $path);
+        if(empty($parts)) {
+            return new Response(
+                Response::STATUS_BAD_REQUEST
+            );
+        }
+
+        if($parts[0] === 'vendor') {
+            return $this->handleVendorAssetRequest($path);
+        }
+
+        return new Response(
+            Response::STATUS_OK,
+            array(
+                'Content-Type' => 'text/html'
+            ),
+            'Target'
+        );
+    }
+
+    /**
+     * Handles a request to a file from the <code>vendor</code> folder.
+     * Resolves the actual path on disk.
+     *
+     * @param string $path
+     * @return Response
+     * @throws FileHelper_Exception
+     */
+    private function handleVendorAssetRequest(string $path) : Response
+    {
+        return $this->responseFile(__DIR__.'/../../../../'.$path);
+    }
+
+    /**
+     * Serves a file content.
+     *
+     * @param string $path
+     * @return Response
+     * @throws FileHelper_Exception
+     */
+    private function responseFile(string $path) : Response
+    {
+        $real = realpath($path);
+
+        if($real === false)
+        {
+            $this->log('File not found: [%s]', basename($path));
+
+            return $this->responseNotFound(sprintf(
+                'File [%s] not found.',
+                basename($path)
+            ));
+        }
+
+        $file = FileInfo::factory($real);
+
+        $ext = $file->getExtension();
+        if(!in_array($ext, self::ALLOWED_EXTENSIONS, true))
+        {
+            $this->log('File extension [%s] not allowed.', $ext);
+
+            $this->responseNotAllowed(sprintf(
+                'File type [%s] not supported',
+                $ext
+            ));
+        }
+
+        $headers = array(
+            'Content-Type' => FileHelper::detectMimeType($file->getName())
+        );
+
+        $date = $file->getModifiedDate();
+        if($date !== null) {
+            $headers['Last-Modified'] = $date->format(
+                'D, d M Y H:i:s e'
+            );
+        }
+
+        return new Response(
+            Response::STATUS_OK,
+            $headers,
+            $file->getContents()
+        );
+    }
+
+    private function responseNotFound(string $reason) : Response
+    {
+        return new Response(
+            Response::STATUS_NOT_FOUND,
+            array(),
+            '',
+            '1.1',
+            $reason
+        );
+    }
+
+    private function responseNotAllowed(string $reason) : Response
+    {
+        return new Response(
+            Response::STATUS_UNAUTHORIZED,
+            array(),
+            '',
+            '1.1',
+            $reason
+        );
+    }
+
+    /**
+     * Handles a request to the save viewer user interface.
+     *
+     * @param array<string,string|number|array> $requestVars
+     * @return Response
+     * @throws ConvertHelper_Exception
+     */
+    private function handleUIRequest(array $requestVars) : Response
+    {
+        $this->log('Request [%s] | Handling UI rendering.', $this->requestCounter);
+
+        // Simulate a regular request environment. Since the
+        // request object uses the $_REQUEST variable exclusively,
+        // there is no need to handle post variables separately.
+        $_REQUEST = $requestVars;
+
+        try
+        {
+            $content = $this->ui->render();
+        }
+        catch (Throwable $e)
+        {
+            $content = parseThrowable($e)->renderErrorMessage(true);
+        }
 
         return new Response(
             200,
             array(
                 'Content-Type' => 'text/html'
             ),
-            $this->renderSummary().
-            '<script>
-                setTimeout(
-                    function() {
-                        document.location.reload()
-                    }, 
-                    '.($delay * 1000).'
-                );
-            </script>'
+            $content
         );
     }
 
-    private function renderSummary() : string
+    protected function _handleTick() : void
     {
-        $text = (new StringBuilder())
-            ->add('Server tick:')
-            ->add((string)$this->tickCounter)
-            ->add('@')
-            ->time()
-            ->para();
-
-        $currentSave = $this->manager->getCurrentSave();
-
-        if(!$currentSave) {
-            return (string)$text->bold('No savegames found.');
-        }
-
-        if(!$currentSave->isDataValid()) {
-            return (string)$text
-                ->bold('Savegame is not finished unpacking.')->nl()
-                ->add('Please wait until the next server tick for it to be updated.');
-        }
-
-        $reader = $currentSave->getReader();
-
-        $destroyed = $reader->getLog()->getDestroyed();
-
-        $text
-            ->add('Amount of savegames:')->add($this->manager->countSaves())->nl()
-            ->add('Latest savegame:')->add($currentSave->getName())->nl()
-            ->add('Losses:')->add($destroyed->countEntries())->nl()
-            ->add('Last 5 losses:')->nl();
-
-        $entries = $destroyed->getEntries();
-
-        for($i=0; $i < 5; $i++) {
-            if(empty($entries)) {
-                break;
-            }
-
-            $loss = array_pop($entries);
-            $text->add('-')->bold($loss->getHours())->add($loss->getTitle())->add($loss->getText())->nl();
-        }
-
-        return (string)$text;
-    }
-
-    private function log(...$args) : void
-    {
-        echo sprintf(...$args).PHP_EOL;
-    }
-
-    private function logHeader(...$args) : void
-    {
-        $this->log('--------------------------------------------');
-        $this->log(...$args);
-        $this->log('--------------------------------------------');
-    }
-
-    public function handleTick() : void
-    {
-        $this->tickCounter++;
-
-        $this->logHeader('Handling tick [%s]', $this->tickCounter);
-
-        $this->update();
-
-        $this->log('');
-    }
-
-    private function update()
-    {
-        $saves = $this->manager->getSaves();
-
-        foreach ($saves as $save)
-        {
-            if($save->isDataValid()) {
-                $this->log('The save [%s] is already up to date.', $save->getName());
-                continue;
-            }
-
-            $this->log('Parsing the save file [%s].', $save->getName());
-            $save->unpackAndConvert();
-        }
+        // The UI does not process any data.
     }
 }
