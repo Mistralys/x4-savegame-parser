@@ -6,13 +6,9 @@ namespace Mistralys\X4\SaveViewer\UI\Pages;
 
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Backup;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Blueprints;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Factions;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Home;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Inventory;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Losses;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Statistics;
 use Mistralys\X4\SaveViewer\UI\PageWithNav;
 use function AppLocalize\t;
 use function AppUtils\sb;
@@ -39,6 +35,7 @@ class ViewSave extends PageWithNav
         $this->subPages = array(
             new Home($this),
             new Blueprints($this),
+            new KhaakOverviewPage($this)
             //new Losses($this),
             //new Factions($this),
             //new Inventory($this),
