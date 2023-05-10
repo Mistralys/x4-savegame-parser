@@ -19,14 +19,18 @@ class SaveSelector implements DebuggableInterface
 
     public const ERROR_MOST_RECENT_FILE_NOT_FOUND = 136001;
     public const ERROR_SAVEGAME_NOT_FOUND = 136002;
+    public const ERROR_CANNOT_ACCESS_SAVES_FOLDER = 136003;
+    public const ERROR_CANNOT_ACCESS_SAVE_FILE = 136004;
+    public const TEMP_SAVE_NAME = 'temp_save';
 
     private FolderInfo $savesFolder;
+
+    private FolderInfo $storageFolder;
 
     /**
      * @var SaveGameFile[]|null
      */
-    private ?array $cachedFiles = null;
-    private FolderInfo $storageFolder;
+    private ?array $cachedFiles = array();
 
     public function __construct(FolderInfo $savesFolder, FolderInfo $storageFolder)
     {
@@ -108,8 +112,10 @@ class SaveSelector implements DebuggableInterface
      * Retrieves the list of available save game files,
      * sorted from most recent to least recent.
      *
+     * NOTE: Fetches the save games fresh each time
+     * the method is called.
+     *
      * @return SaveGameFile[]
-     * @throws FileHelper_Exception
      * @throws SaveViewerException
      */
     public function getSaveGames() : array
@@ -140,19 +146,22 @@ class SaveSelector implements DebuggableInterface
         return $result;
     }
 
+    public function clearCache() : self
+    {
+        $this->cachedFiles = null;
+        return $this;
+    }
+
     /**
      * @return array<int,{gz:FileInfo|NULL,xml:FileInfo|NULL}>
-     * @throws FileHelper_Exception
+     * @throws SaveViewerException
      */
     private function compileFileInformation() : array
     {
         $this->log('Detecting savegame files.');
         $this->log('Target folder: [%s].', $this->savesFolder->getPath());
 
-        $files = FileHelper::createFileFinder($this->savesFolder)
-            ->includeExtensions(array('gz', 'xml'))
-            ->setPathmodeAbsolute()
-            ->getAll();
+        $files = $this->getFilesList();
 
         if(empty($files)) {
             return array();
@@ -163,6 +172,10 @@ class SaveSelector implements DebuggableInterface
         {
             $id = str_replace(array('.xml.gz', '.xml'), '', basename($file));
 
+            if($id === self::TEMP_SAVE_NAME) {
+                continue;
+            }
+
             if(!isset($list[$id])) {
                 $list[$id] = array(
                     'gz' => null,
@@ -170,7 +183,19 @@ class SaveSelector implements DebuggableInterface
                 );
             }
 
-            $info = FileInfo::factory($file);
+            try
+            {
+                $info = FileInfo::factory($file);
+            }
+            catch (FileHelper_Exception $e)
+            {
+                throw new SaveViewerException(
+                    'Cannot access savegame file.',
+                    '',
+                    self::ERROR_CANNOT_ACCESS_SAVE_FILE
+                );
+            }
+
             $extension = $info->getExtension();
             $list[$id][$extension] = $info;
         }
@@ -178,6 +203,30 @@ class SaveSelector implements DebuggableInterface
         $this->log('Found [%s] savegame files.', count($list));
 
         return $list;
+    }
+
+    /**
+     * @return string[]
+     * @throws SaveViewerException
+     */
+    private function getFilesList() : array
+    {
+        try
+        {
+            return FileHelper::createFileFinder($this->savesFolder)
+                ->includeExtensions(array('gz', 'xml'))
+                ->setPathmodeAbsolute()
+                ->getAll();
+        }
+        catch (FileHelper_Exception $e)
+        {
+            throw new SaveViewerException(
+                'Cannot read savegame files from the saves folder.',
+                '',
+                self::ERROR_CANNOT_ACCESS_SAVES_FOLDER,
+                $e
+            );
+        }
     }
 
     /**
@@ -210,6 +259,8 @@ class SaveSelector implements DebuggableInterface
 
     /**
      * @return string[]
+     * @throws FileHelper_Exception
+     * @throws SaveViewerException
      */
     public function getSaveNames() : array
     {
