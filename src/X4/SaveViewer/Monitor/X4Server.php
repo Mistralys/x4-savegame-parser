@@ -43,15 +43,10 @@ class X4Server extends BaseMonitor
         'ico'
     );
 
-    private UserInterface $ui;
-    private SaveViewer $app;
     private int $requestCounter = 0;
 
     protected function setup() : void
     {
-        $this->app = new SaveViewer();
-        $this->ui = new UserInterface($this->app, 'http://'.X4_SERVER_HOST.':'.X4_SERVER_PORT);
-
         $server = new HttpServer($this->loop, array($this, 'handleRequest'));
 
         $socket = new SocketServer(X4_SERVER_HOST.':'.X4_SERVER_PORT, array(), $this->loop);
@@ -238,13 +233,27 @@ class X4Server extends BaseMonitor
         // there is no need to handle post variables separately.
         $_REQUEST = $requestVars;
 
+        $this->log('Request vars: [%s].', implode(', ', array_keys($_REQUEST)));
+
         try
         {
-            $content = $this->ui->render();
+            $app = new SaveViewer();
+            $ui = new UserInterface($app, 'http://'.X4_SERVER_HOST.':'.X4_SERVER_PORT);
+            $content = $ui->render();
         }
         catch (Throwable $e)
         {
-            $content = parseThrowable($e)->renderErrorMessage(true);
+            $info = parseThrowable($e);
+            $content = $info->renderErrorMessage(true);
+            $content .= PHP_EOL.$info->toString();
+
+            return new Response(
+                Response::STATUS_INTERNAL_SERVER_ERROR,
+                array(
+                    'Content-Type' => 'text/plain'
+                ),
+                $content
+            );
         }
 
         return new Response(
