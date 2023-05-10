@@ -42,6 +42,11 @@ abstract class BaseCollection
         );
     }
 
+    public function loadData() : array
+    {
+        return JSONFile::factory($this->getFilePath())->parse();
+    }
+
     public function toArray() : array
     {
         $data = array();
