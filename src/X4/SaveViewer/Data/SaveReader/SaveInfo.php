@@ -12,7 +12,7 @@ class SaveInfo extends Info
 {
     protected function init() : void
     {
-        $file = $this->collections->getOutputFolder().'/JSON/'.SaveInfoFragment::SAVE_NAME.'.json';
+        $file = $this->collections->getOutputFolder().'/'.SaveInfoFragment::SAVE_NAME.'.json';
 
         $this->setKeys(JSONFile::factory($file)->parse());
     }

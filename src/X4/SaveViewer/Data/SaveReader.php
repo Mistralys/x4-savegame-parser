@@ -22,7 +22,7 @@ class SaveReader
     public function __construct(BaseSaveFile $saveFile)
     {
         $this->saveFile = $saveFile;
-        $this->collections = new Collections($saveFile->getStorageFolder()->getPath());
+        $this->collections = new Collections($saveFile->getStorageFolder()->getPath().'/JSON');
     }
 
     public function getSaveFile() : BaseSaveFile
