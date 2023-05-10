@@ -48,7 +48,7 @@ class Factions extends Info
     {
         $data = array(
             'page' => 'ViewSave',
-            'saveName' => $save->getSaveName(),
+            BaseSaveFile::PARAM_SAVE_ID => $save->getSaveID(),
             'view' => 'factions'
         );
 

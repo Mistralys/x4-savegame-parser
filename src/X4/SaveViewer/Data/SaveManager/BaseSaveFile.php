@@ -20,11 +20,10 @@ abstract class BaseSaveFile
 {
     public const ERROR_BACKUP_INVALID_DATA = 89601;
 
-    public const PARAM_SAVE_NAME = 'saveName';
+    public const PARAM_SAVE_ID = 'save';
 
     private SaveManager $manager;
 
-    private string $id = '';
     private FileAnalysis $analysis;
 
     public function __construct(SaveManager $manager, FileAnalysis $analysis)
@@ -90,31 +89,25 @@ abstract class BaseSaveFile
 
     public function getURLView() : string
     {
-        return '?'.http_build_query(array(
-            'page' => ViewSave::URL_NAME,
-            self::PARAM_SAVE_NAME => $this->getSaveName()
-        ));
-    }
-
-    public function getPlayerName() : string
-    {
-        return $this->getDataReader()->getPlayer()->getPlayerName();
+        return $this->getURL(ViewSave::URL_NAME);
     }
 
     public function getURLUnpack() : string
     {
-        return '?'.http_build_query(array(
-            'page' => UnpackSave::URL_NAME,
-            self::PARAM_SAVE_NAME => $this->getSaveName()
-        ));
+        return $this->getURL(UnpackSave::URL_NAME);
     }
 
     public function getURLBackup() : string
     {
-        return '?'.http_build_query(array(
-                'page' => CreateBackup::URL_NAME,
-                self::PARAM_SAVE_NAME => $this->getSaveName()
-            ));
+        return $this->getURL(CreateBackup::URL_NAME);
+    }
+
+    protected function getURL(string $page, array $params=array()) : string
+    {
+        $params['page'] = $page;
+        $params[self::PARAM_SAVE_ID] = $this->getSaveID();
+
+        return '?'.http_build_query($params);
     }
 
     public function createBackup() : ArchivedSave

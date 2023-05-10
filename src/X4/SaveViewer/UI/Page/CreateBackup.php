@@ -20,7 +20,7 @@ class CreateBackup extends Page
     protected function getURLParams() : array
     {
         return array(
-            BaseSaveFile::PARAM_SAVE_NAME => $this->requireSave()->getSaveName()
+            BaseSaveFile::PARAM_SAVE_ID => $this->requireSave()->getSaveID()
         );
     }
 
