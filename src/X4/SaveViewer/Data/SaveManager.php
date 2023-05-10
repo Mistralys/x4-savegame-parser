@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Data;
 
 use AppUtils\BaseException;
-use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper\FolderInfo;
-use AppUtils\FileHelper_Exception;
 use DirectoryIterator;
+use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
-use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 
@@ -19,21 +17,21 @@ class SaveManager
     public const ERROR_CANNOT_FIND_BY_NAME = 12125;
 
     /**
-     * @var BaseSaveFile[]
+     * @var MainSave[]
      */
     private array $saves = array();
+    /**
+     * @var ArchivedSave[]
+     */
+    private array $archivedSaves = array();
     private SaveSelector $selector;
 
     /**
      * @param SaveSelector $selector
-     * @throws FileHelper_Exception
-     * @throws SaveViewerException
      */
     public function __construct(SaveSelector $selector)
     {
         $this->selector = $selector;
-
-        $this->loadSaves();
     }
 
     public function getSavesFolder() : FolderInfo
@@ -47,42 +45,62 @@ class SaveManager
     }
 
     /**
+     * Fetches all savegame files from the X4 savegame folder.
+     *
+     * NOTE: Fetches a fresh list from disk every time the
+     * method is called.
+     *
      * @return BaseSaveFile[]
      */
     public function getSaves() : array
     {
+        $this->loadMainSaves();
+
         return $this->saves;
+    }
+
+    public function getArchivedSaves() : array
+    {
+        $this->loadArchivedSaves();
+
+        return $this->archivedSaves;
+    }
+
+    protected function sortSaves(BaseSaveFile $a, BaseSaveFile $b) : int
+    {
+        return $b->getDateModified()->getTimestamp() - $a->getDateModified()->getTimestamp();
     }
 
     /**
      * @return void
-     * @throws FileHelper_Exception
      * @throws SaveViewerException
      */
-    private function loadSaves() : void
-    {
-        $this->loadMainSaves();
-        $this->loadArchivedSaves();
-
-        usort($this->saves, static function (BaseSaveFile $a, BaseSaveFile $b) : int
-        {
-            return $b->getDateModified()->getTimestamp() - $a->getDateModified()->getTimestamp();
-        });
-    }
-
     private function loadMainSaves() : void
     {
-        $mainSaves = $this->selector->getSaveGames();
+        $mainSaves = $this->selector
+            ->clearCache()
+            ->getSaveGames();
+
+        $this->saves = array();
 
         foreach($mainSaves as $mainSave)
         {
-            $this->saves[] = new MainSave($this, $mainSave);
+            $save = new MainSave($this, $mainSave);
+
+            if($save->isTempSave()) {
+                continue;
+            }
+
+            $this->saves[] = $save;
         }
+
+        usort($this->saves, array($this, 'sortSaves'));
     }
 
     private function loadArchivedSaves() : void
     {
         $storageFolder = $this->selector->getStorageFolder();
+        $this->archivedSaves = array();
 
         if(!$storageFolder->exists())
         {
@@ -97,27 +115,28 @@ class SaveManager
                 continue;
             }
 
-            $zipPath = $item->getPathname().'/'.SaveGameFile::BACKUP_ARCHIVE_FILE_NAME;
+            $analysisPath = $item->getPathname().'/'.FileAnalysis::ANALYSIS_FILE_NAME;
 
-            if(!file_exists($zipPath))
+            if(!file_exists($analysisPath))
             {
                 continue;
             }
 
-            $this->saves[] = new ArchivedSave(
+            $this->archivedSaves[] = new ArchivedSave(
                 $this,
-                SaveGameFile::create(
-                    $storageFolder,
-                    FileInfo::factory($zipPath)
-                )
+                FileAnalysis::createFromDataFile($analysisPath)
             );
         }
+
+        usort($this->archivedSaves, array($this, 'sortSaves'));
     }
 
-    public function getCurrentSave() : ?BaseSaveFile
+    public function getCurrentSave() : ?MainSave
     {
-        if(!empty($this->saves)) {
-            return $this->saves[0];
+        $saves = $this->getSaves();
+
+        if(!empty($saves)) {
+            return array_shift($saves);
         }
 
         return null;
@@ -131,7 +150,7 @@ class SaveManager
     public function nameExists(string $saveName) : bool
     {
         foreach ($this->saves as $save) {
-            if($save->getName() === $saveName) {
+            if($save->getSaveName() === $saveName) {
                 return true;
             }
         }
@@ -147,7 +166,7 @@ class SaveManager
     public function getByName(string $saveName) : BaseSaveFile
     {
         foreach ($this->saves as $save) {
-            if($save->getName() === $saveName) {
+            if($save->getSaveName() === $saveName) {
                 return $save;
             }
         }
