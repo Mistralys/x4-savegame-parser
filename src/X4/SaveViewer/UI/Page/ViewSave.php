@@ -15,18 +15,18 @@ use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Losses;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Statistics;
 use Mistralys\X4\SaveViewer\UI\PageWithNav;
 use function AppLocalize\t;
+use function AppUtils\sb;
 
 class ViewSave extends PageWithNav
 {
-    const URL_NAME = 'ViewSave';
+    public const URL_NAME = 'ViewSave';
 
     protected BaseSaveFile $save;
     protected SaveReader $reader;
 
     protected function init(): void
     {
-        $this->save = $this->requireSave();
-        $this->reader = $this->save->getDataReader();
+
     }
 
     public function getDefaultSubPageID() : string
@@ -39,18 +39,18 @@ class ViewSave extends PageWithNav
         $this->subPages = array(
             new Home($this),
             new Blueprints($this),
-            new Losses($this),
-            new Factions($this),
-            new Inventory($this),
-            new Statistics($this),
-            new Backup($this)
+            //new Losses($this),
+            //new Factions($this),
+            //new Inventory($this),
+            //new Statistics($this),
+            //new Backup($this)
         );
     }
 
     protected function getURLParams() : array
     {
         return array(
-            BaseSaveFile::PARAM_SAVE_NAME => $this->save->getSaveName()
+            BaseSaveFile::PARAM_SAVE_ID => $this->save->getSaveID()
         );
     }
 
@@ -72,7 +72,7 @@ class ViewSave extends PageWithNav
 
     public function getTitle(): string
     {
-        return 'Savegame: '.$this->save->getSaveName();
+        return (string)sb()->t('Savegame:')->add($this->save->getSaveName());
     }
 
     public function getNavTitle() : string
@@ -82,5 +82,7 @@ class ViewSave extends PageWithNav
 
     protected function preRender() : void
     {
+        $this->save = $this->requireSave();
+        $this->reader = $this->save->getDataReader();
     }
 }
