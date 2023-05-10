@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 use AppUtils\ConvertHelper;
+use function AppLocalize\pt;
+use function AppLocalize\t;
 
 class Home extends SubPage
 {
-    const URL_PARAM = 'Home';
+    public const URL_PARAM = 'Home';
 
     public function getURLName() : string
     {
@@ -22,31 +24,31 @@ class Home extends SubPage
 
     public function getTitle() : string
     {
-        return '';
+        return t('Overview');
     }
 
     public function renderContent() : void
     {
-        $player = $this->reader->getPlayer();
+        $saveInfo = $this->getReader()->getSaveInfo();
 
         ?>
         <table class="table table-horizontal">
             <tbody>
             <tr>
-                <th>Player name</th>
-                <td><?php echo $player->getPlayerName()  ?></td>
+                <th><?php pt('Player name') ?></th>
+                <td><?php echo $saveInfo->getPlayerName()  ?></td>
             </tr>
             <tr>
-                <th>Money</th>
-                <td><?php echo number_format($player->getMoney(), 0, '.', ' ') ?></td>
+                <th><?php pt('Money') ?></th>
+                <td><?php echo $saveInfo->getMoneyPretty() ?></td>
             </tr>
             <tr>
-                <th>Savegame name</th>
-                <td><?php echo $player->getSaveName()  ?></td>
+                <th><?php pt('Save name') ?></th>
+                <td><?php echo $saveInfo->getSaveName() ?></td>
             </tr>
             <tr>
-                <th>Savegame date</th>
-                <td><?php echo ConvertHelper::date2listLabel($player->getSaveDate(), true, true) ?></td>
+                <th><?php pt('Date created') ?></th>
+                <td><?php echo ConvertHelper::date2listLabel($saveInfo->getSaveDate(), true, true) ?></td>
             </tr>
             </tbody>
         </table>
