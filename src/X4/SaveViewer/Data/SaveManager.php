@@ -144,13 +144,23 @@ class SaveManager
 
     public function countSaves() : int
     {
-        return count($this->saves);
+        return count($this->getSaves());
     }
 
-    public function nameExists(string $saveName) : bool
+    public function idExists(string $saveID) : bool
     {
-        foreach ($this->saves as $save) {
-            if($save->getSaveName() === $saveName) {
+        $saves = $this->getSaves();
+
+        foreach ($saves as $save) {
+            if($save->getSaveID() === $saveID) {
+                return true;
+            }
+        }
+
+        $archivedSaves = $this->getArchivedSaves();
+
+        foreach($archivedSaves as $archivedSave) {
+            if($archivedSave->getSaveID() === $saveID) {
                 return true;
             }
         }
@@ -159,20 +169,30 @@ class SaveManager
     }
 
     /**
-     * @param string $saveName
+     * @param string $saveID
      * @return BaseSaveFile
      * @throws BaseException
      */
-    public function getByName(string $saveName) : BaseSaveFile
+    public function getByID(string $saveID) : BaseSaveFile
     {
-        foreach ($this->saves as $save) {
-            if($save->getSaveName() === $saveName) {
+        $saves = $this->getSaves();
+
+        foreach ($saves as $save) {
+            if($save->getSaveID() === $saveID) {
                 return $save;
             }
         }
 
+        $archivedSaves = $this->getArchivedSaves();
+
+        foreach($archivedSaves as $archivedSave) {
+            if($archivedSave->getSaveID() === $saveID) {
+                return $archivedSave;
+            }
+        }
+
         throw new BaseException(
-            sprintf('Cannot find savegame [%s].', $saveName),
+            sprintf('Cannot find savegame by ID [%s].', $saveID),
             '',
             self::ERROR_CANNOT_FIND_BY_NAME
         );
