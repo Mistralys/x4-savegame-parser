@@ -7,6 +7,10 @@ namespace Mistralys\X4\SaveViewer\UI\Pages;
 use AppUtils\ConvertHelper;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\UI\Page;
+use Mistralys\X4\UI\Button;
+use Mistralys\X4\UI\Icon;
+use Mistralys\X4\UserInterface\DataGrid\DataGrid;
+use function AppLocalize\pt;use function AppLocalize\t;
 
 class SavesList extends Page
 {
@@ -27,104 +31,76 @@ class SavesList extends Page
         return array();
     }
 
-    private function createGrid() : void
-    {
-        $grid = $this->ui->createDataGrid();
-
-        $grid->addColumn('name', 'Name')
-            ->useObjectValues()->fetchByMethod(array(BaseSaveFile::class, 'getName'))
-            ->decorateWith()->linkByMethod(array(BaseSaveFile::class, 'getURLView'));
-
-        $grid->addColumn('char', 'Character')
-            ->useObjectValues()->fetchByMethod(array(BaseSaveFile::class, 'getPlayerName'));
-    }
-
     protected function _render(): void
     {
         $saves = $this->manager->getSaves();
 
-        $this->createGrid();
+        $grid = $this->ui->createDataGrid();
 
-        ?>
-        <div class="table-responsive">
-            <table class="table table-striped table-sm">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Character</th>
-                    <th class="align-right">Money</th>
-                    <th class="align-right">Losses</th>
-                    <th>Modified</th>
-                    <th class="align-right">Size</th>
-                    <th>Backup?</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                    <?php
-                        foreach($saves as $save)
-                        {
-                            ?>
-                                <tr>
-                                    <?php
-                                        if($save->isDataValid())
-                                        {
-                                            $reader = $save->getReader();
-                                            ?>
-                                            <td><a href="<?php echo $save->getURLView() ?>"><?php echo $save->getLabel() ?></a></td>
-                                            <td><?php echo $reader->getPlayer()->getPlayerName() ?></td>
-                                            <td class="align-right"><?php echo $reader->getPlayer()->getMoneyPretty() ?></td>
-                                            <td class="align-right"><?php echo $reader->countLosses() ?></td>
-                                            <?php
-                                        } else {
-                                            ?>
-                                            <td><?php echo $save->getName() ?></td>
-                                            <td>-</td>
-                                            <td class="align-right">-</td>
-                                            <td class="align-right">-</td>
-                                            <?php
-                                        }
-                                    ?>
-                                    <td><?php echo ConvertHelper::date2listLabel($save->getDateModified(), true, true) ?></td>
-                                    <td class="align-right"><?php echo ConvertHelper::bytes2readable($save->getFileSize()) ?></td>
-                                    <td>
-                                        <?php
-                                            if($save->hasBackup())
-                                            {
-                                                echo 'YES';
-                                            }
-                                            else
-                                            {
-                                                echo 'NO';
-                                            }
-                                        ?>
-                                    </td>
-                                    <td>
-                                        <?php
-                                            if(!$save->isDataValid()) {
-                                                ?>
-                                                <a href="<?php echo $save->getURLUnpack() ?>" class="btn btn-primary btn-sm">
-                                                    Unpack
-                                                </a>
-                                                <?php
-                                            }
-                                            else if(!$save->hasBackup())
-                                            {
-                                                ?>
-                                                <a href="<?php echo $save->getURLBackup() ?>" class="btn btn-secondary btn-sm">
-                                                    Backup
-                                                </a>
-                                                <?php
-                                            }
-                                        ?>
-                                    </td>
-                                </tr>
-                            <?php
-                        }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
+        $cName = $grid->addColumn('name', t('Name'));
+        $cChar = $grid->addColumn('character', t('Character'));
+        $cMoney = $grid->addColumn('money', t('Money'))
+            ->alignRight();
+        $cModified = $grid->addColumn('modified', t('Modified'));
+        $cBackup = $grid->addColumn('backup', t('Backup?'))
+            ->alignCenter();
+        $cActions = $grid->addColumn('actions', t('Actions'))
+            ->alignRight();
+
+        foreach($saves as $save)
+        {
+            $row = $grid->createRow();
+            $grid->addRow($row);
+
+            if($save->isUnpacked())
+            {
+                $reader = $save->getDataReader();
+                $saveInfo = $reader->getSaveInfo();
+                $date = $saveInfo->getSaveDate();
+
+                $row->setValue($cName, $saveInfo->getSaveName());
+                $row->setValue($cChar, $saveInfo->getPlayerName());
+                $row->setValue($cMoney, $saveInfo->getMoneyPretty());
+            }
+            else
+            {
+                $date = $save->getDateModified();
+
+                $row->setValue($cName, $save->getSaveName());
+                $row->setValue($cChar, '-');
+                $row->setValue($cMoney, '-');
+                $row->setValue($cActions,
+                    Button::create(t('Unpack'))
+                        ->setIcon(Icon::unpack())
+                        ->colorPrimary()
+                        ->sizeExtraSmall()
+                        ->link($save->getURLUnpack())
+                );
+            }
+
+            /*
+            if(!$save->hasBackup())
+            {
+                echo Button::create(t('Backup'))
+                    ->setIcon(Icon::backup())
+                    ->sizeSmall()
+                    ->link($save->getURLBackup());
+            }
+            */
+
+            $row->setDate($cModified, $date, true, true);
+            $row->setBool($cBackup, $save->hasBackup());
+        }
+
+        echo $grid->render();
+    }
+
+    public function getNavTitle() : string
+    {
+        return t('Overview');
+    }
+
+    protected function preRender() : void
+    {
     }
 }
