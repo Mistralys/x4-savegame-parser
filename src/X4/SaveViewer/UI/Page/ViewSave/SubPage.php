@@ -21,10 +21,4 @@ abstract class SubPage extends \Mistralys\X4\SaveViewer\UI\SubPage
     {
         return array();
     }
-
-    protected function init() : void
-    {
-        $this->reader = $this->page->getReader();
-        $this->save = $this->page->getSave();
-    }
 }
