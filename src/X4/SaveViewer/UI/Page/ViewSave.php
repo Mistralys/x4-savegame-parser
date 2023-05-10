@@ -14,6 +14,7 @@ use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Inventory;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Losses;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Statistics;
 use Mistralys\X4\SaveViewer\UI\PageWithNav;
+use function AppLocalize\t;
 
 class ViewSave extends PageWithNav
 {
@@ -25,7 +26,7 @@ class ViewSave extends PageWithNav
     protected function init(): void
     {
         $this->save = $this->requireSave();
-        $this->reader = $this->save->getReader();
+        $this->reader = $this->save->getDataReader();
     }
 
     public function getDefaultSubPageID() : string
@@ -49,7 +50,7 @@ class ViewSave extends PageWithNav
     protected function getURLParams() : array
     {
         return array(
-            BaseSaveFile::PARAM_SAVE_NAME => $this->save->getName()
+            BaseSaveFile::PARAM_SAVE_NAME => $this->save->getSaveName()
         );
     }
 
@@ -71,6 +72,15 @@ class ViewSave extends PageWithNav
 
     public function getTitle(): string
     {
-        return 'Savegame: '.$this->save->getName();
+        return 'Savegame: '.$this->save->getSaveName();
+    }
+
+    public function getNavTitle() : string
+    {
+        return t('View');
+    }
+
+    protected function preRender() : void
+    {
     }
 }

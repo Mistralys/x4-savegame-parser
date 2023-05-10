@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages;
 
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\UI\Page;
+use function AppLocalize\t;
 
 class CreateBackup extends Page
 {
@@ -19,7 +20,7 @@ class CreateBackup extends Page
     protected function getURLParams() : array
     {
         return array(
-            BaseSaveFile::PARAM_SAVE_NAME => $this->requireSave()->getName()
+            BaseSaveFile::PARAM_SAVE_NAME => $this->requireSave()->getSaveName()
         );
     }
 
@@ -37,5 +38,14 @@ class CreateBackup extends Page
     public function getNavItems(): array
     {
         return array();
+    }
+
+    public function getNavTitle() : string
+    {
+        return t('Backup');
+    }
+
+    protected function preRender() : void
+    {
     }
 }

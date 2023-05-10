@@ -7,6 +7,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\SaveParser;
 use Mistralys\X4\SaveViewer\UI\Page;
+use function AppLocalize\t;
 
 class UnpackSave extends Page
 {
@@ -20,7 +21,7 @@ class UnpackSave extends Page
     protected function getURLParams() : array
     {
         return array(
-            BaseSaveFile::PARAM_SAVE_NAME => $this->requireSave()->getName()
+            BaseSaveFile::PARAM_SAVE_NAME => $this->requireSave()->getSaveName()
         );
     }
 
@@ -30,7 +31,7 @@ class UnpackSave extends Page
 
         set_time_limit(0);
 
-        $parser = new SaveParser($save->getName());
+        $parser = new SaveParser($save->getSaveName());
         $parser->unpack();
 
         $this->redirect('?');
@@ -39,5 +40,14 @@ class UnpackSave extends Page
     public function getNavItems(): array
     {
         return array();
+    }
+
+    public function getNavTitle() : string
+    {
+        return t('Unpack savegame');
+    }
+
+    protected function preRender() : void
+    {
     }
 }
