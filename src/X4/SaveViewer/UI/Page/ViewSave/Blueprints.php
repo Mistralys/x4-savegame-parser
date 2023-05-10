@@ -6,7 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 class Blueprints extends SubPage
 {
-    const URL_PARAM = 'Blueprints';
+    public const URL_PARAM = 'Blueprints';
 
     public function getURLName() : string
     {
@@ -25,7 +25,7 @@ class Blueprints extends SubPage
 
     public function renderContent() : void
     {
-        $categories = $this->reader->getBlueprints()->getCategories();
+        $categories = $this->getReader()->getBlueprints()->getCategories();
 
         foreach($categories as $category) {
             ?>
