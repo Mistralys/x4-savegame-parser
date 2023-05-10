@@ -26,6 +26,9 @@
   "require": {
     "mistralys/x4-core": "dev-main",
     "mistralys/version-parser": ">=1.0.0",
+    "mistralys/application-localization": ">=1.4.1",
+    "react/http": ">=v1.9.0",
+    "react/async": ">=v3.0.0",
     "ext-xmlreader": "*",
     "ext-dom": "*"
   },
