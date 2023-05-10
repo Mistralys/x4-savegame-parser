@@ -8,6 +8,7 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper\FolderInfo;
 use DateTime;
+use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveParser;
 use Mistralys\X4\SaveViewer\UI\Pages\CreateBackup;
@@ -23,83 +24,58 @@ abstract class BaseSaveFile
 
     private SaveManager $manager;
 
-    private string $saveID;
     private string $id = '';
-    private SaveGameFile $saveFile;
+    private FileAnalysis $analysis;
 
-    public function __construct(SaveManager $manager, SaveGameFile $saveFile)
+    public function __construct(SaveManager $manager, FileAnalysis $analysis)
     {
         $this->manager = $manager;
-        $this->saveFile = $saveFile;
+        $this->analysis = $analysis;
     }
 
-    public function getID() : string
+    public function getStorageFolder() : FolderInfo
     {
-        if(empty($this->id))
-        {
-            $this->id = 'S'.$this->saveFile->getTimestamp();
-        }
-
-        return $this->id;
+        return $this->analysis->getStorageFolder();
     }
 
-    public function getPath() : string
+    public function getAnalysis() : FileAnalysis
     {
-        return $this->saveFile->getReferenceFile()->getPath();
+        return $this->analysis;
     }
 
-    public function getFileName() : string
+    public function getSaveID() : string
     {
-        return $this->saveFile->getReferenceFile()->getName();
+        return $this->analysis->getSaveID();
     }
 
-    public function getFileSize() : int
+    public function getSaveName() : string
     {
-        return filesize($this->saveFile->getReferenceFile()->getPath());
+        return $this->analysis->getSaveName();
     }
 
     public function getDateModified() : DateTime
     {
-        return $this->saveFile->getReferenceFile()->getModifiedDate();
+        return $this->analysis->getDateModified();
     }
 
-    public function getName(): string
-    {
-        return $this->saveID;
-    }
-
-    public function getReader() : SaveReader
+    public function getDataReader() : SaveReader
     {
         return new SaveReader($this);
     }
 
     public function hasData() : bool
     {
-        return file_exists($this->getDataFolder().'/analysis.json');
+        return $this->analysis->exists();
     }
 
-    public function isDataValid() : bool
+    public function isUnpacked() : bool
     {
-        if(!$this->hasData()) {
-            return false;
-        }
-
-        $analysis = $this->getAnalysis();
-
-        return $analysis['date'] === filemtime($this->getPath());
-    }
-
-    /**
-     * @return void
-     * @deprecated
-     */
-    public function unpackAndConvert() : void
-    {
+        return $this->analysis->exists() && $this->analysis->hasSaveID();
     }
 
     public function getDataFolder() : FolderInfo
     {
-        return $this->saveFile->getStorageFolder();
+        return $this->analysis->getStorageFolder();
     }
 
     public function getJSONPath() : string
@@ -107,38 +83,29 @@ abstract class BaseSaveFile
         return $this->getDataFolder();
     }
 
-    public function getAnalysis() : array
-    {
-        return FileHelper::parseJSONFile($this->getDataFolder().'/analysis.json');
-    }
-
     public function getLabel() : string
     {
-        if($this->isDataValid()) {
-            return $this->getFileName().' - '.$this->getReader()->getPlayer()->getSaveName();
-        }
-
-        return $this->getFileName();
+        return $this->getSaveName();
     }
 
     public function getURLView() : string
     {
         return '?'.http_build_query(array(
             'page' => ViewSave::URL_NAME,
-            self::PARAM_SAVE_NAME => $this->getName()
+            self::PARAM_SAVE_NAME => $this->getSaveName()
         ));
     }
 
     public function getPlayerName() : string
     {
-        return $this->getReader()->getPlayer()->getPlayerName();
+        return $this->getDataReader()->getPlayer()->getPlayerName();
     }
 
     public function getURLUnpack() : string
     {
         return '?'.http_build_query(array(
             'page' => UnpackSave::URL_NAME,
-            self::PARAM_SAVE_NAME => $this->getName()
+            self::PARAM_SAVE_NAME => $this->getSaveName()
         ));
     }
 
@@ -146,13 +113,8 @@ abstract class BaseSaveFile
     {
         return '?'.http_build_query(array(
                 'page' => CreateBackup::URL_NAME,
-                self::PARAM_SAVE_NAME => $this->getName()
+                self::PARAM_SAVE_NAME => $this->getSaveName()
             ));
-    }
-
-    public function hasBackup() : bool
-    {
-        return $this->createBackup()->exists();
     }
 
     public function createBackup() : ArchivedSave
@@ -162,7 +124,7 @@ abstract class BaseSaveFile
 
     public function writeBackup() : void
     {
-        if(!$this->isDataValid())
+        if(!$this->isUnpacked())
         {
             throw new SaveViewerException(
                 'Cannot create backup, data not valid',
