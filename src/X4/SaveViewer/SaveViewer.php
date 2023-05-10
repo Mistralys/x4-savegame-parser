@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer;
 
 use AppUtils\FileHelper;
+use Mistralys\X4\SaveViewer\Data\SaveManager;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\UI\UserInterface;
 use Mistralys\X4\X4Application;
 use Mistralys\X4\SaveViewer\UI\Pages\CreateBackup;
@@ -14,6 +16,23 @@ use Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 class SaveViewer extends X4Application
 {
+    private SaveManager $saveManager;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->saveManager = new SaveManager(SaveSelector::create(
+            X4_SAVES_FOLDER,
+            X4_STORAGE_FOLDER
+        ));
+    }
+
+    public function getSaveManager() : SaveManager
+    {
+        return $this->saveManager;
+    }
+
     public function getTitle() : string
     {
         return 'X4 Save game viewer';
