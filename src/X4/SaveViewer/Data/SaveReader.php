@@ -8,6 +8,7 @@ use AppUtils\FileHelper;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Blueprints;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Factions;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Inventory;
+use Mistralys\X4\SaveViewer\Data\SaveReader\KhaakStations;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 use Mistralys\X4\SaveViewer\Data\SaveReader\PlayerInfo;
 use Mistralys\X4\SaveViewer\Data\SaveReader\SaveInfo;
@@ -97,5 +98,10 @@ class SaveReader
     public function countLosses() : int
     {
         return $this->getLog()->getDestroyed()->countEntries();
+    }
+
+    public function getKhaakStations() : KhaakStations
+    {
+        return new KhaakStations($this);
     }
 }
