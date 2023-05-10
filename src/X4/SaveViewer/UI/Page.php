@@ -23,12 +23,12 @@ abstract class Page extends BasePage
 
     protected function requireSave() : BaseSaveFile
     {
-        $saveName = $this->request->getParam('saveName');
+        $id = $this->request->getParam(BaseSaveFile::PARAM_SAVE_ID);
 
-        if(!$this->manager->nameExists($saveName)) {
-            $this->redirect('?');
+        if(!$this->manager->idExists($id)) {
+            $this->redirect('/');
         }
 
-        return $this->manager->getByName($saveName);
+        return $this->manager->getByID($id);
     }
 }
