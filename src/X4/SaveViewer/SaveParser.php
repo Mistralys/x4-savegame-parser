@@ -11,6 +11,7 @@ namespace Mistralys\X4\SaveViewer;
 
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper_Exception;
+use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\EventLogFragment;
@@ -18,6 +19,7 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\FactionsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\PlayerStatsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
+use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
 
 /**
  * Main parser class that dispatches the extraction of the
@@ -39,12 +41,15 @@ class SaveParser extends BaseXMLParser
     protected bool $createBackup = false;
 
     /**
-     * @param SaveGameFile $saveFile Path to the XML save file to parse. Must have been unzipped first via {@see SaveGameFile::unzip()}.
+     * @param SaveGameFile|MainSave $saveFile Path to the XML save file to parse. Must have been unzipped first via {@see SaveGameFile::unzip()}.
      * @throws SaveViewerException {@see self::ERROR_SAVEGAME_MUST_BE_UNZIPPED}
      */
-
-    public static function create(SaveGameFile $saveFile) : SaveParser
+    public static function create($saveFile) : SaveParser
     {
+        if($saveFile instanceof MainSave) {
+            $saveFile = $saveFile->getSaveFile();
+        }
+
         return new SaveParser($saveFile);
     }
 
