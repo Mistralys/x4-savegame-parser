@@ -48,7 +48,7 @@ class Factions extends Info
     {
         $data = array(
             'page' => 'ViewSave',
-            'saveName' => $save->getName(),
+            'saveName' => $save->getSaveName(),
             'view' => 'factions'
         );
 
