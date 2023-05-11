@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Data;
 
 use AppUtils\BaseException;
+use AppUtils\FileHelper;
 use AppUtils\FileHelper\FolderInfo;
 use DirectoryIterator;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
@@ -107,6 +108,13 @@ class SaveManager
             return;
         }
 
+        $saves = $this->getSaves();
+        $mainAnalysisFiles = array();
+        foreach($saves as $save) {
+            $path = FileHelper::normalizePath($save->getAnalysis()->getStorageFile()->getPath());
+            $mainAnalysisFiles[$path] = $save;
+        }
+
         $d = new DirectoryIterator($storageFolder->getPath());
 
         foreach($d as $item)
@@ -115,10 +123,16 @@ class SaveManager
                 continue;
             }
 
-            $analysisPath = $item->getPathname().'/'.FileAnalysis::ANALYSIS_FILE_NAME;
+            $analysisPath = FileHelper::normalizePath($item->getPathname().'/'.FileAnalysis::ANALYSIS_FILE_NAME);
 
             if(!file_exists($analysisPath))
             {
+                continue;
+            }
+
+            if(isset($mainAnalysisFiles[$analysisPath]))
+            {
+                $this->archivedSaves[] = $mainAnalysisFiles[$analysisPath];
                 continue;
             }
 
