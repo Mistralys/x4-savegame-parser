@@ -7,8 +7,12 @@ namespace Mistralys\X4\SaveViewer\UI;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
+use Mistralys\X4\SaveViewer\SaveViewer;
 use Mistralys\X4\UI\Page\BasePage;
 
+/**
+ * @method SaveViewer getApplication()
+ */
 abstract class Page extends BasePage
 {
     protected SaveManager $manager;
