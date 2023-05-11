@@ -20,6 +20,8 @@ class FileAnalysis extends ArrayDataCollection
     public const ERROR_CANNOT_GET_MODIFIED_DATE = 66756002;
 
     public const ANALYSIS_FILE_NAME = 'analysis.json';
+    public const BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
+
     public const KEY_PROCESS_DATE = 'process-dates';
     public const KEY_SAVE_DATE = 'save-date';
     public const KEY_SAVE_ID = 'save-id';
@@ -47,6 +49,11 @@ class FileAnalysis extends ArrayDataCollection
     public function getStorageFolder() : FolderInfo
     {
         return $this->storageFolder;
+    }
+
+    public function getStorageFile() : JSONFile
+    {
+        return $this->storageFile;
     }
 
     public static function createFromSaveFile(SaveGameFile $file) : FileAnalysis
@@ -144,6 +151,15 @@ class FileAnalysis extends ArrayDataCollection
             'X4Save-%s-%s',
             $this->modifiedDate->getTimestamp(),
             $this->saveName
+        ));
+    }
+
+    public function getBackupFile() : FileInfo
+    {
+        return FileInfo::factory(sprintf(
+            '%s/%s',
+            $this->getStorageFolder(),
+            self::BACKUP_ARCHIVE_FILE_NAME
         ));
     }
 
