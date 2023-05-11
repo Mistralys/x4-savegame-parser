@@ -25,9 +25,12 @@ class ClusterConnectionFragment extends BaseDOMFragment
     protected function parseDOM(DOMDocument $dom) : void
     {
         $el = $this->checkIsElement($dom->firstChild, 'connection');
-        if($el === null) {
-            echo $this->getXMLFile().PHP_EOL;
+
+        if($el === null)
+        {
+            return;
         }
+
         $entry = $this->findConnectionComponent($this->checkIsElement($dom->firstChild, 'connection'));
 
         if($entry === null)
