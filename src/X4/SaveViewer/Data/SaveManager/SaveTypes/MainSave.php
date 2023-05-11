@@ -7,6 +7,7 @@ namespace Mistralys\X4\SaveViewer\SaveManager\SaveTypes;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
+use function AppLocalize\t;
 
 class MainSave extends BaseSaveFile
 {
@@ -19,6 +20,11 @@ class MainSave extends BaseSaveFile
         parent::__construct($manager, $saveFile->getAnalysis());
     }
 
+    public function getTypeLabel() : string
+    {
+        return t('Main savegame');
+    }
+
     public function getSaveFile() : SaveGameFile
     {
         return $this->saveFile;
@@ -27,10 +33,5 @@ class MainSave extends BaseSaveFile
     public function isTempSave() : bool
     {
         return $this->saveFile->isTempFile();
-    }
-
-    public function hasBackup() : bool
-    {
-        return $this->saveFile->getBackupFile()->exists();
     }
 }

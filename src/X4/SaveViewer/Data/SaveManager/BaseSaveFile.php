@@ -72,6 +72,13 @@ abstract class BaseSaveFile
         return $this->analysis->exists() && $this->analysis->hasSaveID();
     }
 
+    abstract public function getTypeLabel() : string;
+
+    public function hasBackup() : bool
+    {
+        return $this->analysis->getBackupFile()->exists();
+    }
+
     public function getDataFolder() : FolderInfo
     {
         return $this->analysis->getStorageFolder();
