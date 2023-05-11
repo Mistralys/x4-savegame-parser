@@ -7,6 +7,7 @@ namespace Mistralys\X4\SaveViewer;
 use AppUtils\FileHelper;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
 use Mistralys\X4\UI\UserInterface;
 use Mistralys\X4\X4Application;
 use Mistralys\X4\SaveViewer\UI\Pages\CreateBackup;
@@ -41,6 +42,7 @@ class SaveViewer extends X4Application
     public function registerPages(UserInterface $ui) : void
     {
         $ui->registerPage(SavesList::URL_NAME, SavesList::class);
+        $ui->registerPage(ArchivedSavesPage::URL_NAME, ArchivedSavesPage::class);
         $ui->registerPage(CreateBackup::URL_NAME, CreateBackup::class);
         $ui->registerPage(ViewSave::URL_NAME, ViewSave::class);
         $ui->registerPage(UnpackSave::URL_NAME, UnpackSave::class);
