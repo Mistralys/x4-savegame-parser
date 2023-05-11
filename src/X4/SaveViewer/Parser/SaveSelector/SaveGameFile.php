@@ -22,8 +22,6 @@ class SaveGameFile
     public const ERROR_ZIP_FILE_NOT_AVAILABLE = 136403;
     public const ERROR_CANNOT_ACCESS_STORAGE_FOLDER = 136404;
 
-    public const BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
-
     private ?FileInfo $zipFile;
     private ?FileInfo $xmlFile;
     private FileInfo $referenceFile;
@@ -81,15 +79,6 @@ class SaveGameFile
         }
 
         $this->analysis = FileAnalysis::createFromSaveFile($this);
-    }
-
-    public function getBackupFile() : FileInfo
-    {
-        return FileInfo::factory(sprintf(
-            '%s/%s',
-            $this->getStorageFolder(),
-            self::BACKUP_ARCHIVE_FILE_NAME
-        ));
     }
 
     public function getID() : string
