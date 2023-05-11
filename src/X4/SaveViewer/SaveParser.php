@@ -137,7 +137,7 @@ class SaveParser extends BaseXMLParser
 
     public function getBackupFile() : FileInfo
     {
-        return $this->saveFile->getBackupFile();
+        return $this->analysis->getBackupFile();
     }
 
     protected function registerActions() : void
