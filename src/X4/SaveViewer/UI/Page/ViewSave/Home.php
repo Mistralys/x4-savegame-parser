@@ -30,10 +30,15 @@ class Home extends SubPage
     public function renderContent() : void
     {
         $saveInfo = $this->getReader()->getSaveInfo();
+        $save = $this->getSave();
 
         ?>
         <table class="table table-horizontal">
             <tbody>
+            <tr>
+                <th><?php pt('Save type') ?></th>
+                <td><?php echo $save->getTypeLabel()  ?></td>
+            </tr>
             <tr>
                 <th><?php pt('Player name') ?></th>
                 <td><?php echo $saveInfo->getPlayerName()  ?></td>
