@@ -26,6 +26,16 @@ class SavesList extends MainPage
         return 'Savegames';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     protected function _render(): void
     {
         $grid = new SavesGridRenderer($this->ui, $this->manager->getSaves());
