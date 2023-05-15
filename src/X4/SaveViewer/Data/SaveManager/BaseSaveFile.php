@@ -94,9 +94,9 @@ abstract class BaseSaveFile
         return $this->getSaveName();
     }
 
-    public function getURLView() : string
+    public function getURLView(array $params=array()) : string
     {
-        return $this->getURL(ViewSave::URL_NAME);
+        return $this->getURL(ViewSave::URL_NAME, $params);
     }
 
     public function getURLUnpack() : string
