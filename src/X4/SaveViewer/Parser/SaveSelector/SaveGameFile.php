@@ -21,6 +21,7 @@ class SaveGameFile
     public const ERROR_XML_FILE_NOT_AVAILABLE = 136402;
     public const ERROR_ZIP_FILE_NOT_AVAILABLE = 136403;
     public const ERROR_CANNOT_ACCESS_STORAGE_FOLDER = 136404;
+    public const STORAGE_FOLDER_DATE_FORMAT = 'YmdHis';
 
     private ?FileInfo $zipFile;
     private ?FileInfo $xmlFile;
@@ -98,7 +99,7 @@ class SaveGameFile
         return FolderInfo::factory(sprintf(
             '%s/unpack-%s-%s',
             $this->outputFolder,
-            $this->getDateModified()->format('Ymdhis'),
+            $this->getDateModified()->format(self::STORAGE_FOLDER_DATE_FORMAT),
             $this->getBaseName()
         ));
     }

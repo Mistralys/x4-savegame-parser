@@ -77,7 +77,7 @@ class FileAnalysis extends ArrayDataCollection
 
         $parts = explode('-', $folder->getName());
         array_shift($parts); // remove "unpack"
-        $date = DateTime::createFromFormat('YmdHis', array_shift($parts));
+        $date = DateTime::createFromFormat(SaveGameFile::STORAGE_FOLDER_DATE_FORMAT, array_shift($parts));
         $baseName = array_shift($parts);
 
         return new FileAnalysis(
