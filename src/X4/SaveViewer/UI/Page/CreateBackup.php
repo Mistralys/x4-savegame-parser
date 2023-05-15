@@ -17,6 +17,16 @@ class CreateBackup extends Page
         return 'Back up savegame';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     protected function getURLParams() : array
     {
         return array(

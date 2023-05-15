@@ -22,6 +22,16 @@ class ArchivedSavesPage extends MainPage
         return t('Saves archive');
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function getNavTitle() : string
     {
         return t('Archive');

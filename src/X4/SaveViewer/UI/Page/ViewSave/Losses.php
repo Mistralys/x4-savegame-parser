@@ -26,6 +26,16 @@ class Losses extends SubPage
         return 'Losses';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function renderContent() : void
     {
         $log = $this->reader->getLog()->getDestroyed();

@@ -24,36 +24,47 @@ class Home extends SubPage
 
     public function getTitle() : string
     {
-        return t('Overview');
+        return t('Properties');
+    }
+
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return t('All relevant savegame properties at a glance.');
     }
 
     public function renderContent() : void
     {
-        $saveInfo = $this->getReader()->getSaveInfo();
+        $reader = $this->getReader();
+        $saveInfo = $reader->getSaveInfo();
         $save = $this->getSave();
 
         ?>
         <table class="table table-horizontal">
             <tbody>
             <tr>
-                <th><?php pt('Save type') ?></th>
+                <th style="width:1%;white-space: nowrap;"><?php pt('Save type') ?></th>
                 <td><?php echo $save->getTypeLabel()  ?></td>
             </tr>
             <tr>
-                <th><?php pt('Player name') ?></th>
+                <th style="width:1%;white-space: nowrap;"><?php pt('Player name') ?></th>
                 <td><?php echo $saveInfo->getPlayerName()  ?></td>
             </tr>
             <tr>
-                <th><?php pt('Money') ?></th>
+                <th style="width:1%;white-space: nowrap;"><?php pt('Money') ?></th>
                 <td><?php echo $saveInfo->getMoneyPretty() ?></td>
             </tr>
             <tr>
-                <th><?php pt('Save name') ?></th>
-                <td><?php echo $saveInfo->getSaveName() ?></td>
+                <th style="width:1%;white-space: nowrap;"><?php pt('Date created') ?></th>
+                <td><?php echo ConvertHelper::date2listLabel($saveInfo->getSaveDate(), true, true) ?></td>
             </tr>
             <tr>
-                <th><?php pt('Date created') ?></th>
-                <td><?php echo ConvertHelper::date2listLabel($saveInfo->getSaveDate(), true, true) ?></td>
+                <th style="width:1%;white-space: nowrap;"><?php pt('Khaa\'k stations') ?></th>
+                <td><?php echo $reader->getKhaakStations()->countStations() ?></td>
             </tr>
             </tbody>
         </table>

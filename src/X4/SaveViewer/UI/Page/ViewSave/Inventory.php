@@ -23,6 +23,16 @@ class Inventory extends SubPage
         return 'Player inventory';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function renderContent() : void
     {
         $inventory = $this->reader->getInventory();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages;
 
+use AppUtils\ConvertHelper;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
@@ -69,7 +70,23 @@ class ViewSave extends PageWithNav
 
     public function getTitle(): string
     {
-        return (string)sb()->t('Savegame:')->add($this->save->getSaveName());
+        return (string)sb()
+            ->add('<span style="font-family: monospace">'.$this->save->getSaveName().'</span>')
+            ->add(' ')
+            ->add('<i>"'.$this->reader->getSaveInfo()->getSaveName().'"</i>');
+    }
+
+    public function getSubtitle() : string
+    {
+        return (string)sb()
+            ->add($this->save->getTypeLabel())
+            ->add('/')
+            ->add(ConvertHelper::date2listLabel($this->save->getDateModified(), true, true));
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
     }
 
     public function getNavTitle() : string

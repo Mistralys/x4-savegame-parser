@@ -23,6 +23,16 @@ class FactionRelations extends SubPage
         return 'Faction relations';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function renderContent() : void
     {
         $factions = $this->reader->getFactions();

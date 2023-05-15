@@ -26,6 +26,16 @@ class Backup extends SubPage
         return 'Backup';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function renderContent() : void
     {
         $saveDate = $this->save->getDateModified();

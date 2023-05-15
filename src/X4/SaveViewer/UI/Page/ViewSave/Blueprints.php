@@ -23,6 +23,16 @@ class Blueprints extends SubPage
         return 'Blueprints';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function renderContent() : void
     {
         $categories = $this->getReader()->getBlueprints()->getCategories();

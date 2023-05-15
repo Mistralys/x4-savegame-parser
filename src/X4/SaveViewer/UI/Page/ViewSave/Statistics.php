@@ -23,6 +23,16 @@ class Statistics extends SubPage
         return 'Statistics';
     }
 
+    public function getSubtitle() : string
+    {
+        return '';
+    }
+
+    public function getAbstract() : string
+    {
+        return '';
+    }
+
     public function renderContent() : void
     {
         $stats = $this->reader->getStatistics()->getStats();
