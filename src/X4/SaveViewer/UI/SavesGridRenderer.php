@@ -33,6 +33,7 @@ class SavesGridRenderer implements RenderableInterface
     private GridColumn $cBackup;
     private GridColumn $cActions;
     private GridColumn $cType;
+    private GridColumn $cKhaak;
 
     /**
      * @var array<string,bool>
@@ -55,6 +56,7 @@ class SavesGridRenderer implements RenderableInterface
         $this->cChar = $this->grid->addColumn('character', t('Character'));
         $this->cMoney = $this->grid->addColumn('money', t('Money'))
             ->alignRight();
+        $this->cKhaak = $this->grid->addColumn('khaak', t('Khaak'));
         $this->cModified = $this->grid->addColumn('modified', t('Modified'));
         $this->cBackup = $this->grid->addColumn('backup', t('Backup?'))
             ->alignCenter();
@@ -85,10 +87,12 @@ class SavesGridRenderer implements RenderableInterface
                 $reader = $save->getDataReader();
                 $saveInfo = $reader->getSaveInfo();
                 $date = $saveInfo->getSaveDate();
+                $khaak = $reader->getKhaakStations();
 
                 $row->setValue($this->cName, sb()->link($save->getSaveName(), $save->getURLView())->add('-')->add($saveInfo->getSaveName()));
                 $row->setValue($this->cChar, $saveInfo->getPlayerName());
                 $row->setValue($this->cMoney, $saveInfo->getMoneyPretty());
+                $row->setValue($this->cKhaak, sb()->link((string)count($khaak->getSectors()), $khaak->getURLView()));
             }
             else
             {
