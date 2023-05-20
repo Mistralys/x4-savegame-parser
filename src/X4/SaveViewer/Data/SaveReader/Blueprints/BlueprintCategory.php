@@ -68,10 +68,11 @@ class BlueprintCategory
      */
     public function getLabel(): string
     {
-        if(isset(self::$labels[$this->id])) {
-            return self::$labels[$this->id];
-        }
+        return self::$labels[$this->id] ?? self::$labels[Blueprints::CATEGORY_UNKNOWN];
+    }
 
-        return self::$labels[Blueprints::CATEGORY_UNKNOWN];
+    public function countBlueprints() : int
+    {
+        return count($this->blueprints);
     }
 }
