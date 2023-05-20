@@ -8,7 +8,7 @@ use AppUtils\ConvertHelper;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Blueprints;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BlueprintsPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Home;
 use Mistralys\X4\SaveViewer\UI\PageWithNav;
 use function AppLocalize\t;
@@ -35,7 +35,7 @@ class ViewSave extends PageWithNav
     {
         $this->subPages = array(
             new Home($this),
-            new Blueprints($this),
+            new BlueprintsPage($this),
             new KhaakOverviewPage($this)
             //new Losses($this),
             //new Factions($this),
