@@ -13,4 +13,7 @@ use Mistralys\X4\SaveViewer\Monitor\X4Monitor;
 
 require_once __DIR__.'/prepend.php';
 
-runMonitor(new X4Monitor());
+runMonitor((new X4Monitor())
+    ->optionKeepXML(X4_MONITOR_KEEP_XML)
+    ->optionAutoBackup(X4_MONITOR_AUTO_BACKUP)
+);
