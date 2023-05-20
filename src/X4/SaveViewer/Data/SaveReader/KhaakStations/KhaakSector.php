@@ -84,9 +84,7 @@ class KhaakSector extends ArrayDataCollection
 
     public function countPlayerShips() : int
     {
-        $assets = $this->getArray(KhaakStationsList::KEY_PLAYER_ASSETS);
-
-        return count($assets[KhaakStationsList::KEY_PLAYER_SHIPS]);
+        return count($this->getRawShips());
     }
 
     public function countPlayerStations() : int
@@ -94,5 +92,12 @@ class KhaakSector extends ArrayDataCollection
         $assets = $this->getArray(KhaakStationsList::KEY_PLAYER_ASSETS);
 
         return count($assets[KhaakStationsList::KEY_PLAYER_STATIONS]);
+    }
+
+    public function getRawShips() : array
+    {
+        $assets = $this->getArray(KhaakStationsList::KEY_PLAYER_ASSETS);
+
+        return $assets[KhaakStationsList::KEY_PLAYER_SHIPS];
     }
 }
