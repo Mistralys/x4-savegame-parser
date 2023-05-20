@@ -9,7 +9,9 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer;
 
+use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper_Exception;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Parser\Collections;
@@ -38,7 +40,8 @@ class SaveParser extends BaseXMLParser
     public const ERROR_SAVEGAME_MUST_BE_UNZIPPED = 5454654;
 
     protected SaveGameFile $saveFile;
-    protected bool $createBackup = false;
+    protected bool $optionAutoBackup = false;
+    protected bool $optionKeepXML = false;
 
     /**
      * @param SaveGameFile|MainSave $saveFile Path to the XML save file to parse. Must have been unzipped first via {@see SaveGameFile::unzip()}.
@@ -89,29 +92,42 @@ class SaveParser extends BaseXMLParser
 
     public function unpack() : self
     {
-        if($this->createBackup) {
+        if($this->optionAutoBackup) {
             $this->createBackup();
         }
 
         $this->processFile();
         $this->postProcessFragments();
+        $this->cleanUp();
 
         return $this;
     }
 
-    public function setAutoBackupEnabled(bool $enabled=true) : self
+    protected function cleanUp() : void
     {
-        $this->createBackup = $enabled;
-        return $this;
+        $this->log('Cleanup | Running cleanup tasks.');
+
+        $xmlFolder = FolderInfo::factory($this->saveFile->getStorageFolder()->getPath().'/XML');
+
+        if(!$this->optionKeepXML && $xmlFolder->exists())
+        {
+            $this->log('Cleanup | Deleting the XML folder.');
+            FileHelper::deleteTree($xmlFolder);
+        }
     }
 
+    public function optionAutoBackup(bool $enabled=true) : self
+    {
+        $this->optionAutoBackup = $enabled;
+        return $this;
+    }
 
     /**
      * Creates a copy of the savegame ZIP file into the parser's
      * output folder as a backup.
      *
      * NOTE: This is done automatically if the option is enabled
-     * using {@see self::setAutoBackupEnabled()}.
+     * using {@see self::optionAutoBackup()}.
      *
      * @return $this
      * @throws SaveViewerException
@@ -138,6 +154,12 @@ class SaveParser extends BaseXMLParser
     public function getBackupFile() : FileInfo
     {
         return $this->analysis->getBackupFile();
+    }
+
+    public function optionKeepXML(bool $keepXML) : self
+    {
+        $this->optionKeepXML = $keepXML;
+        return $this;
     }
 
     protected function registerActions() : void
