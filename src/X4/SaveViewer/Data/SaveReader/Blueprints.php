@@ -7,6 +7,8 @@ namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Blueprints\BlueprintCategory;
 use Mistralys\X4\SaveViewer\Parser\Tags\Tag\PlayerComponentTag;
 use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BlueprintsPage;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
 
 class Blueprints extends Info
 {
@@ -87,12 +89,39 @@ class Blueprints extends Info
     {
         $parts = explode('_', $blueprintID);
         $type = array_shift($parts);
-        $categoryID = self::CATEGORY_UNKNOWN;
-
-        if(isset($this->partDefs[$type])) {
-            $categoryID = $this->partDefs[$type];
-        }
+        $categoryID = $this->partDefs[$type] ?? self::CATEGORY_UNKNOWN;
 
         $this->getCategory($categoryID)->addBlueprint($blueprintID);
+    }
+
+    public function countBlueprints() : int
+    {
+        $total = 0;
+        foreach($this->categories as $category) {
+            $total += $category->countBlueprints();
+        }
+
+        return $total;
+    }
+
+    public function getURLView(array $params=array()) : string
+    {
+        $params['view'] = BlueprintsPage::URL_NAME;
+
+        return $this->reader->getSaveFile()->getURLView($params);
+    }
+
+    public function getURLGenerateXML() : string
+    {
+        return $this->getURLView(array(
+            BlueprintsPage::REQUEST_PARAM_GENERATE_XML => 'yes'
+        ));
+    }
+
+    public function getURLGenerateMarkdown() : string
+    {
+        return $this->getURLView(array(
+            BlueprintsPage::REQUEST_PARAM_GENERATE_MARKDOWN => 'yes'
+        ));
     }
 }
