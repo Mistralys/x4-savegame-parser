@@ -145,15 +145,6 @@ class FileAnalysis extends ArrayDataCollection
         return $this->saveName;
     }
 
-    private function getReferenceSaveID() : string
-    {
-        return ConvertHelper::string2shortHash(sprintf(
-            'X4Save-%s-%s',
-            $this->modifiedDate->getTimestamp(),
-            $this->saveName
-        ));
-    }
-
     public function getBackupFile() : FileInfo
     {
         return FileInfo::factory(sprintf(
