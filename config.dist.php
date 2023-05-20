@@ -27,3 +27,21 @@ const X4_SERVER_HOST = 'localhost';
  * When in doubt, leave it as it is.
  */
 const X4_SERVER_PORT = 9494;
+
+/**
+ * Whether to include a backup of the target savegame
+ * when extracting the data.
+ *
+ * Creates a "backup.gz" file in the unpacked save folder.
+ */
+const X4_MONITOR_AUTO_BACKUP = true;
+
+/**
+ * Whether to keep the extracted XML fragment files once
+ * the data has been extracted, when using the save monitor.
+ *
+ * NOTE: These files can take up a lot of space, especially
+ * when letting the game run unsupervised, and depending on
+ * the delay configured in game between auto-saves.
+ */
+const X4_MONITOR_KEEP_XML = false;
