@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
+use Mistralys\X4\SaveViewer\Data\SaveReader\KhaakStations\KhaakSector;
 use Mistralys\X4\UI\Text;
 use function AppLocalize\t;
 use function AppLocalize\tex;
@@ -64,6 +65,11 @@ class KhaakOverviewPage extends SubPage
             $row->setValue($cStations, $this->formatNeutralCount($sector->countPlayerStations()));
 
             $grid->addRow($row);
+
+            $merged = $grid->createMergedRow();
+            $merged->setContent($this->renderDetails($sector));
+
+            $grid->addRow($merged);
         }
 
         echo $grid->render();
@@ -85,5 +91,28 @@ class KhaakOverviewPage extends SubPage
         }
 
         return (string)$amount;
+    }
+
+    private function renderDetails(KhaakSector $sector) : string
+    {
+        $ships = $sector->getRawShips();
+
+        if(empty($ships))
+        {
+            $content = t('No player ships present.');
+        }
+        else
+        {
+            $items = array();
+
+            foreach ($ships as $ship)
+            {
+                $items[] = $ship['name'];
+            }
+
+            $content = '<p>' . t('Player ships present:') . '</p><ul><li>' . implode('</li><li>', $items) . '</li></ul>';
+        }
+
+        return '<div style="padding-left:20px;font-size: 80%">'.$content.'</div>';
     }
 }
