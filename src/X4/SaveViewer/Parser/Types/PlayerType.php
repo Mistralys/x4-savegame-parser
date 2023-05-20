@@ -33,6 +33,7 @@ class PlayerType extends BaseComponentType
         $list = $this->getArray(self::KEY_BLUEPRINTS);
         if(!in_array($blueprintID, $list, true)) {
             $list[] = $blueprintID;
+            usort($list, 'strnatcasecmp');
             $this->setKey(self::KEY_BLUEPRINTS, $list);
         }
 
