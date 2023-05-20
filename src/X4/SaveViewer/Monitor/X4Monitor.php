@@ -17,14 +17,31 @@ use React\Http\HttpServer;
 use React\Http\Message\Response;
 use React\Promise\Promise;
 use React\Socket\SocketServer;
+use function AppLocalize\t;
 use function React\Async\await;
 
 class X4Monitor extends BaseMonitor
 {
+    private bool $optionKeepXML = false;
+    private bool $optionAutoBackup = true;
+
+    public function optionAutoBackup(bool $enabled) : self
+    {
+        $this->optionAutoBackup = $enabled;
+        return $this;
+    }
+
+    public function optionKeepXML(bool $keep) : self
+    {
+        $this->optionKeepXML = $keep;
+        return $this;
+    }
+
     protected function setup() : void
     {
         $this->logHeader('X4 Savegame unpacker');
         $this->log('Updates are run every [%s].', ConvertHelper::time2string($this->getTickSize()));
+        $this->log('Keep XML files: %s', strtoupper(ConvertHelper::bool2string($this->optionKeepXML, true)));
         $this->log('');
     }
 
@@ -58,7 +75,8 @@ class X4Monitor extends BaseMonitor
             $this->log('...Extracting and writing files.');
 
             SaveParser::create($file)
-                ->setAutoBackupEnabled()
+                ->optionAutoBackup($this->optionAutoBackup)
+                ->optionKeepXML($this->optionKeepXML)
                 ->unpack();
 
             $this->log('...Done.');
