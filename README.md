@@ -48,8 +48,8 @@ There are two tools available, which can be used together:
 
 ## Quick start
 
-1. Open a terminal in the project folder.
-2. Run `php run-ui.php`.
+1. Open a terminal in the project's `bin` folder.
+2. Execute `./run-ui`.
 3. You should see a message that the server is running.
 4. Note the server URL shown.
 5. Open a web browser, and go to the URL.
@@ -70,10 +70,10 @@ This tool is especially useful if you leave the game running unattended. If
 something bad happens ingame, it is easy to go back to a previous save - not
 limited to the amount of autosaves the game has.
 
-Simply open a terminal in the project folder, and start the monitor with:
+Simply open a terminal in the project's `bin` folder, and start the monitor with:
 
 ```shell
-php ./run-monitor.php
+./run-monitor
 ```
 
 The monitor will periodically display a status message in the terminal to
