@@ -9,6 +9,8 @@ use Mistralys\X4\SaveViewer\Parser\BaseDOMFragment;
 
 class FactionsFragment extends BaseDOMFragment
 {
+    public const TAG_PATH = 'savegame.universe.factions';
+
     protected function parseDOM(DOMDocument $dom) : void
     {
         // TODO: Implement parseDOM() method.

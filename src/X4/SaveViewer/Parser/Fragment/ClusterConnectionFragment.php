@@ -22,6 +22,8 @@ use Mistralys\X4\SaveViewer\Parser\Types\ZoneType;
 
 class ClusterConnectionFragment extends BaseDOMFragment
 {
+    public const TAG_PATH = 'savegame.universe.component[galaxy].connections.connection[ID]';
+
     protected function parseDOM(DOMDocument $dom) : void
     {
         $el = $this->checkIsElement($dom->firstChild, 'connection');

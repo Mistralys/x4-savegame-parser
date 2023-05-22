@@ -13,7 +13,6 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper_Exception;
-use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\EventLogFragment;
@@ -164,11 +163,11 @@ class SaveParser extends BaseXMLParser
 
     protected function registerActions() : void
     {
-        $this->registerExtractXML('savegame.info', SaveInfoFragment::class);
-        $this->registerExtractXML('savegame.universe.factions', FactionsFragment::class);
-        $this->registerExtractXML('savegame.universe.component[galaxy].connections.connection[ID]', ClusterConnectionFragment::class);
-        $this->registerExtractXML('savegame.stats', PlayerStatsFragment::class);
-        $this->registerExtractXML('savegame.log', EventLogFragment::class);
+        $this->registerExtractXML(SaveInfoFragment::TAG_PATH, SaveInfoFragment::class);
+        $this->registerExtractXML(FactionsFragment::TAG_PATH, FactionsFragment::class);
+        $this->registerExtractXML(ClusterConnectionFragment::TAG_PATH, ClusterConnectionFragment::class);
+        $this->registerExtractXML(PlayerStatsFragment::TAG_PATH, PlayerStatsFragment::class);
+        $this->registerExtractXML(EventLogFragment::TAG_PATH, EventLogFragment::class);
 
         $this->registerIgnore('savegame.messages');
         $this->registerIgnore('savegame.universe.blacklists');

@@ -11,6 +11,7 @@ use Mistralys\X4\SaveViewer\Parser\BaseDOMFragment;
 
 class SaveInfoFragment extends BaseDOMFragment
 {
+    public const TAG_PATH = 'savegame.info';
     public const SAVE_NAME = 'savegame-info';
 
     public const KEY_PLAYER_NAME = 'name';
