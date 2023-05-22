@@ -4,104 +4,106 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
-use Mistralys\X4\SaveViewer\Data\SaveReader\Blueprints\BlueprintCategory;
-use Mistralys\X4\SaveViewer\Parser\Tags\Tag\PlayerComponentTag;
+use Mistralys\X4\Database\Blueprints\BlueprintCategory;
+use Mistralys\X4\Database\Blueprints\BlueprintDef;
+use Mistralys\X4\Database\Blueprints\BlueprintDefs;
+use Mistralys\X4\Database\Blueprints\BlueprintSelection;
 use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BlueprintsPage;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
 
 class Blueprints extends Info
 {
-    const CATEGORY_MODULES = 'modules';
-    const CATEGORY_SHIELDS = 'shields';
-    const CATEGORY_WEAPONS = 'weapons';
-    const CATEGORY_TURRETS = 'turrets';
-    const CATEGORY_ENGINES = 'engines';
-    const CATEGORY_SHIPS = 'ships';
-    const CATEGORY_THRUSTERS = 'thruster';
-    const CATEGORY_DEPLOYABLES = 'deployables';
-    const CATEGORY_MODIFICATIONS = 'modifications';
-    const CATEGORY_SKINS = 'skins';
-    const CATEGORY_COUNTERMEASURES = 'countermeasures';
-    const CATEGORY_MISSILES = 'missiles';
-    const CATEGORY_UNKNOWN = 'unknown';
-
     /**
-     * @var array<string,string>
+     * @var array<string,BlueprintDef>
      */
-    protected array $partDefs = array(
-        'turret' => Blueprints::CATEGORY_TURRETS,
-        'ship' => Blueprints::CATEGORY_SHIPS,
-        'shield' => Blueprints::CATEGORY_SHIELDS,
-        'module' => Blueprints::CATEGORY_MODULES,
-        'engine' => Blueprints::CATEGORY_ENGINES,
-        'mod' => Blueprints::CATEGORY_MODIFICATIONS,
-        'weapon' => Blueprints::CATEGORY_WEAPONS,
-        'satellite' => Blueprints::CATEGORY_DEPLOYABLES,
-        'resourceprobe' => Blueprints::CATEGORY_DEPLOYABLES,
-        'waypointmarker' => Blueprints::CATEGORY_DEPLOYABLES,
-        'survey' => Blueprints::CATEGORY_DEPLOYABLES,
-        'paintmod' => Blueprints::CATEGORY_SKINS,
-        'clothingmod' => Blueprints::CATEGORY_SKINS,
-        'countermeasure' => Blueprints::CATEGORY_COUNTERMEASURES,
-        'missile' => Blueprints::CATEGORY_MISSILES,
-        'thruster' => Blueprints::CATEGORY_THRUSTERS
-    );
+    private array $blueprints = array();
 
     /**
-     * @var BlueprintCategory[]
+     * @var array<string,BlueprintCategory>
      */
     private array $categories = array();
+    private BlueprintDefs $collection;
+    private ?BlueprintSelection $owned = null;
+    private ?BlueprintSelection $unowned = null;
 
     protected function init() : void
     {
         $data = $this->collections->player()->loadData();
+        $this->collection = BlueprintDefs::getInstance();
+
         $blueprintIDs = $data[PlayerType::KEY_BLUEPRINTS];
 
         foreach($blueprintIDs as $blueprintID)
         {
             $this->addBlueprint($blueprintID);
         }
-
-        usort($this->categories, function (BlueprintCategory $a, BlueprintCategory $b) {
-            return strnatcasecmp($a->getLabel(), $b->getLabel());
-        });
-    }
-
-    private function getCategory(string $categoryID) : BlueprintCategory
-    {
-        if(!isset($this->categories[$categoryID])) {
-            $this->categories[$categoryID] = new BlueprintCategory($categoryID);
-        }
-
-        return $this->categories[$categoryID];
     }
 
     /**
-     * @return BlueprintCategory[]
+     * Fetches a selection of all blueprints owned by the player.
+     * @return BlueprintSelection
      */
-    public function getCategories() : array
+    public function getOwned() : BlueprintSelection
     {
-        return $this->categories;
+        if(!isset($this->owned)) {
+            $this->owned = BlueprintSelection::create(array_values($this->blueprints));
+        }
+
+        return $this->owned;
+    }
+
+    /**
+     * Fetches a selection of all blueprints not owned by the player.
+     * @return BlueprintSelection
+     */
+    public function getUnowned() : BlueprintSelection
+    {
+        if(isset($this->unowned)) {
+            return $this->unowned;
+        }
+
+        $all = BlueprintDefs::getInstance()->getBlueprints();
+        $unowned = BlueprintSelection::create();
+
+        foreach($all as $blueprint) {
+            if(!$this->isOwned($blueprint)) {
+                $unowned->addBlueprint($blueprint);
+            }
+        }
+
+        $this->unowned = $unowned;
+
+        return $unowned;
+    }
+
+    /**
+     * @var array<string,bool>
+     */
+    private array $ownedCache = array();
+
+    public function isOwned(BlueprintDef $blueprint) : bool
+    {
+        $id = $blueprint->getID();
+
+        if(!isset($this->ownedCache[$id]))
+        {
+            $this->ownedCache[$id] = in_array($blueprint->getID(), $this->getOwned()->getBlueprintIDs());
+        }
+
+        return $this->ownedCache[$id];
     }
 
     private function addBlueprint(string $blueprintID) : void
     {
-        $parts = explode('_', $blueprintID);
-        $type = array_shift($parts);
-        $categoryID = $this->partDefs[$type] ?? self::CATEGORY_UNKNOWN;
+        $blueprint = $this->collection->getBlueprintByID($blueprintID);
+        $this->blueprints[$blueprintID] = $blueprint;
 
-        $this->getCategory($categoryID)->addBlueprint($blueprintID);
-    }
+        $category = $blueprint->getCategory();
+        $categoryID = $category->getID();
 
-    public function countBlueprints() : int
-    {
-        $total = 0;
-        foreach($this->categories as $category) {
-            $total += $category->countBlueprints();
+        if(!isset($this->categories[$categoryID])) {
+            $this->categories[$categoryID] = $category;
         }
-
-        return $total;
     }
 
     public function getURLView(array $params=array()) : string
@@ -111,17 +113,33 @@ class Blueprints extends Info
         return $this->reader->getSaveFile()->getURLView($params);
     }
 
-    public function getURLGenerateXML() : string
+    public function getURLShowUnowned() : string
     {
         return $this->getURLView(array(
-            BlueprintsPage::REQUEST_PARAM_GENERATE_XML => 'yes'
+            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => BlueprintsPage::SHOW_TYPE_UNOWNED
         ));
     }
 
-    public function getURLGenerateMarkdown() : string
+    public function getURLShowOwned() : string
     {
         return $this->getURLView(array(
-            BlueprintsPage::REQUEST_PARAM_GENERATE_MARKDOWN => 'yes'
+            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => BlueprintsPage::SHOW_TYPE_OWNED
+        ));
+    }
+
+    public function getURLGenerateXML(string $type=BlueprintsPage::SHOW_TYPE_ALL) : string
+    {
+        return $this->getURLView(array(
+            BlueprintsPage::REQUEST_PARAM_GENERATE_XML => 'yes',
+            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => $type
+        ));
+    }
+
+    public function getURLGenerateMarkdown(string $type=BlueprintsPage::SHOW_TYPE_ALL) : string
+    {
+        return $this->getURLView(array(
+            BlueprintsPage::REQUEST_PARAM_GENERATE_MARKDOWN => 'yes',
+            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => $type
         ));
     }
 }
