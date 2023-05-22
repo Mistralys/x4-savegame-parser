@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Parser\Types;
 
+use Mistralys\X4\SaveViewer\Parser\Traits\PlayerContainerInterface;
+use Mistralys\X4\SaveViewer\Parser\Traits\PlayerContainerTrait;
 use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerInterface;
 use Mistralys\X4\SaveViewer\Parser\Traits\ShipContainerTrait;
 
-class StationType extends BaseComponentType implements ShipContainerInterface
+class StationType extends BaseComponentType implements ShipContainerInterface, PlayerContainerInterface
 {
     use ShipContainerTrait;
+    use PlayerContainerTrait;
 
     public const TYPE_ID = 'station';
 
