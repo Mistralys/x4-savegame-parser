@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
-use AppUtils\Request;
+use Mistralys\X4\Database\Blueprints\BlueprintCategory;
+use Mistralys\X4\Database\Blueprints\BlueprintDef;
+use Mistralys\X4\Database\Blueprints\BlueprintDefs;
+use Mistralys\X4\Database\Blueprints\BlueprintSelection;
 use Mistralys\X4\Database\Races\RaceDefs;
 use Mistralys\X4\Database\Races\RaceException;
-use Mistralys\X4\SaveViewer\Data\SaveReader\Blueprints\Blueprint;
 use Mistralys\X4\UI\Button;
 use Mistralys\X4\UI\Text;
 use function AppLocalize\pt;
@@ -20,6 +22,12 @@ class BlueprintsPage extends SubPage
     public const URL_NAME = 'Blueprints';
     public const REQUEST_PARAM_GENERATE_XML = 'generate-xml';
     public const REQUEST_PARAM_GENERATE_MARKDOWN = 'generate-markdown';
+    public const REQUEST_PARAM_SHOW_TYPE = 'show-type';
+
+    public const SHOW_TYPE_ALL = 'all';
+    public const SHOW_TYPE_OWNED = 'owned';
+    public const SHOW_TYPE_UNOWNED = 'unowned';
+    private string $showType;
 
     public function getURLName() : string
     {
@@ -46,25 +54,61 @@ class BlueprintsPage extends SubPage
         return '';
     }
 
+    private ?BlueprintSelection $selection = null;
+
+    public function getSelection() : BlueprintSelection
+    {
+        if(isset($this->selection)) {
+            return $this->selection;
+        }
+
+        if($this->showType === self::SHOW_TYPE_OWNED)
+        {
+            $this->selection = $this->getReader()->getBlueprints()->getOwned();
+        }
+        else if($this->showType === self::SHOW_TYPE_UNOWNED)
+        {
+            $this->selection = $this->getReader()->getBlueprints()->getUnowned();
+        }
+        else
+        {
+            $this->selection = BlueprintDefs::getInstance()->createSelection();
+        }
+
+        return $this->selection;
+    }
+
     public function renderContent() : void
     {
-        if(Request::getInstance()->getBool(self::REQUEST_PARAM_GENERATE_XML)) {
+        $this->showType = (string)$this->request->registerParam(self::REQUEST_PARAM_SHOW_TYPE)
+            ->setEnum(self::SHOW_TYPE_ALL, self::SHOW_TYPE_OWNED, self::SHOW_TYPE_UNOWNED)
+            ->get(self::SHOW_TYPE_ALL);
+
+        if($this->request->getBool(self::REQUEST_PARAM_GENERATE_XML)) {
             $this->renderXML();
             return;
         }
 
-        if(Request::getInstance()->getBool(self::REQUEST_PARAM_GENERATE_MARKDOWN)) {
+        if($this->request->getBool(self::REQUEST_PARAM_GENERATE_MARKDOWN)) {
             $this->renderMarkdown();
             return;
         }
 
-        $collection = $this->getReader()->getBlueprints();
-        $categories = $collection->getCategories();
+        $blueprintsCollection = $this->getReader()->getBlueprints();
+        $ownedBlueprints = $blueprintsCollection->getOwned();
+        $knownBlueprints = BlueprintDefs::getInstance()->createSelection();
+
+        $categories = $this->getSelection()->getCategories();
 
         ?>
             <p>
                 <?php
-                pts('%1$s knows a total of %2$s blueprints.', $this->getReader()->getPlayer()->getName(), $collection->countBlueprints());
+                pts(
+                    '%1$s knows a total of %2$s/%3$s blueprints.',
+                    $this->getReader()->getPlayer()->getName(),
+                    $ownedBlueprints->countBlueprints(),
+                    $knownBlueprints->countBlueprints()
+                );
                 pt('Available categories:');
                 ?>
             </p>
@@ -75,7 +119,9 @@ class BlueprintsPage extends SubPage
                     <a href="#category-<?php echo $category->getID() ?>">
                         <?php echo $category->getLabel() ?>
                     </a>
-                    <?php echo Text::create(' - '.$category->countBlueprints())->colorMuted() ?>
+                    <?php
+                        echo Text::create(' - '.$this->countByCategory($category))->colorMuted();
+                    ?>
                     <br>
                     <?php
                 }
@@ -84,13 +130,26 @@ class BlueprintsPage extends SubPage
             <p>
                 <?php
                 echo sb()
-                    ->add(Button::create(t('Generate XML'))
+                    ->add(Button::create(t('Show all'))
                         ->colorPrimary()
-                        ->link($collection->getURLGenerateXML())
+                        ->link($blueprintsCollection->getURLView())
+                    )
+                    ->add(Button::create(t('Show owned'))
+                        ->colorPrimary()
+                        ->link($blueprintsCollection->getURLShowOwned())
+                    )
+                    ->add(Button::create(t('Show unowned'))
+                        ->colorPrimary()
+                        ->link($blueprintsCollection->getURLShowUnowned())
+                    )
+                    ->add('&#160;')
+                    ->add(Button::create(t('Generate XML'))
+                        ->makeOutline()
+                        ->link($blueprintsCollection->getURLGenerateXML($this->showType))
                     )
                     ->add(Button::create(t('Generate Markdown'))
-                        ->colorPrimary()
-                        ->link($collection->getURLGenerateMarkdown())
+                        ->makeOutline()
+                        ->link($blueprintsCollection->getURLGenerateMarkdown($this->showType))
                     );
                 ?>
             </p>
@@ -103,9 +162,24 @@ class BlueprintsPage extends SubPage
             <ul>
                 <?php
                 $blueprints = $category->getBlueprints();
-                foreach ($blueprints as $blueprint) {
+
+                foreach ($blueprints as $blueprint)
+                {
+                    $isOwned = $blueprintsCollection->isOwned($blueprint);
+
+                    $class = 'blueprint-unowned text-warning';
+                    if($isOwned) {
+                        $class = 'blueprint-owned text-success';
+                    }
+
+                    if(!$this->isValid($blueprint)) {
+                        continue;
+                    }
+
                     ?>
-                    <li><?php echo $blueprint->getName() ?></li>
+                    <li class="<?php echo $class ?>">
+                        <?php echo $blueprint->getLabel() ?>
+                    </li>
                     <?php
                 }
                 ?>
@@ -128,7 +202,7 @@ class BlueprintsPage extends SubPage
 
                 foreach ($blueprints as $blueprint)
                 {
-                    $xml .= '    <blueprint ware="' . $blueprint->getName() . '"/>' . PHP_EOL;
+                    $xml .= '    <blueprint ware="' . $blueprint->getID() . '"/>' . PHP_EOL;
                 }
 
                 $xml .= PHP_EOL;
@@ -174,13 +248,12 @@ class BlueprintsPage extends SubPage
     }
 
     /**
-     * @return array<string,array<string,array<int,Blueprint>>>
+     * @return array<string,array<string,array<int,BlueprintDef>>>
      * @throws RaceException
      */
     private function resolveList() : array
     {
-        $collection = $this->getReader()->getBlueprints();
-        $categories = $collection->getCategories();
+        $categories = $this->getSelection()->getCategories();
         $list = array();
         $raceCollection = RaceDefs::getInstance();
 
@@ -211,5 +284,36 @@ class BlueprintsPage extends SubPage
         }
 
         return $list;
+    }
+
+    private function isValid(BlueprintDef $blueprint) : bool
+    {
+        $collection = $this->getReader()->getBlueprints();
+        $hasBP = $collection->isOwned($blueprint);
+
+        if($this->showType === self::SHOW_TYPE_UNOWNED && $hasBP) {
+            return false;
+        }
+
+        if($this->showType === self::SHOW_TYPE_OWNED && !$hasBP) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function countByCategory(BlueprintCategory $category) : int
+    {
+        $blueprints = $category->getBlueprints();
+        $total = 0;
+
+        foreach ($blueprints as $blueprint)
+        {
+            if($this->isValid($blueprint)) {
+                $total++;
+            }
+        }
+
+        return $total;
     }
 }
