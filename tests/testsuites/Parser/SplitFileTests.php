@@ -45,7 +45,7 @@ final class SplitFileTests extends X4ParserTestCase
         }
 
         $parser = SaveParser::create($save)
-            ->setAutoBackupEnabled()
+            ->optionAutoBackup()
             ->setLoggingEnabled($this->isLoggingEnabled())
             ->unpack();
 
