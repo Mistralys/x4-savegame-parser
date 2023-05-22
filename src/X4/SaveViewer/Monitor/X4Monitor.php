@@ -24,6 +24,13 @@ class X4Monitor extends BaseMonitor
 {
     private bool $optionKeepXML = false;
     private bool $optionAutoBackup = true;
+    private bool $optionLogging = false;
+
+    public function optionLogging(bool $enabled) : self
+    {
+        $this->optionLogging = $enabled;
+        return $this;
+    }
 
     public function optionAutoBackup(bool $enabled) : self
     {
@@ -77,6 +84,7 @@ class X4Monitor extends BaseMonitor
             SaveParser::create($file)
                 ->optionAutoBackup($this->optionAutoBackup)
                 ->optionKeepXML($this->optionKeepXML)
+                ->setLoggingEnabled($this->optionLogging)
                 ->unpack();
 
             $this->log('...Done.');
