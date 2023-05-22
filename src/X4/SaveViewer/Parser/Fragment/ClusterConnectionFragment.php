@@ -215,6 +215,11 @@ class ClusterConnectionFragment extends BaseDOMFragment
 
                 $this->parseShipComponent($ship, $connection->componentNode);
             }
+
+            if($connection->componentClass === 'player')
+            {
+                $this->parsePlayer($connection, $station);
+            }
         }
     }
 
@@ -289,6 +294,11 @@ class ClusterConnectionFragment extends BaseDOMFragment
                 $ship->addShip($dockedShip);
 
                 $this->parseShipComponent($dockedShip, $connection->componentNode);
+            }
+
+            if($connection->componentClass === 'player')
+            {
+                $this->parsePlayer($connection, $ship);
             }
         }
     }
