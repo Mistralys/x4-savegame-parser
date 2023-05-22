@@ -10,26 +10,26 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag\LogTag;
 
 class LogEntry
 {
-    const CATEGORY_MISSIONS = 'missions';
-    const CATEGORY_TIPS = 'tips';
-    const CATEGORY_EVENT = 'event';
-    const CATEGORY_REPUTATION = 'reputation';
-    const CATEGORY_PROMOTION = 'promotion';
-    const CATEGORY_DISCOUNT = 'discount';
-    const CATEGORY_REWARD = 'reward';
-    const CATEGORY_LOCKBOX = 'lockbox';
-    const CATEGORY_EMERGENCY = 'emergency';
-    const CATEGORY_IGNORE = '__ignore';
-    const CATEGORY_PIRATE_HARASSMENT = 'pirates';
-    const CATEGORY_SHIP_SUPPLY = 'ship-supply';
-    const CATEGORY_WAR = 'war';
-    const CATEGORY_TRADE = 'trade';
-    const CATEGORY_STATION_FINANCE = 'station-finance';
-    const CATEGORY_STATION_BUILDING = 'station-building';
-    const CATEGORY_DESTROYED = 'destroyed';
-    const CATEGORY_ATTACKED = 'attacked';
-    const CATEGORY_CREW_ASSIGNMENT = 'crew-assignment';
-    const CATEGORY_SHIP_CONSTRUCTION = 'ship-construction';
+    public const CATEGORY_MISSIONS = 'missions';
+    public const CATEGORY_TIPS = 'tips';
+    public const CATEGORY_EVENT = 'event';
+    public const CATEGORY_REPUTATION = 'reputation';
+    public const CATEGORY_PROMOTION = 'promotion';
+    public const CATEGORY_DISCOUNT = 'discount';
+    public const CATEGORY_REWARD = 'reward';
+    public const CATEGORY_LOCKBOX = 'lockbox';
+    public const CATEGORY_EMERGENCY = 'emergency';
+    public const CATEGORY_IGNORE = '__ignore';
+    public const CATEGORY_PIRATE_HARASSMENT = 'pirates';
+    public const CATEGORY_SHIP_SUPPLY = 'ship-supply';
+    public const CATEGORY_WAR = 'war';
+    public const CATEGORY_TRADE = 'trade';
+    public const CATEGORY_STATION_FINANCE = 'station-finance';
+    public const CATEGORY_STATION_BUILDING = 'station-building';
+    public const CATEGORY_DESTROYED = 'destroyed';
+    public const CATEGORY_ATTACKED = 'attacked';
+    public const CATEGORY_CREW_ASSIGNMENT = 'crew-assignment';
+    public const CATEGORY_SHIP_CONSTRUCTION = 'ship-construction';
 
     /**
      * @var array<string,string>
@@ -128,19 +128,14 @@ class LogEntry
 
     private function detectCategory() : string
     {
-        $result = self::CATEGORY_EVENT;
-
-        if(isset($this->data[LogTag::KEY_CATEGORY]))
-        {
-            $result = $this->data[LogTag::KEY_CATEGORY];
-        }
+        $result = $this->data[LogTag::KEY_CATEGORY] ?? self::CATEGORY_EVENT;
 
         $title = $this->getTitle();
         $text = $this->getText();
 
         foreach($this->terms as $term => $termCategory)
         {
-            if (stristr($title, $term) !== false || stristr($text, $term) !== false) {
+            if (stripos($title, $term) !== false || stripos($text, $term) !== false) {
                 $result = $termCategory;
                 break;
             }
