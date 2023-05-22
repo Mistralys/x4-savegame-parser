@@ -14,11 +14,15 @@ use Mistralys\X4\SaveViewer\Data\SaveReader\PlayerInfo;
 use Mistralys\X4\SaveViewer\Data\SaveReader\SaveInfo;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Statistics;
 use Mistralys\X4\SaveViewer\Parser\Collections;
+use testsuites\FileHelperTests\ResolvePathTypeTest;
 
 class SaveReader
 {
     private BaseSaveFile $saveFile;
     protected Collections $collections;
+    private ?Blueprints $blueprints = null;
+    private ?PlayerInfo $player = null;
+    private ?SaveInfo $saveInfo = null;
 
     public function __construct(BaseSaveFile $saveFile)
     {
@@ -38,17 +42,32 @@ class SaveReader
 
     public function getSaveInfo() : SaveInfo
     {
-        return new SaveInfo($this);
+        if(!isset($this->saveInfo)) {
+            $this->saveInfo = new SaveInfo($this);
+        }
+
+        return $this->saveInfo;
     }
 
     public function getPlayer() : PlayerInfo
     {
-        return new PlayerInfo($this);
+        if(!isset($this->player))
+        {
+            $this->player = new PlayerInfo($this);
+        }
+
+        return $this->player;
     }
+
 
     public function getBlueprints() : Blueprints
     {
-        return new Blueprints($this);
+        if(!isset($this->blueprints))
+        {
+            $this->blueprints = new Blueprints($this);
+        }
+
+        return $this->blueprints;
     }
 
     public function getStatistics() : Statistics
