@@ -45,3 +45,9 @@ const X4_MONITOR_AUTO_BACKUP = true;
  * the delay configured in game between auto-saves.
  */
 const X4_MONITOR_KEEP_XML = false;
+
+/**
+ * Whether to display log messages from the savegame parsing
+ * process in the monitor.
+ */
+const X4_MONITOR_LOGGING = false;

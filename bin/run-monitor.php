@@ -16,4 +16,5 @@ require_once __DIR__.'/prepend.php';
 runMonitor((new X4Monitor())
     ->optionKeepXML(X4_MONITOR_KEEP_XML)
     ->optionAutoBackup(X4_MONITOR_AUTO_BACKUP)
+    ->optionLogging(X4_MONITOR_LOGGING)
 );
