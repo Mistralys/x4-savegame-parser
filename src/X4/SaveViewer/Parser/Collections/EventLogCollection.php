@@ -34,4 +34,12 @@ class EventLogCollection extends BaseCollection
 
         return $logEntry;
     }
+
+    /**
+     * @return LogEntryType[]
+     */
+    public function getEntries() : array
+    {
+        return $this->getComponentsByType(LogEntryType::TYPE_ID);
+    }
 }
