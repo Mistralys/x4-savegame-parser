@@ -12,6 +12,9 @@ use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
 use Mistralys\X4\SaveViewer\SaveViewerException;
+use Mistralys\X4\SaveViewer\UI\Pages\SavesList;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
+use Mistralys\X4\UI\Page\BasePage;
 
 class SaveManager
 {
@@ -210,5 +213,24 @@ class SaveManager
             '',
             self::ERROR_CANNOT_FIND_BY_NAME
         );
+    }
+
+    public function getURL(array $params=array()) : string
+    {
+        return '?'.http_build_query($params);
+    }
+
+    public function getURLSavesArchive(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_PAGE] = ArchivedSavesPage::URL_NAME;
+
+        return $this->getURL($params);
+    }
+
+    public function getURLSavesList(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_PAGE] = SavesList::URL_NAME;
+
+        return $this->getURL($params);
     }
 }
