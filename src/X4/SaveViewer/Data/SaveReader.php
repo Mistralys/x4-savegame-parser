@@ -7,11 +7,13 @@ namespace Mistralys\X4\SaveViewer\Data;
 use AppUtils\FileHelper;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Blueprints;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Factions;
+use Mistralys\X4\SaveViewer\Data\SaveReader\GameTime;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Inventory;
 use Mistralys\X4\SaveViewer\Data\SaveReader\KhaakStationsReader;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 use Mistralys\X4\SaveViewer\Data\SaveReader\PlayerInfo;
 use Mistralys\X4\SaveViewer\Data\SaveReader\SaveInfo;
+use Mistralys\X4\SaveViewer\Data\SaveReader\ShipLossesReader;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Statistics;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use testsuites\FileHelperTests\ResolvePathTypeTest;
@@ -102,25 +104,42 @@ class SaveReader
 
     public function dataExists(string $dataID) : bool
     {
-        return false;
+        return file_exists($this->getDataPath($dataID));
     }
 
     public function getDataPath(string $dataID) : string
     {
         return sprintf(
-            '%s/%s.json',
-            $this->saveFile->getJSONPath(),
+            '%s/data-%s.json',
+            $this->saveFile->getJSONPath()->getPath(),
             $dataID
         );
     }
 
-    public function countLosses() : int
-    {
-        return $this->getLog()->getDestroyed()->countEntries();
-    }
+    private ?KhaakStationsReader $khaak = null;
 
     public function getKhaakStations() : KhaakStationsReader
     {
-        return new KhaakStationsReader($this);
+        if(!isset($this->khaak)) {
+            $this->khaak = new KhaakStationsReader($this);
+        }
+
+        return $this->khaak;
+    }
+
+    private ?ShipLossesReader $losses = null;
+
+    public function getShipLosses() : ShipLossesReader
+    {
+        if(!isset($this->losses)) {
+            $this->losses = new ShipLossesReader($this);
+        }
+
+        return $this->losses;
+    }
+
+    public function createTime($time) : GameTime
+    {
+        return GameTime::create($time, $this->getSaveInfo()->getGameStartTime());
     }
 }
