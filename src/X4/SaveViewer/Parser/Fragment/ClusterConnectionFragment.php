@@ -181,6 +181,27 @@ class ClusterConnectionFragment extends BaseDOMFragment
             {
                 $this->parseStationDockingBay($station, $connection);
             }
+
+            if($connection->componentClass === 'room')
+            {
+                $this->parseStationDockingRoom($station, $connection);
+            }
+        }
+    }
+
+    private function parseStationDockingRoom(StationType $station, ConnectionComponent $component) : void
+    {
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            // Other component classes:
+            // - npc
+
+            if($connection->componentClass === 'player')
+            {
+                $this->parsePlayer($connection, $station);
+            }
         }
     }
 
