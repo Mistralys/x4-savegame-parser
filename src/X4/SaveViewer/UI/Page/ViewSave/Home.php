@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 use AppUtils\ConvertHelper;
+use Mistralys\X4\SaveViewer\UI\Pages\SavesList;
+use Mistralys\X4\SaveViewer\UI\SavesGridRenderer;
 use function AppLocalize\pt;
 use function AppLocalize\t;
+use function AppUtils\sb;
 
 class Home extends SubPage
 {
@@ -19,7 +22,7 @@ class Home extends SubPage
 
     public function isInSubnav() : bool
     {
-        return false;
+        return true;
     }
 
     public function getTitle() : string
@@ -42,30 +45,55 @@ class Home extends SubPage
         $reader = $this->getReader();
         $saveInfo = $reader->getSaveInfo();
         $save = $this->getSave();
+        $losses = $reader->getShipLosses();
+
+        $props = array(
+            array(
+                'label' => t('Save type'),
+                'value' => $save->getTypeLabel()
+            ),
+            array(
+                'label' => t('Player name'),
+                'value' => $saveInfo->getPlayerName()
+            ),
+            array(
+                'label' => t('Money'),
+                'value' => $saveInfo->getMoneyPretty()
+            ),
+            array(
+                'label' => t('Date created'),
+                'value' => ConvertHelper::date2listLabel($saveInfo->getSaveDate(), true, true)
+            ),
+            array(
+                'label' => t('Khaa\'k stations'),
+                'value' => $reader->getKhaakStations()->countStations()
+            ),
+            array(
+                'label' => t('Ship losses'),
+                'value' => sb()
+                    ->add($losses->countLosses())
+                    ->add('('.t('%1$s in the last %2$s hours', $losses->countLosses(SavesGridRenderer::LAST_X_HOURS), SavesGridRenderer::LAST_X_HOURS).')')
+            ),
+            array(
+                'label' => t('Archive folder'),
+                'value' => $save->getStorageFolder()->getPath()
+            )
+        );
 
         ?>
         <table class="table table-horizontal">
             <tbody>
-            <tr>
-                <th style="width:1%;white-space: nowrap;"><?php pt('Save type') ?></th>
-                <td><?php echo $save->getTypeLabel()  ?></td>
-            </tr>
-            <tr>
-                <th style="width:1%;white-space: nowrap;"><?php pt('Player name') ?></th>
-                <td><?php echo $saveInfo->getPlayerName()  ?></td>
-            </tr>
-            <tr>
-                <th style="width:1%;white-space: nowrap;"><?php pt('Money') ?></th>
-                <td><?php echo $saveInfo->getMoneyPretty() ?></td>
-            </tr>
-            <tr>
-                <th style="width:1%;white-space: nowrap;"><?php pt('Date created') ?></th>
-                <td><?php echo ConvertHelper::date2listLabel($saveInfo->getSaveDate(), true, true) ?></td>
-            </tr>
-            <tr>
-                <th style="width:1%;white-space: nowrap;"><?php pt('Khaa\'k stations') ?></th>
-                <td><?php echo $reader->getKhaakStations()->countStations() ?></td>
-            </tr>
+            <?php
+            foreach($props as $prop)
+            {
+                ?>
+                <tr>
+                    <th style="width:1%;white-space: nowrap;"><?php echo $prop['label'] ?></th>
+                    <td><?php echo $prop['value']  ?></td>
+                </tr>
+                <?php
+            }
+            ?>
             </tbody>
         </table>
         <?php
