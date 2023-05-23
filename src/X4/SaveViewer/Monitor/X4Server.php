@@ -9,6 +9,7 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper_Exception;
 use Mistralys\X4\SaveViewer\SaveViewer;
+use Mistralys\X4\SaveViewer\UI\RedirectException;
 use Mistralys\X4\UI\UserInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\HttpServer;
@@ -60,6 +61,7 @@ class X4Server extends BaseMonitor
     public function handleRequest(ServerRequestInterface $request) : Response
     {
         $this->requestCounter++;
+
 
         $this->logHeader('Request %s', $this->requestCounter);
 
@@ -240,6 +242,15 @@ class X4Server extends BaseMonitor
             $app = new SaveViewer();
             $ui = new UserInterface($app, 'http://'.X4_SERVER_HOST.':'.X4_SERVER_PORT);
             $content = $ui->render();
+        }
+        catch (RedirectException $e)
+        {
+            return new Response(
+                Response::STATUS_FOUND,
+                array(
+                    'Location' => $e->getURL()
+                )
+            );
         }
         catch (Throwable $e)
         {
