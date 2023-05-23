@@ -6,14 +6,15 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 use AppUtils\ConvertHelper;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Log\LogEntry;
+use function AppLocalize\pt;use function AppLocalize\t;
 
 class Losses extends SubPage
 {
-    const URL_PARAM = 'Losses';
+    public const URL_NAME = 'Losses';
 
     public function getURLName() : string
     {
-        return self::URL_PARAM;
+        return self::URL_NAME;
     }
 
     public function isInSubnav() : bool
@@ -23,7 +24,7 @@ class Losses extends SubPage
 
     public function getTitle() : string
     {
-        return 'Losses';
+        return t('Ship losses');
     }
 
     public function getSubtitle() : string
@@ -38,32 +39,35 @@ class Losses extends SubPage
 
     public function renderContent() : void
     {
-        $log = $this->reader->getLog()->getDestroyed();
+        $losses = $this->getReader()->getShipLosses()->getLosses();
 
-        $entries = $log->getEntries();
-
-        usort($entries, function (LogEntry $a, LogEntry $b) {
-            return $b->getTime() - $a->getTime();
-        });
+        $grid = $this->page->getUI()->createDataGrid();
+        $colTime = $grid->addColumn('time', t('How long ago?'));
+        $colName = $grid->addColumn('name', t('Name'));
+        $colCode = $grid->addColumn('code', t('Code'));
+        $colCommander = $grid->addColumn('commander', t('Commander'));
+        $colLocation = $grid->addColumn('location', t('Location'));
+        $colWho = $grid->addColumn('who', t('Destroyed by'));
 
         ?>
-        <h2>Ship and station losses</h2>
-        <p>Ordered by most recent first.</p>
-        <ul>
-            <?php
-            foreach ($entries as $entry)
-            {
-                ?>
-                <li>
-                    <b title="<?php echo ConvertHelper::interval2string($entry->getInterval()) ?>" style="cursor: help">
-                        Hour <?php echo $entry->getHours() ?>
-                    </b>
-                    <?php echo $entry->getTitle().' '.$entry->getText() ?>
-                </li>
-                <?php
-            }
-            ?>
-        </ul>
+        <p><?php pt('Ordered by most recent first.') ?></p>
         <?php
+
+        foreach ($losses as $entry)
+        {
+            $time = $entry->getTime();
+
+            $gridEntry = $grid->createRow()
+                ->setValue($colTime, t('%1$s hours', '<span title="'.$time->getIntervalStr().'">'.$time->getHours().'</span>'))
+                ->setValue($colName, $entry->getShipName())
+                ->setValue($colCode, $entry->getShipCode())
+                ->setValue($colCommander, $entry->getCommander())
+                ->setValue($colLocation, $entry->getLocation())
+                ->setValue($colWho, $entry->getDestroyedBy());
+
+            $grid->addRow($gridEntry);
+        }
+
+        $grid->display();
     }
 }
