@@ -8,6 +8,7 @@ use AppUtils\FileHelper\JSONFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader\KhaakStations\KhaakSector;
 use Mistralys\X4\SaveViewer\Parser\DataProcessing\Processors\KhaakStationsList;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
+use Mistralys\X4\UI\Page\BasePage;
 
 class KhaakStationsReader extends Info
 {
@@ -18,13 +19,11 @@ class KhaakStationsReader extends Info
 
     protected function init() : void
     {
-        $dataFile = JSONFile::factory($this->collections->getOutputFolder().'/data-'.KhaakStationsList::FILE_ID.'.json');
-
-        if(!$dataFile->exists()) {
+        if(!$this->reader->dataExists(KhaakStationsList::FILE_ID)) {
             return;
         }
 
-        $data = $dataFile->parse();
+        $data = $this->reader->getRawData(KhaakStationsList::FILE_ID);
 
         foreach($data as $sectorData)
         {
@@ -35,7 +34,7 @@ class KhaakStationsReader extends Info
     public function getURLView() : string
     {
         return $this->reader->getSaveFile()->getURLView(array(
-            'view' => KhaakOverviewPage::URL_NAME
+            BasePage::REQUEST_PARAM_VIEW => KhaakOverviewPage::URL_NAME
         ));
     }
 
