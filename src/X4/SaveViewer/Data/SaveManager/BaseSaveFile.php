@@ -15,6 +15,8 @@ use Mistralys\X4\SaveViewer\UI\Pages\CreateBackup;
 use Mistralys\X4\SaveViewer\UI\Pages\UnpackSave;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 use Mistralys\X4\SaveViewer\SaveViewerException;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\DeleteArchivePage;
+use Mistralys\X4\UI\Page\BasePage;
 
 abstract class BaseSaveFile
 {
@@ -84,9 +86,9 @@ abstract class BaseSaveFile
         return $this->analysis->getStorageFolder();
     }
 
-    public function getJSONPath() : string
+    public function getJSONPath() : FolderInfo
     {
-        return $this->getDataFolder();
+        return FolderInfo::factory($this->getDataFolder()->getPath().'/JSON');
     }
 
     public function getLabel() : string
@@ -102,6 +104,13 @@ abstract class BaseSaveFile
     public function getURLUnpack() : string
     {
         return $this->getURL(UnpackSave::URL_NAME);
+    }
+
+    public function getURLDelete(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_VIEW] = DeleteArchivePage::URL_NAME;
+
+        return $this->getURLView($params);
     }
 
     public function getURLBackup() : string
