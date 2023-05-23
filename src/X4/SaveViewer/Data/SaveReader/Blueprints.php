@@ -31,11 +31,14 @@ class Blueprints extends Info
         $data = $this->collections->player()->loadData();
         $this->collection = BlueprintDefs::getInstance();
 
-        $blueprintIDs = $data[PlayerType::KEY_BLUEPRINTS];
-
-        foreach($blueprintIDs as $blueprintID)
+        if(isset($data[PlayerType::KEY_BLUEPRINTS]))
         {
-            $this->addBlueprint($blueprintID);
+            $blueprintIDs = $data[PlayerType::KEY_BLUEPRINTS];
+
+            foreach ($blueprintIDs as $blueprintID)
+            {
+                $this->addBlueprint($blueprintID);
+            }
         }
     }
 
