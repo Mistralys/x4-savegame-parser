@@ -21,6 +21,7 @@ class SaveInfoFragment extends BaseDOMFragment
     public const KEY_GAME_GUID = 'guid';
     public const KEY_GAME_CODE = 'code';
     public const KEY_PLAYER_LOCATION = 'location';
+    public const KEY_START_TIME = 'start-time';
 
     private array $info = array(
         self::KEY_PLAYER_NAME => '',
@@ -28,7 +29,8 @@ class SaveInfoFragment extends BaseDOMFragment
         self::KEY_SAVE_NAME => '',
         self::KEY_SAVE_DATE => '',
         self::KEY_GAME_CODE => '',
-        self::KEY_GAME_GUID => ''
+        self::KEY_GAME_GUID => '',
+        self::KEY_START_TIME => ''
     );
 
     protected function parseDOM(DOMDocument $dom) : void
@@ -59,6 +61,7 @@ class SaveInfoFragment extends BaseDOMFragment
         {
             $this->info[self::KEY_GAME_CODE] = $node->getAttribute('code');
             $this->info[self::KEY_GAME_GUID] = $node->getAttribute('guid');
+            $this->info[self::KEY_START_TIME] = $node->getAttribute('time');
             return;
         }
 

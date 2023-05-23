@@ -51,4 +51,9 @@ class SaveInfo extends Info
     {
         return $this->getInt(SaveInfoFragment::KEY_GAME_CODE);
     }
+
+    public function getGameStartTime() : float
+    {
+        return $this->getFloat(SaveInfoFragment::KEY_START_TIME);
+    }
 }
