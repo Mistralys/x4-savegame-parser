@@ -28,17 +28,17 @@ use Mistralys\X4\SaveViewer\Parser\Types\StationType;
 class KhaakStationsList extends BaseDataProcessor
 {
     public const FILE_ID = 'khaak-stations';
-    const KEY_SECTOR_NAME = 'sectorName';
-    const KEY_SECTOR_ID = 'sectorID';
-    const KEY_SECTOR_CONNECTION_ID = 'sectorConnectionID';
-    const KEY_STATIONS = 'khaakStations';
-    const KEY_PLAYER_ASSETS = 'playerAssets';
-    const TYPE_NEST = 'nest';
-    const TYPE_HIVE = 'hive';
-    const KEY_STATION_ID = 'stationID';
-    const KEY_STATION_TYPE = 'type';
-    const KEY_PLAYER_SHIPS = 'ships';
-    const KEY_PLAYER_STATIONS = 'stations';
+    public const KEY_SECTOR_NAME = 'sectorName';
+    public const KEY_SECTOR_ID = 'sectorID';
+    public const KEY_SECTOR_CONNECTION_ID = 'sectorConnectionID';
+    public const KEY_STATIONS = 'khaakStations';
+    public const KEY_PLAYER_ASSETS = 'playerAssets';
+    public const TYPE_NEST = 'nest';
+    public const TYPE_HIVE = 'hive';
+    public const KEY_STATION_ID = 'stationID';
+    public const KEY_STATION_TYPE = 'type';
+    public const KEY_PLAYER_SHIPS = 'ships';
+    public const KEY_PLAYER_STATIONS = 'stations';
 
     private array $data = array();
 
