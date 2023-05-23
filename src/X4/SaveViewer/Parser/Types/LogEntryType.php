@@ -25,6 +25,26 @@ class LogEntryType extends BaseComponentType
         $this->setKeys($data);
     }
 
+    public function getText() : string
+    {
+        return $this->getString(self::KEY_TEXT);
+    }
+
+    public function getTitle() : string
+    {
+        return $this->getString(self::KEY_TITLE);
+    }
+
+    public function getTime() : string
+    {
+        return $this->getString(self::KEY_TIME);
+    }
+
+    public function getCategory() : string
+    {
+        return $this->getString(self::KEY_CATEGORY);
+    }
+
     protected function getDefaultData() : array
     {
         return array();
