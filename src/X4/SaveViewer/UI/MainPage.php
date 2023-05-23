@@ -16,11 +16,11 @@ abstract class MainPage extends Page
         return array(
             new NavItem(
                 t('Main saves'),
-                '?page='.SavesList::URL_NAME
+                $this->manager->getURLSavesList()
             ),
             new NavItem(
                 t('Saves archive'),
-                '?page='.ArchivedSavesPage::URL_NAME
+                $this->manager->getURLSavesArchive()
             )
         );
     }
