@@ -7,6 +7,7 @@ namespace Mistralys\X4\SaveViewer\Data;
 use AppUtils\BaseException;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FolderInfo;
+use AppUtils\FileHelper_Exception;
 use DirectoryIterator;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
@@ -19,6 +20,7 @@ use Mistralys\X4\UI\Page\BasePage;
 class SaveManager
 {
     public const ERROR_CANNOT_FIND_BY_NAME = 12125;
+    public const ERROR_CANNOT_FIND_BY_ID = 12126;
 
     /**
      * @var MainSave[]
@@ -36,6 +38,29 @@ class SaveManager
     public function __construct(SaveSelector $selector)
     {
         $this->selector = $selector;
+    }
+
+    /**
+     * @param string|FolderInfo $savesFolder
+     * @param string|FolderInfo $storageFolder
+     * @return SaveManager
+     * @throws FileHelper_Exception
+     */
+    public static function create($savesFolder, $storageFolder) : SaveManager
+    {
+        return new self(SaveSelector::create($savesFolder, $storageFolder));
+    }
+
+    /**
+     * Creates an instance of the save manager using
+     * the paths configured in the <code>config.php</code>
+     * file.
+     *
+     * @return SaveManager
+     */
+    public static function createFromConfig() : SaveManager
+    {
+        return new self(SaveSelector::createFromConfig());
     }
 
     public function getSavesFolder() : FolderInfo
@@ -68,6 +93,46 @@ class SaveManager
         $this->loadArchivedSaves();
 
         return $this->archivedSaves;
+    }
+
+    public function nameExists(string $name) : bool
+    {
+        return in_array($name, $this->getSaveNames(), true);
+    }
+
+    public function getSaveByName($name) : MainSave
+    {
+        $saves = $this->getSaves();
+
+        foreach($saves as $save) {
+            if($save->getSaveName() === $name) {
+                return $save;
+            }
+        }
+
+        throw new SaveViewerException(
+            'Savegame not found.',
+            sprintf(
+                'Savegame with name [%s] was not found.',
+                $name
+            ),
+            self::ERROR_CANNOT_FIND_BY_NAME
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSaveNames() : array
+    {
+        $saves = $this->getSaves();
+        $result = array();
+
+        foreach($saves as $save) {
+            $result[] = $save->getSaveName();
+        }
+
+        return $result;
     }
 
     protected function sortSaves(BaseSaveFile $a, BaseSaveFile $b) : int
@@ -211,7 +276,7 @@ class SaveManager
         throw new BaseException(
             sprintf('Cannot find savegame by ID [%s].', $saveID),
             '',
-            self::ERROR_CANNOT_FIND_BY_NAME
+            self::ERROR_CANNOT_FIND_BY_ID
         );
     }
 
