@@ -21,6 +21,21 @@ final class LossDetectionTests extends X4ParserTestCase
         $this->assertSame('ST+ TEL VTJ - Boa', $result['shipName']);
     }
 
+    /**
+     * Older savegames used a different format to define ship losses.
+     */
+    public function test_detectLossLegacy() : void
+    {
+        $result = DetectShipLosses::parseTitle('WGH Mercury Vanguard in sector The Void was destroyed by KHK Raiding Party Hive Guard.');
+
+        $this->assertNotNull($result);
+        $this->assertSame('', $result['shipCode']);
+        $this->assertSame('WGH Mercury Vanguard', $result['shipName']);
+        $this->assertSame('The Void', $result['location']);
+        $this->assertSame('', $result['commander']);
+        $this->assertSame('KHK Raiding Party Hive Guard', $result['destroyed by']);
+    }
+
     public function test_parseText() : void
     {
         $result = DetectShipLosses::parseText("Location: Windfall IV Aurora's Dream[\\012]Commander: FO TEL Hull Parts Forge II (VTJ-380)[\\012]Destroyed by: FAF Marauder Dragon Raider (MIE-184)");
