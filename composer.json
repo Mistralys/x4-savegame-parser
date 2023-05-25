@@ -18,17 +18,15 @@
   "autoload-dev": {
     "classmap": [
       "tests/classes"
-    ],
-    "files": [
-      "tests/bootstrap.php"
     ]
   },
   "require": {
-    "mistralys/x4-core": "dev-main",
+    "mistralys/x4-core": "^0.0.1",
     "mistralys/version-parser": ">=1.0.0",
     "mistralys/application-localization": ">=1.4.1",
     "react/http": ">=v1.9.0",
     "react/async": ">=v3.0.0",
+    "league/climate": "^3.8.2",
     "ext-xmlreader": "*",
     "ext-dom": "*"
   },
