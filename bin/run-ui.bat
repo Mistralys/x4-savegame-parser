@@ -1,4 +1,4 @@
 @echo off
 
-php "%~dp0\run-ui.php"
+php "%~dp0\php\run-ui.php"
 

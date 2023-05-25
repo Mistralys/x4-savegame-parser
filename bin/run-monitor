@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+php "$(dirname -- "$0")/php/run-monitor.php" "$@"
