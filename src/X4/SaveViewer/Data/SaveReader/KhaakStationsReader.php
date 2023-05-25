@@ -19,11 +19,13 @@ class KhaakStationsReader extends Info
 
     protected function init() : void
     {
-        if(!$this->reader->dataExists(KhaakStationsList::FILE_ID)) {
+        $fileID = 'data-'.KhaakStationsList::FILE_ID;
+
+        if(!$this->reader->dataExists($fileID)) {
             return;
         }
 
-        $data = $this->reader->getRawData(KhaakStationsList::FILE_ID);
+        $data = $this->reader->getRawData($fileID);
 
         foreach($data as $sectorData)
         {

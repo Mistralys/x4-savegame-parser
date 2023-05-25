@@ -12,9 +12,11 @@ class SaveInfo extends Info
 {
     protected function init() : void
     {
-        $file = $this->collections->getOutputFolder().'/'.SaveInfoFragment::SAVE_NAME.'.json';
+        if(!$this->reader->dataExists(SaveInfoFragment::SAVE_NAME)) {
+            return;
+        }
 
-        $this->setKeys(JSONFile::factory($file)->parse());
+        $this->setKeys($this->reader->getRawData(SaveInfoFragment::SAVE_NAME));
     }
 
     public function getSaveName() : string

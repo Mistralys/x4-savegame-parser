@@ -19,11 +19,13 @@ class ShipLossesReader extends Info
 
     protected function init() : void
     {
-        if(!$this->reader->dataExists(DetectShipLosses::FILE_ID)) {
+        $fileID = 'data-'.DetectShipLosses::FILE_ID;
+
+        if(!$this->reader->dataExists($fileID)) {
             return;
         }
 
-        $data = $this->reader->getRawData(DetectShipLosses::FILE_ID);
+        $data = $this->reader->getRawData($fileID);
 
         foreach($data as $entry)
         {
