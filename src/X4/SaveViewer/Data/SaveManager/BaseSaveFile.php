@@ -59,9 +59,16 @@ abstract class BaseSaveFile
         return $this->analysis->getDateModified();
     }
 
+    private ?SaveReader $reader = null;
+
     public function getDataReader() : SaveReader
     {
-        return new SaveReader($this);
+        if(!isset($this->reader))
+        {
+            $this->reader = new SaveReader($this);
+        }
+
+        return $this->reader;
     }
 
     public function hasData() : bool
