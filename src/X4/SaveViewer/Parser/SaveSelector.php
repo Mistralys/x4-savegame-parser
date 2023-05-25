@@ -68,6 +68,22 @@ class SaveSelector implements DebuggableInterface
     }
 
     /**
+     * Creates an instance of the save selector using
+     * the paths configured in the <code>config.php</code>
+     * file.
+     *
+     * @return SaveSelector
+     * @throws FileHelper_Exception
+     */
+    public static function createFromConfig() : SaveSelector
+    {
+        return self::create(
+            X4_SAVES_FOLDER,
+            X4_STORAGE_FOLDER
+        );
+    }
+
+    /**
      * Returns the most recent save game, if any are found in the target folder.
      *
      * @return SaveGameFile|null
