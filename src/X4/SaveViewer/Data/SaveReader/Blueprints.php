@@ -8,6 +8,9 @@ use Mistralys\X4\Database\Blueprints\BlueprintCategory;
 use Mistralys\X4\Database\Blueprints\BlueprintDef;
 use Mistralys\X4\Database\Blueprints\BlueprintDefs;
 use Mistralys\X4\Database\Blueprints\BlueprintSelection;
+use Mistralys\X4\Database\Blueprints\Categories\UnknownCategory;
+use Mistralys\X4\Database\Blueprints\Types\UnknownBlueprint;
+use Mistralys\X4\Database\Races\RaceDefs;
 use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BlueprintsPage;
 
@@ -98,7 +101,17 @@ class Blueprints extends Info
 
     private function addBlueprint(string $blueprintID) : void
     {
-        $blueprint = $this->collection->getBlueprintByID($blueprintID);
+        // Handle unknown blueprints (which may for example
+        // come from installed Mods).
+        if(!$this->collection->blueprintIDExists($blueprintID))
+        {
+            $blueprint = $this->collection->registerUnknownBlueprint($blueprintID);
+        }
+        else
+        {
+            $blueprint = $this->collection->getBlueprintByID($blueprintID);
+        }
+
         $this->blueprints[$blueprintID] = $blueprint;
 
         $category = $blueprint->getCategory();
