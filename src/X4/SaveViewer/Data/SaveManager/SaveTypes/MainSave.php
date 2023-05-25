@@ -34,4 +34,15 @@ class MainSave extends BaseSaveFile
     {
         return $this->saveFile->isTempFile();
     }
+
+    public function unzip() : self
+    {
+        $this->saveFile->unzip();
+        return $this;
+    }
+
+    public function isUnzipped() : bool
+    {
+        return $this->saveFile->isUnzipped();
+    }
 }
