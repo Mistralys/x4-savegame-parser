@@ -92,11 +92,6 @@ class SaveReader
         return new Inventory($this);
     }
 
-    public function saveData(string $dataID, array $data) : void
-    {
-        FileHelper::saveAsJSON($data, $this->getDataPath($dataID), true);
-    }
-
     public function getRawData(string $dataID) : array
     {
         return FileHelper::parseJSONFile($this->getDataPath($dataID));
@@ -110,7 +105,7 @@ class SaveReader
     public function getDataPath(string $dataID) : string
     {
         return sprintf(
-            '%s/data-%s.json',
+            '%s/%s.json',
             $this->saveFile->getJSONPath()->getPath(),
             $dataID
         );
