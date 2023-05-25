@@ -56,7 +56,8 @@ class SaveParser extends BaseXMLParser
     }
 
     /**
-     * @throws SaveViewerException
+     * @throws SaveViewerException {@see self::ERROR_SAVEGAME_MUST_BE_UNZIPPED}
+     * @throws FileHelper_Exception
      */
     public function __construct(SaveGameFile $saveFile)
     {
@@ -84,11 +85,29 @@ class SaveParser extends BaseXMLParser
         );
     }
 
+    public static function createFromMonitorConfig(MainSave $save) : SaveParser
+    {
+        return self::create($save)
+            ->optionKeepXML(X4_MONITOR_KEEP_XML)
+            ->optionAutoBackup(X4_MONITOR_AUTO_BACKUP);
+    }
+
     public function getCollections() : Collections
     {
         return $this->collections;
     }
 
+    /**
+     * Runs all processing tasks in one:
+     *
+     * - {@see self::processFile()}
+     * - {@see self::postProcessFragments()}
+     * - {@see self::cleanUp()}
+     *
+     * @return $this
+     * @throws FileHelper_Exception
+     * @throws SaveViewerException
+     */
     public function unpack() : self
     {
         if($this->optionAutoBackup) {
@@ -102,7 +121,7 @@ class SaveParser extends BaseXMLParser
         return $this;
     }
 
-    protected function cleanUp() : void
+    public function cleanUp() : void
     {
         $this->log('Cleanup | Running cleanup tasks.');
 
@@ -169,6 +188,10 @@ class SaveParser extends BaseXMLParser
         $this->registerExtractXML(PlayerStatsFragment::TAG_PATH, PlayerStatsFragment::class);
         $this->registerExtractXML(EventLogFragment::TAG_PATH, EventLogFragment::class);
 
+        // These tag paths are ignored to speed up the process.
+        // This works well, because the XML Reader advances down
+        // into the XML tree until the deepest level. This way,
+        // it does not go into the ignored elements.
         $this->registerIgnore('savegame.messages');
         $this->registerIgnore('savegame.universe.blacklists');
         $this->registerIgnore('savegame.universe.traderules');
