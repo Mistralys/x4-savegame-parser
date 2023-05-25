@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package SaveViewer
+ * @subpackage UI
+ * @see \Mistralys\X4\SaveViewer\SaveViewer
+ */
 
 declare(strict_types=1);
 
@@ -6,7 +11,6 @@ namespace Mistralys\X4\SaveViewer;
 
 use AppUtils\FileHelper;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
-use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
 use Mistralys\X4\UI\UserInterface;
 use Mistralys\X4\X4Application;
@@ -15,6 +19,15 @@ use Mistralys\X4\SaveViewer\UI\Pages\SavesList;
 use Mistralys\X4\SaveViewer\UI\Pages\UnpackSave;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
+/**
+ * Main entry point for the Save Viewer's UI.
+ * Based on the {@see X4Application} classes to handle
+ * the UI structuring and rendering.
+ *
+ * @package SaveViewer
+ * @subpackage UI
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class SaveViewer extends X4Application
 {
     private SaveManager $saveManager;
@@ -23,10 +36,7 @@ class SaveViewer extends X4Application
     {
         parent::__construct();
 
-        $this->saveManager = new SaveManager(SaveSelector::create(
-            X4_SAVES_FOLDER,
-            X4_STORAGE_FOLDER
-        ));
+        $this->saveManager = SaveManager::createFromConfig();
     }
 
     public function getSaveManager() : SaveManager
