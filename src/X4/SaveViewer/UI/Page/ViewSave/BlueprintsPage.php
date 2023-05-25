@@ -11,6 +11,7 @@ use Mistralys\X4\Database\Blueprints\BlueprintSelection;
 use Mistralys\X4\Database\Races\RaceDefs;
 use Mistralys\X4\Database\Races\RaceException;
 use Mistralys\X4\UI\Button;
+use Mistralys\X4\UI\Icon;
 use Mistralys\X4\UI\Text;
 use function AppLocalize\pt;
 use function AppLocalize\pts;
@@ -212,8 +213,18 @@ class BlueprintsPage extends SubPage
         $xml .= '</blueprints>';
 
         ?>
-            <p><?php pt('XML source for the player\'s blueprints:') ?></p>
+            <p><?php pt('XML source for the current blueprint selection:') ?></p>
             <textarea rows="10" style="width: 96%;font-family:monospace"><?php echo htmlspecialchars($xml) ?></textarea>
+            <p>
+                <?php
+                    echo Button::create(t('Back'))
+                        ->setIcon(Icon::back())
+                        ->colorPrimary()
+                        ->link($this->getReader()->getBlueprints()->getURLView(array(
+                            self::REQUEST_PARAM_SHOW_TYPE => $this->showType
+                        )));
+                ?>
+            </p>
         <?php
     }
 
@@ -264,6 +275,10 @@ class BlueprintsPage extends SubPage
 
             foreach ($blueprints as $blueprint)
             {
+                if(!$this->isValid($blueprint)) {
+                    continue;
+                }
+
                 $raceID = $blueprint->getRaceID();
 
                 $raceLabel = t('General');
