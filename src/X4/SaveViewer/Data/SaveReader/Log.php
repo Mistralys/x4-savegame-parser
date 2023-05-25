@@ -4,85 +4,88 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
-use AppUtils\Microtime;
-use Mistralys\X4\SaveViewer\Data\SaveReader\Log\Destroyed;
+use Mistralys\X4\SaveViewer\Data\SaveReader\Log\LogCategories;
+use Mistralys\X4\SaveViewer\Data\SaveReader\Log\LogCategory;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Log\LogEntry;
-use Mistralys\X4\SaveViewer\Parser\Tags\Tag\LogTag;
+use Mistralys\X4\SaveViewer\Parser\Collections\EventLogCollection;
+use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 
 class Log extends Info
 {
     /**
-     * @var array<string,LogEntry[]>
+     * @var array<string,LogEntry>
      */
     private array $entries = array();
+    private LogCategories $categories;
+    private bool $categoriesDetected = false;
 
-    public function getDestroyed() : Destroyed
+    protected function init() : void
     {
-        return new Destroyed($this);
-    }
+        $this->categories = new LogCategories($this);
 
-    public function getByCategory(string $category) : array
-    {
-        $this->unpack();
+        $fileID = 'collection-'.EventLogCollection::COLLECTION_ID;
 
-        if(!$this->reader->dataExists('log/'.$category)) {
-            return array();
-        }
-
-        $result = array();
-        $data = $this->reader->getRawData('log/'.$category);
-
-        foreach($data as $entryData)
-        {
-            $result[] = new LogEntry($entryData);
-        }
-
-        return $result;
-    }
-
-    private function unpack() : void
-    {
-        if($this->reader->dataExists('log-unpacked')) {
+        if(!$this->reader->dataExists($fileID)) {
             return;
         }
 
-        $this->reader->saveData('log-unpacked', array(
-            'date' => (new Microtime())->getMySQLDate()
-        ));
+        $list = $this->reader->getRawData($fileID);
 
-        $this->createEntries();
-        $this->writeDataFiles();
-    }
-
-    private function writeDataFiles() : void
-    {
-        foreach ($this->entries as $categoryID => $entries)
-        {
-            $this->reader->saveData('log/'.$categoryID, $entries);
-        }
-    }
-
-    private function createEntries() : void
-    {
-        if(!empty($this->entries))
-        {
+        if(!isset($list[LogEntryType::TYPE_ID])) {
             return;
         }
 
-        foreach ($this->data as $entryData)
+        $startTime = $this->reader->getSaveInfo()->getGameStartTime();
+
+        foreach($list[LogEntryType::TYPE_ID] as $entry)
         {
-            $entry = new LogEntry($entryData);
-            $categoryID = $entry->getCategory();
+            $this->entries[] = new LogEntry($entry, $startTime);
+        }
+    }
 
-            if($categoryID === LogEntry::CATEGORY_IGNORE) {
-                continue;
+    public function getCategories() : LogCategories
+    {
+        $this->detectCategories();
+
+        return $this->categories;
+    }
+
+    public function getEntries() : array
+    {
+        $this->detectCategories();
+
+        return $this->entries;
+    }
+
+    private function detectCategories() : void
+    {
+        if($this->categoriesDetected) {
+            return;
+        }
+
+        $this->categoriesDetected = true;
+
+        $categories = $this->categories->getAll();
+
+        foreach($categories as $category)
+        {
+            $this->detectCategoryEntries($category);
+        }
+    }
+
+    private function detectCategoryEntries(LogCategory $category) : void
+    {
+        $misc = $this->categories->getByID(LogCategories::CATEGORY_MISCELLANEOUS);
+
+        foreach($this->entries as $entry)
+        {
+            if($category->matchesEntry($entry))
+            {
+                $category->_registerEntry($entry);
+                return;
             }
 
-            if(!isset($this->entries[$categoryID])) {
-                $this->entries[$categoryID] = array();
-            }
-
-            $this->entries[$categoryID][] = $entryData;
+            $misc->_registerEntry($entry);
         }
     }
 }

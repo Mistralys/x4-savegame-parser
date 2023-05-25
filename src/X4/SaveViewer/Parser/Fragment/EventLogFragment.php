@@ -66,6 +66,7 @@ class EventLogFragment extends BaseDOMFragment
      * <entry time="2256619.112" category="upkeep" title="ST~ BOR MLX - Demeter V was forced to flee after being attacked by BOR Pillager Minotaur Raider in Barren Shores. Your ship is at Empty Space in Watchful Gaze." interact="showonmap" component="[0x916e0]"/>
      * <entry time="2194771.779" category="upkeep" title="ST AHO Graphene Forge - Baldric (EMQ-260) was destroyed." text="Location: Pious Mists II[\012]Commander: FO PAR Graphene Forge (AHO-015)" interact="showlocationonmap" component="[0x59445]" x="170173.719" y="16503.322" z="48768.77" highlighted="1"/>
      * <entry time="2213375.47" category="upkeep" title="ST EAC - Plutus V (G) (TKH-408) was destroyed." text="Location: Watchful Gaze[\012]Commander: FO ZYA Advanced Electronics Forge (EAC-540)[\012]Destroyed by: KHK Queen's Guard (TOO-105)" interact="showlocationonmap" component="[0x90ba5]" x="-66550.93" y="-2345.392" z="254310.406" highlighted="1"/>
+     * <entry time="2233591.438" category="upkeep" title="WGH Mercury Vanguard in sector The Void was destroyed by KHK Raiding Party Hive Guard." interact="showonmap" component="[0x31006]" highlighted="1"/>
      * </pre>
      *
      * Player custom alerts
@@ -77,6 +78,8 @@ class EventLogFragment extends BaseDOMFragment
      * <pre>
      * <entry time="2254812.147" title="Reputation gained" text="Reason: Trade Completed[\012]Current reputation: 28" faction="{20203,3301}"/>
      * <entry time="2254879.401" category="news" title="News update: " text="Zyarth Patriarchy mounting defence in Heart of Acrimony II"/>
+     * <entry time="203992.294" category="news" title="Emergency alert: " text="Xenon station under construction in Tharka's Cascade XV"/>
+     * <entry time="249873.538" category="news" title="War update: " text="Increased Terran Protectorate reconnaissance in Matrix #598"/>
      * </pre>
      *
      * @param DOMElement|null $node

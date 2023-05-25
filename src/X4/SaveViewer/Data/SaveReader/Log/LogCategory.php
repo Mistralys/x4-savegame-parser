@@ -4,51 +4,64 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 
-use Mistralys\X4\SaveViewer\Data\SaveReader\Log;
-
-abstract class LogCategory
+class LogCategory
 {
-    private Log $log;
-
     /**
      * @var LogEntry[]
      */
     private array $entries = array();
+    private string $id;
+    private string $label;
+    /**
+     * @var callable
+     */
+    private $detectCallback;
 
-    private bool $entriesLoaded = false;
-
-    public function __construct(Log $log)
+    public function __construct(string $id, string $label, callable $detectCallback)
     {
-        $this->log = $log;
+        $this->id = $id;
+        $this->label = $label;
+        $this->detectCallback = $detectCallback;
     }
 
-    abstract public function getCategoryID() : string;
+    public function getCategoryID() : string
+    {
+        return $this->id;
+    }
+
+    public function getLabel() : string
+    {
+        return $this->label;
+    }
 
     /**
      * @return LogEntry[]
      */
     public function getEntries() : array
     {
-        $this->loadEntries();
-
         return $this->entries;
-    }
-
-    public function loadEntries() : void
-    {
-        if($this->entriesLoaded) {
-            return;
-        }
-
-        $this->entriesLoaded = true;
-
-        $this->entries = $this->log->getByCategory(LogEntry::CATEGORY_DESTROYED);
     }
 
     public function countEntries() : int
     {
-        $this->loadEntries();
-
         return count($this->entries);
+    }
+
+    /**
+     * Checks whether the entry should be assigned to
+     * this category.
+     *
+     * @param LogEntry $entry
+     * @return bool
+     */
+    public function matchesEntry(LogEntry $entry) : bool
+    {
+        return call_user_func($this->detectCallback, $entry) === true;
+    }
+
+    public function _registerEntry(LogEntry $entry) : void
+    {
+        $this->entries[] = $entry;
+        $entry->_registerCategory($this);
     }
 }
