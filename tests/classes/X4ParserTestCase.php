@@ -10,6 +10,8 @@ use Mistralys\X4\SaveViewer\Traits\DebuggableInterface;
 use Mistralys\X4\SaveViewer\Traits\DebuggableTrait;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__.'/../bootstrap.php';
+
 abstract class X4ParserTestCase extends TestCase implements DebuggableInterface
 {
     use DebuggableTrait;
