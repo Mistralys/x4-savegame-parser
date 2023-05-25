@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-use Mistralys\X4\SaveViewer\Monitor\BaseMonitor;
+namespace Mistralys\X4\SaveViewer\Bin;
 
-require_once __DIR__.'/../vendor/autoload.php';
-require_once __DIR__.'/../config.php';
+use Mistralys\X4\SaveViewer\Monitor\BaseMonitor;
+use Throwable;
+
+require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__.'/../../config.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
