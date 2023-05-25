@@ -76,21 +76,23 @@ class DetectShipLosses extends BaseDataProcessor
             return null;
         }
 
-        $details = self::parseText($entry->getText());
+        if(!isset($info['location'])) {
+            $info = array_merge($info, self::parseText($entry->getText()));
+        }
 
         return array(
             self::KEY_TIME => $entry->getTime(),
             self::KEY_SHIP_NAME => $info['shipName'],
             self::KEY_SHIP_CODE => $info['shipCode'],
-            self::KEY_LOCATION => $details['location'],
-            self::KEY_COMMANDER => $details['commander'],
-            self::KEY_DESTROYED_BY => $details['destroyed by']
+            self::KEY_LOCATION => $info['location'],
+            self::KEY_COMMANDER => $info['commander'],
+            self::KEY_DESTROYED_BY => $info['destroyed by']
         );
     }
 
     /**
      * @param string $title
-     * @return array{shipName:string,shipCode:string}|null
+     * @return array{shipName:string,shipCode:string}|array{shipName:string,shipCode:string,location:string,commander:string,"destroyed by":string}|null
      */
     public static function parseTitle(string $title) : ?array
     {
@@ -101,6 +103,19 @@ class DetectShipLosses extends BaseDataProcessor
             return array(
                 'shipName' => trim($matches[1]),
                 'shipCode' => $matches[2]
+            );
+        }
+
+        preg_match('/(.*)in sector(.*)was destroyed by(.*)\./', $title, $matches);
+
+        if(!empty($matches[0]))
+        {
+            return array(
+                'shipName' => trim($matches[1]),
+                'shipCode' => '',
+                'location' => trim($matches[2]),
+                'commander' => '',
+                'destroyed by' => trim($matches[3])
             );
         }
 
