@@ -25,13 +25,13 @@ _Event log_
 ![Screenshot: Event log](/docs/screenshots/screen-event-log.png?raw=true "Screenshot: Event log")
 
 _Khaa'k stations list_
-![Screenshot: Khaa'k stations list](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: Khaa'k stations list")
+![Screenshot: Khaa'k stations list](/docs/screenshots/screen-khaak-stations-list.png?raw=true "Screenshot: Khaa'k stations list")
 
 _Blueprint browser (unowned shown here)_
-![Screenshot: Blueprint browser](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: Blueprint browser")
+![Screenshot: Blueprint browser](/docs/screenshots/screen-unowned-blueprints-list.png?raw=true "Screenshot: Blueprint browser")
 
 _List of ship losses_
-![Screenshot: List of ship losses](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: List of ship losses")
+![Screenshot: List of ship losses](/docs/screenshots/screen-ship-losses.png?raw=true "Screenshot: List of ship losses")
 
 ## Requirements
 
