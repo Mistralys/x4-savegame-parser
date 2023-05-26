@@ -55,7 +55,7 @@ final class LossDetectionTests extends X4ParserTestCase
 
     public function test_loadFromJSON() : void
     {
-        $data = JSONFile::factory(__DIR__.'/../../files/log-destroyed.json')->parse();
+        $data = JSONFile::factory(__DIR__.'/../../files/test-saves/unpack-20230524120000-quicksave/JSON/data-losses.json')->parse();
 
         $this->assertCount(3, $data);
 

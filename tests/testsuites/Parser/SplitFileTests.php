@@ -12,7 +12,7 @@ final class SplitFileTests extends X4ParserTestCase
 {
      public function test_split() : void
      {
-         $save = $this->createSelector()->getSaveGameByName($this->saveGameFile);
+         $save = $this->createSelector()->getSaveGameByFileName($this->saveGameFile);
 
          $parser = SaveParser::create($save)
             ->setLoggingEnabled(true)
@@ -23,7 +23,7 @@ final class SplitFileTests extends X4ParserTestCase
 
     public function test_postProcess() : void
     {
-        $save = $this->createSelector()->getSaveGameByName($this->saveGameFile);
+        $save = $this->createSelector()->getSaveGameByFileName($this->saveGameFile);
 
         $parser = SaveParser::create($save)
             ->setLoggingEnabled(true)
