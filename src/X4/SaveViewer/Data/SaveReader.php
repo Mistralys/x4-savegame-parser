@@ -137,4 +137,9 @@ class SaveReader
     {
         return GameTime::create($time, $this->getSaveInfo()->getGameStartTime());
     }
+
+    public function getGameStartTime() : float
+    {
+        return $this->getSaveInfo()->getGameStartTime();
+    }
 }
