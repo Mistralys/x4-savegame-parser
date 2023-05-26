@@ -21,6 +21,8 @@ class SaveGameFile
     public const ERROR_XML_FILE_NOT_AVAILABLE = 136402;
     public const ERROR_ZIP_FILE_NOT_AVAILABLE = 136403;
     public const ERROR_CANNOT_ACCESS_STORAGE_FOLDER = 136404;
+    public const ERROR_CANNOT_GET_ARCHIVE_DATE = 136405;
+
     public const STORAGE_FOLDER_DATE_FORMAT = 'YmdHis';
 
     private ?FileInfo $zipFile;
@@ -69,6 +71,7 @@ class SaveGameFile
 
         if(isset($this->zipFile)) {
             $this->referenceFile = $this->zipFile;
+            $this->xmlFile = $this->resolveExtractionXMLFile($this->zipFile);
         } else if(isset($this->xmlFile)) {
             $this->referenceFile = $this->xmlFile;
         } else {
@@ -232,5 +235,53 @@ class SaveGameFile
     public function isTempFile() : bool
     {
         return $this->getBaseName() === SaveSelector::TEMP_SAVE_NAME;
+    }
+
+    /**
+     * Special case: We generate an XML savegame file name based
+     * on the modification date of the existing GZ archive file.
+     * This is used when there is both an archive file and an XML
+     * file in the savegame folder: The player may have extracted
+     * it manually.
+     *
+     * As there is no reliable way to check whether the XML file
+     * is up-to-date with the archive, we generate an XML file
+     * name based on the modification date of the archive file,
+     * to guarantee that we will extract information from the
+     * right version of the XML.
+     *
+     * This way the save is not considered "zipped", even if the
+     * original XML file is present.
+     *
+     * @param FileInfo $zipFile
+     * @return FileInfo
+     * @throws FileHelper_Exception
+     * @throws SaveViewerException
+     */
+    private function resolveExtractionXMLFile(FileInfo $zipFile) : FileInfo
+    {
+        $date = $zipFile->getModifiedDate();
+        if($date === null) {
+            throw new SaveViewerException(
+                'Cannot get GZ file date.',
+                '',
+                self::ERROR_CANNOT_GET_ARCHIVE_DATE
+            );
+        }
+
+        return FileInfo::factory(sprintf(
+            '%s/%s-%s.xml',
+            $zipFile->getFolderPath(),
+            $zipFile->getBaseName(),
+            $date->format(self::STORAGE_FOLDER_DATE_FORMAT)
+        ));
+    }
+
+    /**
+     * @return FileInfo|null
+     */
+    public function getXMLFile() : ?FileInfo
+    {
+        return $this->xmlFile;
     }
 }
