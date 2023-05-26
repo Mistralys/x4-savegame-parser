@@ -1,0 +1,202 @@
+{
+  "log-entry": [
+    {
+      "connectionID": "tip",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "14.0175",
+      "category": "tips",
+      "title": "Tip",
+      "text": "[\\033]#FFFFFFFF#The flight school has already taught you the basics of space flight. To learn about missions and other activities, open the 'Tutorials and Help' menu with H and select a tutorial.[\\033]X",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "station-credits-dropped",
+      "componentID": "[0x41489]",
+      "parentComponent": "",
+      "time": "101.096",
+      "category": "upkeep",
+      "title": "The account for SYR Energy Forge in Grand Exchange I has dropped to 4,631,213 Credits.",
+      "text": "",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "station-constructed",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "340.919",
+      "category": "news",
+      "title": "News update: ",
+      "text": "Hatikvah Free League station under construction in Hatikvah's Choice I",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "mount-defence",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "548.165",
+      "category": "news",
+      "title": "News update: ",
+      "text": "Antigone Republic mounting defence in Second Contact II Flashpoint",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "assigned-npc",
+      "componentID": "[0x81e50]",
+      "parentComponent": "",
+      "time": "9298.624",
+      "category": "upkeep",
+      "title": "Assigned Individual Gabreel Tarren to Callisto Sentinel.",
+      "text": "",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "mission",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "20962.569",
+      "category": "missions",
+      "title": "Scan Results - FVZ-920",
+      "text": "Ship wreckage, seemingly belonging to the freighter commanded by Dal Busta, was found close to his last known location. It is possible that the Scale Plate Pact would have attempted to silence him and his crew before taking further hostile actions against the Hatikvah Free League.[\\012][\\012]There was no clear evidence of escape pods being launched, nor any report of distress calls in the area.",
+      "faction": "Anthea Syrkos",
+      "money": 0
+    },
+    {
+      "connectionID": "forced-to-flee",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "23447.762",
+      "category": "upkeep",
+      "title": "TR Grand Exchange - Shuyaku V was forced to flee after being attacked by SCA Plunderer Phoenix Sentinel in Grand Exchange IV. Your ship is at Empty Space in Eighteen Billion.",
+      "text": "",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "reconnaissance",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "30499.164",
+      "category": "news",
+      "title": "Emergency alert: ",
+      "text": "Increased Terran Protectorate reconnaissance in Getsu Fune",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "pirate-harassment",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "334347.014",
+      "category": "",
+      "title": "Pirate Harassment",
+      "text": "Okinawa HFL-488 in Grand Exchange IV[\\012]Accosted by Antigone Republic pirate ship[\\012]ANT Plunderer Phoenix Vanguard TLA-993.[\\012]Response: Comply",
+      "faction": "{20203,301}",
+      "money": 0
+    },
+    {
+      "connectionID": "reputation-gained",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "334364.533",
+      "category": "",
+      "title": "Reputation gained",
+      "text": "Reason: Trade Completed[\\012]Current reputation: 29",
+      "faction": "{20203,601}",
+      "money": 0
+    },
+    {
+      "connectionID": "ship-constructed",
+      "componentID": "[0x407ca]",
+      "parentComponent": "",
+      "time": "335278.622",
+      "category": "upkeep",
+      "title": "Ship constructed",
+      "text": "HOP High-Tech Trader Demeter Sentinel (RTN-363) finished construction at station: Aramean Wharf (CQE-375). They have paid the station 161,311 Cr.",
+      "faction": "{20203,501}",
+      "money": 16131155
+    },
+    {
+      "connectionID": "ship-repaired",
+      "componentID": "[0x65f40]",
+      "parentComponent": "",
+      "time": "335348.635",
+      "category": "upkeep",
+      "title": "Ship repaired",
+      "text": "ARG Fighter Squadron Eclipse Vanguard (HIJ-013) finished repairing at station: Aramean Wharf (CQE-375). They have paid the station 162,675 Cr.",
+      "faction": "{20203,201}",
+      "money": 16267510
+    },
+    {
+      "connectionID": "reward-station-defense",
+      "componentID": "[0x5d60a]",
+      "parentComponent": "",
+      "time": "327848.447",
+      "category": "",
+      "title": "Rewarded for station defence",
+      "text": "",
+      "faction": "{20203,701}",
+      "money": 60000000
+    },
+    {
+      "connectionID": "ship-destroyed",
+      "componentID": "[0x61592]",
+      "parentComponent": "",
+      "time": "242746.444",
+      "category": "upkeep",
+      "title": "TR Wretched Skies V - Okinawa (MFH-622) was destroyed.",
+      "text": "Location: Second Contact II Flashpoint[\\012]Destroyed by: XEN Branch 9 Destroyer K (REN-549)",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "found-lockbox",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "347437.139",
+      "category": "",
+      "title": "Found Lockbox",
+      "text": "TR Grand Exchange - Shuyaku V CQH-272 in Grand Exchange I[\\012]Found a lockbox.[\\012]Response: Ignore",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "promotion",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "353214.755",
+      "category": "",
+      "title": "Promotion to: Citizen of the Republic",
+      "text": "You have been granted licences",
+      "faction": "{20203,301}",
+      "money": 0
+    },
+    {
+      "connectionID": "discount",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "336506.888",
+      "category": "",
+      "title": "Discount unlocked",
+      "text": "Prized Investor[\\012]Level: Very Large[\\012]Offered by: Segaris Pioneers",
+      "faction": "",
+      "money": 0
+    },
+    {
+      "connectionID": "alert",
+      "componentID": "",
+      "parentComponent": "",
+      "time": "1982253.863",
+      "category": "alerts",
+      "title": "Khaak have been spotted",
+      "text": "Location: Pious Mists XI",
+      "faction": "",
+      "money": 0
+    }
+  ]
+}
