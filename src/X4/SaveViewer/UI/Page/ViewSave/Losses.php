@@ -55,10 +55,8 @@ class Losses extends SubPage
 
         foreach ($losses as $entry)
         {
-            $time = $entry->getTime();
-
             $gridEntry = $grid->createRow()
-                ->setValue($colTime, t('%1$s hours', '<span title="'.$time->getIntervalStr().'">'.$time->getHours().'</span>'))
+                ->setValue($colTime, $entry->getTime()->getIntervalStr())
                 ->setValue($colName, $entry->getShipName())
                 ->setValue($colCode, $entry->getShipCode())
                 ->setValue($colCommander, $entry->getCommander())
