@@ -62,6 +62,9 @@
       <excludeFolder url="file://$MODULE_DIR$/tests/files" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/async" />
       <excludeFolder url="file://$MODULE_DIR$/archived-saves" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/league/climate" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/seld/cli-prompt" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/psr/log" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
