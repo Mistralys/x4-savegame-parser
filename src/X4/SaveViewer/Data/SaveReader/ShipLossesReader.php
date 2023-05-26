@@ -40,7 +40,7 @@ class ShipLossesReader extends Info
         }
 
         usort($this->entries, static function (ShipLoss $a, ShipLoss $b) : float {
-            return $a->getTime()->getValue() - $b->getTime()->getValue();
+            return $a->getTime()->getDuration() - $b->getTime()->getDuration();
         });
     }
 
