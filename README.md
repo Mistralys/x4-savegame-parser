@@ -16,6 +16,23 @@ and to extract interesting information from them.
 - JSON files can be used by third party apps.
 - Via [X4 Core][], OOP access to game information.
 
+## Screenshots
+
+_List of archived savegames_
+![Screenshot: Archived savegames](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: Archived savegames")
+
+_Event log_
+![Screenshot: Event log](/docs/screenshots/screen-event-log.png?raw=true "Screenshot: Event log")
+
+_Khaa'k stations list_
+![Screenshot: Khaa'k stations list](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: Khaa'k stations list")
+
+_Blueprint browser (unowned shown here)_
+![Screenshot: Blueprint browser](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: Blueprint browser")
+
+_List of ship losses_
+![Screenshot: List of ship losses](/docs/screenshots/screen-archived-saves.png?raw=true "Screenshot: List of ship losses")
+
 ## Requirements
 
 - [PHP][] 7.4+
