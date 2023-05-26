@@ -4,24 +4,22 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 
-use Mistralys\X4\SaveViewer\Data\SaveReader\Log;
-use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
-use function AppLocalize\t;
+use Mistralys\X4\SaveViewer\SaveViewerException;
 
-class LogCategories
+abstract class LogCategories
 {
+    public const ERROR_CATEGORY_ID_DOES_NOT_EXIST = 137101;
+
     public const CATEGORY_TIPS = 'tips';
     public const CATEGORY_STATION_FINANCE = 'station-finance';
     public const CATEGORY_PROMOTION = 'promotion';
-    public const CATEGORY_IGNORE = '__ignore';
+    public const CATEGORY_ALERT = 'alert';
     public const CATEGORY_STATION_BUILDING = 'station-building';
     public const CATEGORY_REWARD = 'reward';
     public const CATEGORY_TRADE = 'trade';
     public const CATEGORY_EMERGENCY = 'emergency';
-    public const CATEGORY_EVENT = 'event';
     public const CATEGORY_LOCKBOX = 'lockbox';
     public const CATEGORY_REPUTATION = 'reputation';
-    public const CATEGORY_PIRATE_HARASSMENT = 'pirates';
     public const CATEGORY_ATTACKED = 'attacked';
     public const CATEGORY_SHIP_CONSTRUCTION = 'ship-construction';
     public const CATEGORY_DESTROYED = 'destroyed';
@@ -31,189 +29,29 @@ class LogCategories
     public const CATEGORY_CREW_ASSIGNMENT = 'crew-assignment';
     public const CATEGORY_MISCELLANEOUS = 'misc';
 
-    private Log $log;
-
     /**
      * @var array<string,LogCategory>
      */
-    private array $categories = array();
+    protected array $categories = array();
+    private float $startTime;
 
-    public function __construct(Log $log)
+    public function __construct(float $startTime)
     {
-        $this->log = $log;
+        $this->startTime = $startTime;
 
-        $this->registerCategories();
+        $this->categories[self::CATEGORY_MISCELLANEOUS] = new MiscLogCategory($startTime);
+
+        $this->initCategories();
     }
 
-    private function registerCategories() : void
+    protected function initCategories() : void
     {
-        $this->categories[] = new MiscLogCategory();
 
-        $this->registerTermMatch(
-            self::CATEGORY_EMERGENCY,
-            t('Emergency'),
-            array('emergency alert')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_REPUTATION,
-            t('Reputation'),
-            array(
-                'reputation gained',
-                'reputation lost'
-            )
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_PROMOTION,
-            t('Promotion'),
-            array(
-                'promotion',
-                'discount'
-            )
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_LOCKBOX,
-            t('Lockbox'),
-            array('found lockbox')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_DESTROYED,
-            t('Destroyed'),
-            array('destroyed')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_ATTACKED,
-            t('Ship defense'),
-            array(
-                'forced to flee',
-                'is under attack',
-                'pirate harassment',
-                'police interdiction'
-            )
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_SHIP_SUPPLY,
-            t('Ship supply'),
-            array('ship resupplied', 'finished repairing')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_STATION_BUILDING,
-            t('Station building'),
-            array(
-                'station completed',
-                'station under construction'
-            )
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_STATION_FINANCE,
-            t('Station finance'),
-            array(
-                'has dropped to',
-                'received surplus'
-            )
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_REWARD,
-            t('Rewards'),
-            array('reward')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_SHIP_CONSTRUCTION,
-            t('Ship construction'),
-            array('finished construction')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_CREW_ASSIGNMENT,
-            t('Crew assignment'),
-            array('assigned individual')
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_WAR,
-            t('War updates'),
-            array(
-                'mounting defence',
-                'reconnaissance in',
-                'war update'
-            )
-        );
-
-        $this->registerTermMatch(
-            self::CATEGORY_TRADE,
-            t('Trade'),
-            array('trade completed')
-        );
-
-        $this->registerCategoryNameMatch(
-            self::CATEGORY_TIPS,
-            t('Tips'),
-            'tips'
-        );
-
-        $this->registerCategoryNameMatch(
-            self::CATEGORY_MISSIONS,
-            t('Missions'),
-            'missions'
-        );
     }
 
-    public function registerCategoryNameMatch(string $id, string $label, string $categoryName) : LogCategory
+    public function getStartTime() : float
     {
-        return $this->registerCategory(
-            $id,
-            $label,
-            static function(LogEntry $entry) use($categoryName) : bool
-            {
-                return $entry->getCategoryName() === $categoryName;
-            }
-        );
-    }
-
-    /**
-     * Registers a category that will be automatically assigned
-     * to log entries whose title or text contain the specified
-     * search term.
-     *
-     * @param string $id
-     * @param string $label
-     * @param string[] $terms
-     * @return LogCategory
-     */
-    public function registerTermMatch(string $id, string $label, array $terms) : LogCategory
-    {
-        return $this->registerCategory(
-            $id,
-            $label,
-            static function(LogEntry $entry) use($terms) : bool
-            {
-                $title = $entry->getTitle().' '.$entry->getText();
-
-                foreach($terms as $term) {
-                    if( stripos($title, $term) !== false) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        );
-    }
-
-    public function registerCategory(string $id, string $label, callable $detectCallback) : LogCategory
-    {
-        $this->categories[$id] = new LogCategory($id, $label, $detectCallback);
-
-        return $this->categories[$id];
+        return $this->startTime;
     }
 
     /**
@@ -224,8 +62,60 @@ class LogCategories
         return array_values($this->categories);
     }
 
+    /**
+     * @param string $id
+     * @return LogCategory
+     * @throws SaveViewerException {@see self::ERROR_CATEGORY_ID_DOES_NOT_EXIST}
+     */
     public function getByID(string $id) : LogCategory
     {
-        return $this->categories[$id];
+        if(isset($this->categories[$id])) {
+            return $this->categories[$id];
+        }
+
+        throw new SaveViewerException(
+            'Category ID not found.',
+            sprintf(
+                'The ID [%s] does not exist. Available IDs are: [%s].',
+                $id,
+                implode(', ', $this->getIDs())
+            ),
+            self::ERROR_CATEGORY_ID_DOES_NOT_EXIST
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getIDs() : array
+    {
+        return array_keys($this->categories);
+    }
+
+    /**
+     * @var LogEntry[]|null
+     */
+    private ?array $cachedEntries = null;
+
+    public function getEntries() : array
+    {
+        if(isset($this->cachedEntries)) {
+            return $this->cachedEntries;
+        }
+
+        $result = array();
+
+        foreach($this->categories as $category)
+        {
+            $result += $category->getEntries();
+        }
+
+        usort($result, static function(LogEntry $a, LogEntry $b) : float {
+            return $a->getTime()->getDuration() - $b->getTime()->getDuration();
+        });
+
+        $this->cachedEntries = $result;
+
+        return $result;
     }
 }

@@ -10,6 +10,11 @@ use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 
 class LogEntry
 {
+    public const SERIALIZED_TIME = 'time';
+    public const SERIALIZED_TITLE = 'title';
+    public const SERIALIZED_TEXT = 'text';
+    public const SERIALIZED_FACTION_ID = 'factionID';
+    public const SERIALIZED_MONEY = 'money';
     private ArrayDataCollection $data;
     private GameTime $time;
     private LogCategory $category;
@@ -18,6 +23,11 @@ class LogEntry
     {
         $this->data = ArrayDataCollection::create($data);
         $this->time = GameTime::create($this->data->getString(LogEntryType::KEY_TIME), $startTime);
+    }
+
+    public function getRawData() : ArrayDataCollection
+    {
+        return $this->data;
     }
 
     public function getCategoryName() : string
@@ -70,5 +80,53 @@ class LogEntry
     public function _registerCategory(LogCategory $category) : void
     {
         $this->category = $category;
+    }
+
+    public function getMoney() : int
+    {
+        return $this->data->getInt(LogEntryType::KEY_MONEY);
+    }
+
+    public function getMoneyPretty() : string
+    {
+        $money = $this->getMoney();
+
+        if($money > 0) {
+            return number_format($money / 100, 2, '.', ' ').' Cr';
+        }
+
+        return '-';
+    }
+
+    public static function createFromCollectionArray(array $entryData, float $startTime) : LogEntry
+    {
+        $data = ArrayDataCollection::create($entryData);
+
+        return new LogEntry(
+            array(
+                LogEntryType::KEY_TEXT => $data->getString(self::SERIALIZED_TEXT),
+                LogEntryType::KEY_MONEY => $data->getInt(self::SERIALIZED_MONEY),
+                LogEntryType::KEY_TITLE => $data->getString(self::SERIALIZED_TITLE),
+                LogEntryType::KEY_FACTION => $data->getString(self::SERIALIZED_FACTION_ID),
+                LogEntryType::KEY_TIME => $data->getFloat(self::SERIALIZED_TIME)
+            ),
+            $startTime
+        );
+    }
+
+    public static function createFromCollection(array $rawData, float $startTime) : LogEntry
+    {
+        return new LogEntry($rawData, $startTime);
+    }
+
+    public function toArray() : array
+    {
+        return array(
+            self::SERIALIZED_TIME => $this->getTime()->getValue(),
+            self::SERIALIZED_TITLE => $this->getTitle(),
+            self::SERIALIZED_TEXT => $this->getText(),
+            self::SERIALIZED_FACTION_ID => $this->getFactionID(),
+            self::SERIALIZED_MONEY => $this->getMoney(),
+        );
     }
 }

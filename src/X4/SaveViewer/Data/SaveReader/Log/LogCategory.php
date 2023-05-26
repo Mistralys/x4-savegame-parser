@@ -6,22 +6,25 @@ namespace Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 
 class LogCategory
 {
+    public const SERIALIZED_CATEGORY_ID = 'categoryID';
+    public const SERIALIZED_LABEL = 'label';
+    public const SERIALIZED_ENTRIES = 'entries';
+    public const SERIALIZED_START_TIME = 'startTime';
+
     /**
      * @var LogEntry[]
      */
-    private array $entries = array();
+    protected array $entries = array();
     private string $id;
     private string $label;
-    /**
-     * @var callable
-     */
-    private $detectCallback;
+    private float $startTime;
+    private bool $areEntriesSorted = false;
 
-    public function __construct(string $id, string $label, callable $detectCallback)
+    public function __construct(string $id, string $label, float $startTime)
     {
         $this->id = $id;
         $this->label = $label;
-        $this->detectCallback = $detectCallback;
+        $this->startTime = $startTime;
     }
 
     public function getCategoryID() : string
@@ -39,6 +42,15 @@ class LogCategory
      */
     public function getEntries() : array
     {
+        if(!$this->areEntriesSorted)
+        {
+            $this->areEntriesSorted = true;
+
+            usort($this->entries, static function(LogEntry $a, LogEntry $b) : float {
+                return $a->getTime()->getDuration() - $b->getTime()->getDuration();
+            });
+        }
+
         return $this->entries;
     }
 
@@ -47,21 +59,26 @@ class LogCategory
         return count($this->entries);
     }
 
-    /**
-     * Checks whether the entry should be assigned to
-     * this category.
-     *
-     * @param LogEntry $entry
-     * @return bool
-     */
-    public function matchesEntry(LogEntry $entry) : bool
-    {
-        return call_user_func($this->detectCallback, $entry) === true;
-    }
-
     public function _registerEntry(LogEntry $entry) : void
     {
         $this->entries[] = $entry;
         $entry->_registerCategory($this);
+    }
+
+    public function toArray() : array
+    {
+        $data = array(
+            self::SERIALIZED_CATEGORY_ID => $this->getCategoryID(),
+            self::SERIALIZED_LABEL => $this->getLabel(),
+            self::SERIALIZED_START_TIME => $this->startTime,
+            self::SERIALIZED_ENTRIES => array()
+        );
+
+        foreach($this->entries as $entry)
+        {
+            $data[self::SERIALIZED_ENTRIES][] = $entry->toArray();
+        }
+
+        return $data;
     }
 }

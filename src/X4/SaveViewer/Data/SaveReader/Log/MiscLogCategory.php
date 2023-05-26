@@ -8,14 +8,12 @@ use function AppLocalize\t;
 
 class MiscLogCategory extends LogCategory
 {
-    public function __construct()
+    public function __construct(float $startTime)
     {
         parent::__construct(
             LogCategories::CATEGORY_MISCELLANEOUS,
             t('Misc'),
-            static function () : bool {
-                return false;
-            }
+            $startTime
         );
     }
 }
