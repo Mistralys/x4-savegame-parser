@@ -30,7 +30,7 @@ class SaveSelector implements DebuggableInterface
     /**
      * @var SaveGameFile[]|null
      */
-    private ?array $cachedFiles = array();
+    private ?array $cachedFiles = null;
 
     public function __construct(FolderInfo $savesFolder, FolderInfo $storageFolder)
     {
@@ -172,7 +172,7 @@ class SaveSelector implements DebuggableInterface
      * @return array<int,{gz:FileInfo|NULL,xml:FileInfo|NULL}>
      * @throws SaveViewerException
      */
-    private function compileFileInformation() : array
+    public function compileFileInformation() : array
     {
         $this->log('Detecting savegame files.');
         $this->log('Target folder: [%s].', $this->savesFolder->getPath());
@@ -249,7 +249,7 @@ class SaveSelector implements DebuggableInterface
      * @param string|FileInfo $saveGameFile
      * @return SaveGameFile
      */
-    public function getSaveGameByName($saveGameFile) : SaveGameFile
+    public function getSaveGameByFileName($saveGameFile) : SaveGameFile
     {
         $saves = $this->getSaveGames();
         $name = FileInfo::factory($saveGameFile)->getName();
@@ -257,7 +257,7 @@ class SaveSelector implements DebuggableInterface
         foreach($saves as $save)
         {
             if($save->getName() === $name) {
-                return $name;
+                return $save;
             }
         }
 
