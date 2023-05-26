@@ -12,6 +12,7 @@ and to extract interesting information from them.
   - Blueprints list (owned/unowned).
   - Khaa'k hives and nests list.
   - Ship losses list.
+  - Categorized event log with search function.
 - JSON files can be used by third party apps.
 - Via [X4 Core][], OOP access to game information.
 
