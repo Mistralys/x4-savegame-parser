@@ -8,6 +8,7 @@ use AppUtils\ConvertHelper;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\DeleteArchivePage;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\EventLogPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\KhaakOverviewPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BlueprintsPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\Home;
@@ -41,6 +42,7 @@ class ViewSave extends PageWithNav
             new KhaakOverviewPage($this),
             new DeleteArchivePage($this),
             new Losses($this),
+            new EventLogPage($this)
             //new Factions($this),
             //new Inventory($this),
             //new Statistics($this),
