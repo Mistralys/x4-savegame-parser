@@ -129,33 +129,31 @@ class Blueprints extends Info
         return $this->reader->getSaveFile()->getURLView($params);
     }
 
-    public function getURLShowUnowned() : string
+    public function getURLShowUnowned(array $params=array()) : string
     {
-        return $this->getURLView(array(
-            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => BlueprintsPage::SHOW_TYPE_UNOWNED
-        ));
+        $params[BlueprintsPage::REQUEST_PARAM_SHOW_TYPE] = BlueprintsPage::SHOW_TYPE_UNOWNED;
+        return $this->getURLView($params);
     }
 
-    public function getURLShowOwned() : string
+    public function getURLShowOwned(array $params=array()) : string
     {
-        return $this->getURLView(array(
-            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => BlueprintsPage::SHOW_TYPE_OWNED
-        ));
+        $params[BlueprintsPage::REQUEST_PARAM_SHOW_TYPE] = BlueprintsPage::SHOW_TYPE_OWNED;
+        return $this->getURLView($params);
     }
 
-    public function getURLGenerateXML(string $type=BlueprintsPage::SHOW_TYPE_ALL) : string
+    public function getURLGenerateXML(string $type=BlueprintsPage::SHOW_TYPE_ALL, array $params=array()) : string
     {
-        return $this->getURLView(array(
-            BlueprintsPage::REQUEST_PARAM_GENERATE_XML => 'yes',
-            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => $type
-        ));
+        $params[BlueprintsPage::REQUEST_PARAM_SHOW_TYPE] = $type;
+        $params[BlueprintsPage::REQUEST_PARAM_GENERATE_XML] = 'yes';
+
+        return $this->getURLView($params);
     }
 
-    public function getURLGenerateMarkdown(string $type=BlueprintsPage::SHOW_TYPE_ALL) : string
+    public function getURLGenerateMarkdown(string $type=BlueprintsPage::SHOW_TYPE_ALL, array $params=array()) : string
     {
-        return $this->getURLView(array(
-            BlueprintsPage::REQUEST_PARAM_GENERATE_MARKDOWN => 'yes',
-            BlueprintsPage::REQUEST_PARAM_SHOW_TYPE => $type
-        ));
+        $params[BlueprintsPage::REQUEST_PARAM_SHOW_TYPE] = $type;
+        $params[BlueprintsPage::REQUEST_PARAM_GENERATE_MARKDOWN] = 'yes';
+
+        return $this->getURLView($params);
     }
 }
