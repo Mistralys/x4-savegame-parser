@@ -121,9 +121,9 @@ abstract class BaseXMLParser
         );
     }
 
-    public function processFile() : self
+    public function processFile(bool $force=false) : self
     {
-        if($this->analysis->hasProcessDate($this->xmlFile)) {
+        if(!$force && $this->analysis->hasProcessDate($this->xmlFile)) {
             $this->log('ProcessFile | Already processed, skipping.');
             return $this;
         }
@@ -188,11 +188,20 @@ abstract class BaseXMLParser
     }
 
     /**
+     * @var array<string,BaseFragment>|null
+     */
+    private ?array $postProcessors = null;
+
+    /**
      * @return array<string,BaseFragment>
      * @throws BaseClassHelperException
      */
-    private function getPostProcessors() : array
+    public function getPostProcessors() : array
     {
+        if(isset($this->postProcessors)) {
+            return $this->postProcessors;
+        }
+
         $processors = array();
 
         $folder = $this->outputPath.'/XML';
@@ -231,10 +240,17 @@ abstract class BaseXMLParser
             }
         }
 
+        $this->postProcessors = $processors;
+
         return $processors;
     }
 
-    public function postProcessFragments() : self
+    /**
+     * @param bool $force Force the post-processing even if the savegame has already been processed.
+     * @return $this
+     * @throws BaseClassHelperException
+     */
+    public function postProcessFragments(bool $force=false) : self
     {
         $processors = $this->getPostProcessors();
 
@@ -250,7 +266,7 @@ abstract class BaseXMLParser
             $this->log('PostProcess | Processing file [%s] via [%s].', basename($outputFile), get_class($processor));
 
             $processor
-                ->processFile()
+                ->processFile($force)
                 ->postProcessFragments();
         }
 
