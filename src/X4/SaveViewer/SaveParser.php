@@ -67,7 +67,7 @@ class SaveParser extends BaseXMLParser
         }
 
         return new SaveParser(
-            $saveFile->getStorageFolder()->getPath(),
+            $saveFile->getAnalysis(),
             $saveFile->requireXMLFile()->getPath(),
             $saveFile
         );
