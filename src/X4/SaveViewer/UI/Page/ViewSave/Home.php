@@ -62,7 +62,7 @@ class Home extends SubPage
             ),
             array(
                 'label' => t('Date created'),
-                'value' => ConvertHelper::date2listLabel($saveInfo->getSaveDate(), true, true)
+                'value' => t('Unknown')
             ),
             array(
                 'label' => t('Khaa\'k stations'),
@@ -79,6 +79,12 @@ class Home extends SubPage
                 'value' => $save->getStorageFolder()->getPath()
             )
         );
+
+        $date = $saveInfo->getSaveDate();
+        if($date !== null)
+        {
+            $props[3]['value'] = ConvertHelper::date2listLabel($date, true, true);
+        }
 
         ?>
         <table class="table table-horizontal">
