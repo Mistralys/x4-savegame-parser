@@ -24,7 +24,7 @@ class SaveInfo extends Info
         return $this->getString(SaveInfoFragment::KEY_SAVE_NAME);
     }
 
-    public function getSaveDate() : DateTime
+    public function getSaveDate() : ?DateTime
     {
         return $this->getDateTime(SaveInfoFragment::KEY_SAVE_DATE);
     }
