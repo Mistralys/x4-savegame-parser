@@ -215,6 +215,11 @@ class ClusterConnectionFragment extends BaseDOMFragment
             {
                 $this->parseStationDockingBay($station, $connection);
             }
+
+            if($connection->componentClass === 'room')
+            {
+                $this->parseStationDockingRoom($station, $connection);
+            }
         }
     }
 
