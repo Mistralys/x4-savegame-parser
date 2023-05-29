@@ -14,6 +14,7 @@ use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper_Exception;
 use Mistralys\X4\SaveViewer\Parser\Collections;
+use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\EventLogFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\FactionsFragment;
@@ -36,9 +37,10 @@ use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
  */
 class SaveParser extends BaseXMLParser
 {
-    public const ERROR_SAVEGAME_MUST_BE_UNZIPPED = 5454654;
+    public const ERROR_SAVEGAME_MUST_BE_UNZIPPED = 137401;
+    public const ERROR_CANNOT_BACKUP_WITHOUT_SAVE = 137402;
 
-    protected SaveGameFile $saveFile;
+    protected ?SaveGameFile $saveFile = null;
     protected bool $optionAutoBackup = false;
     protected bool $optionKeepXML = false;
 
@@ -52,15 +54,6 @@ class SaveParser extends BaseXMLParser
             $saveFile = $saveFile->getSaveFile();
         }
 
-        return new SaveParser($saveFile);
-    }
-
-    /**
-     * @throws SaveViewerException {@see self::ERROR_SAVEGAME_MUST_BE_UNZIPPED}
-     * @throws FileHelper_Exception
-     */
-    public function __construct(SaveGameFile $saveFile)
-    {
         if(!$saveFile->isUnzipped())
         {
             throw new SaveViewerException(
@@ -73,14 +66,32 @@ class SaveParser extends BaseXMLParser
             );
         }
 
+        return new SaveParser(
+            $saveFile->getStorageFolder()->getPath(),
+            $saveFile->requireXMLFile()->getPath(),
+            $saveFile
+        );
+    }
+
+    public static function createFromAnalysis(FileAnalysis $analysis) : SaveParser
+    {
+        return new self(
+            $analysis,
+            '',
+            null
+        );
+    }
+
+    public function __construct(FileAnalysis $analysis, string $xmlFilePath, ?SaveGameFile $saveFile)
+    {
         $this->saveFile = $saveFile;
 
-        $folder = $this->saveFile->getStorageFolder()->getPath();
+        $folder = $analysis->getStorageFolder()->getPath();
 
         parent::__construct(
             new Collections($folder.'/JSON'),
-            $saveFile->getAnalysis(),
-            $saveFile->requireXMLFile()->getPath(),
+            $analysis,
+            $xmlFilePath,
             $folder
         );
     }
@@ -125,7 +136,7 @@ class SaveParser extends BaseXMLParser
     {
         $this->log('Cleanup | Running cleanup tasks.');
 
-        $xmlFolder = FolderInfo::factory($this->saveFile->getStorageFolder()->getPath().'/XML');
+        $xmlFolder = FolderInfo::factory($this->analysis->getStorageFolder()->getPath().'/XML');
 
         if(!$this->optionKeepXML && $xmlFolder->exists())
         {
@@ -153,6 +164,14 @@ class SaveParser extends BaseXMLParser
      */
     public function createBackup() : self
     {
+        if(!isset($this->saveFile)) {
+            throw new SaveViewerException(
+                'Backup not possible, no savegame specified.',
+                'To back up a savegame, a main savegame instance must be passed to the parser.',
+                self::ERROR_CANNOT_BACKUP_WITHOUT_SAVE
+            );
+        }
+
         $zipFile = $this->saveFile->requireZipFile();
         $targetFile = $this->getBackupFile();
 
