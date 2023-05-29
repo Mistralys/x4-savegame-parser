@@ -12,7 +12,10 @@ namespace Mistralys\X4\SaveViewer\CLI;
 use AppUtils\ConvertHelper;
 use AppUtils\StringBuilder;
 use League\CLImate\CLImate;
+use Mistralys\X4\SaveViewer\Data\ArchivedSave;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
+use Mistralys\X4\SaveViewer\Parser\Collections;
+use Mistralys\X4\SaveViewer\Parser\XMLFragmentParser;
 use Mistralys\X4\SaveViewer\SaveParser;
 use Throwable;
 use function AppLocalize\t;
@@ -34,6 +37,8 @@ class CLIHandler
     public const COMMAND_EXTRACT_ALL = 'extract-all';
     public const COMMAND_KEEP_XML = 'keep-xml';
     public const COMMAND_NO_BACKUP = 'no-backup';
+    public const COMMAND_REBUILD_JSON = 'rebuild-json';
+    public const COMMAND_LIST_ARCHIVED = 'list-archived';
 
     private SaveManager $manager;
     private CLImate $cli;
@@ -70,9 +75,19 @@ class CLIHandler
                 return;
             }
 
+            if($this->cli->arguments->defined(self::COMMAND_LIST_ARCHIVED)) {
+                $this->execute_listArchivedNames();
+                return;
+            }
+
             if($this->cli->arguments->defined(self::COMMAND_LIST)) {
                 $this->execute_listNames();
                 return;
+            }
+
+            $rebuild = $this->cli->arguments->get(self::COMMAND_REBUILD_JSON);
+            if(!empty($rebuild)) {
+                $this->execute_rebuildJSON((string)$rebuild);
             }
 
             $this->optionKeepXML = $this->cli->arguments->defined(self::COMMAND_KEEP_XML);
@@ -137,6 +152,27 @@ class CLIHandler
             self::COMMAND_NO_BACKUP,
             sb()
                 ->t('Do not create a savegame backup when extracting.'),
+            null
+        );
+
+        $this->registerCommand(
+            self::COMMAND_REBUILD_JSON,
+            'rebuild',
+            self::COMMAND_REBUILD_JSON,
+            sb()
+                ->t('Rebuild an archived savegame\'s JSON files from its XML fragments.')
+                ->t('Requires the XML fragments to be present.')
+                ->t(
+                    'Target must be an unpacked folder name, e.g. %1$s.',
+                    'unpack-20230528171642-quicksave'
+                )
+        );
+
+        $this->registerCommand(
+            self::COMMAND_LIST_ARCHIVED,
+            'la',
+            self::COMMAND_LIST_ARCHIVED,
+            sb()->t('List all archived savegame names.'),
             null
         );
 
@@ -245,7 +281,8 @@ class CLIHandler
     {
         $saves = $this->manager->getSaves();
 
-        $this->cli->out(t('Available saves:'));
+        $this->cli->out(t('Listing available saves.'));
+        $this->cli->out(t('%1$s saves found.', count($saves)));
         $this->cli->out('');
 
         $lines = array();
@@ -262,8 +299,73 @@ class CLIHandler
         $this->cli->table($lines);
     }
 
+    private function execute_listArchivedNames() : void
+    {
+        $saves = $this->manager->getArchivedSaves();
+
+        $this->cli->out(t('Listing available archived saves.'));
+        $this->cli->out(t('%1$s saves found.', count($saves)));
+        $this->cli->out('');
+
+        $lines = array();
+
+        foreach($saves as $save)
+        {
+            $lines[] = array(
+                t('Name') => $save->getStorageFolder()->getName(),
+                t('Modified') => strip_tags(ConvertHelper::date2listLabel($save->getDateModified(), true, true))
+            );
+        }
+
+        $this->cli->table($lines);
+    }
+
     private function execute_extractAll() : void
     {
         $this->execute_extract($this->manager->getSaveNames());
+    }
+
+    private function execute_rebuildJSON(string $folderName) : void
+    {
+        $save = $this->getArchivedSaveByFolder($folderName);
+
+        if ($save === null)
+        {
+            $this->cli->error(t('Cannot find the archived savegame %1$s.', '[' . $folderName . ']'));
+            return;
+        }
+
+        $this->cli->out(t('Rebuild JSON files from XML fragments.'));
+
+        $parser = SaveParser::createFromAnalysis($save->getAnalysis());
+
+        $processors = $parser->getPostProcessors();
+        if(empty($processors)) {
+            $this->cli->error('- '.t('No XML fragments found.'));
+            return;
+        }
+
+        $this->cli->out('- '.t('Found %1$s XML fragments.', count($processors)));
+        $this->cli->out('- '.t('Extracting JSON.'));
+
+        $parser->postProcessFragments(true);
+
+        $this->cli->out('- '.t('Done.'));
+        $this->cli->out('');
+    }
+
+    private function getArchivedSaveByFolder(string $folderName) : ?ArchivedSave
+    {
+        $saves = $this->manager->getArchivedSaves();
+
+        foreach($saves as $save)
+        {
+            if($save->getStorageFolder()->getName() === $folderName)
+            {
+                return $save;
+            }
+        }
+
+        return null;
     }
 }
