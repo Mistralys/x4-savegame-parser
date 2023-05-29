@@ -35,7 +35,7 @@ _List of ship losses_
 
 ## Requirements
 
-- [PHP][] 7.4+
+- [PHP][] 7.4+ 
   - ZLIB extension
   - DOM extension
   - XMLReader extension
@@ -118,6 +118,26 @@ This will only extract those that have not been extracted yet.
 
 - `-xml --keep-xml` _Keep the XML files_
 - `--no-backup` _Do not create a savegame backup_
+
+#### List all archived savegames
+
+```shell
+./bin/extract -la
+```
+
+#### Rebuild the JSON files
+
+Regenerates a fresh version of the JSON files, using the extracted
+XML fragments of an archived savegame.
+
+> NOTE: Only available if the XML fragment files have been preserved.
+
+```shell
+./bin/extract -rebuild "unpack-20230528171642-quicksave"
+```
+
+Where the parameter is the folder name of an archived savegame. Use
+the `-la` command to show a list. 
 
 ### Running the savegame Monitor
 
