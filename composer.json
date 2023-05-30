@@ -21,7 +21,7 @@
     ]
   },
   "require": {
-    "mistralys/x4-core": "^0.0.3",
+    "mistralys/x4-core": "^0.0.4",
     "mistralys/version-parser": ">=1.0.0",
     "mistralys/application-localization": ">=1.4.1",
     "react/http": ">=v1.9.0",

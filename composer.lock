@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c79d76a8a441103070bad8ad8172a702",
+    "content-hash": "c068e841928fccc91b9db4794b7a7429",
     "packages": [
         {
             "name": "components/jquery",
@@ -559,16 +559,16 @@
         },
         {
             "name": "mistralys/x4-core",
-            "version": "0.0.3",
+            "version": "0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/x4-core.git",
-                "reference": "04e9050e50a645414e2895fb8408e9d80644b2d7"
+                "reference": "b49621954952f888adbf3704536c191ff1a48937"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/x4-core/zipball/04e9050e50a645414e2895fb8408e9d80644b2d7",
-                "reference": "04e9050e50a645414e2895fb8408e9d80644b2d7",
+                "url": "https://api.github.com/repos/Mistralys/x4-core/zipball/b49621954952f888adbf3704536c191ff1a48937",
+                "reference": "b49621954952f888adbf3704536c191ff1a48937",
                 "shasum": ""
             },
             "require": {
@@ -607,9 +607,9 @@
             "description": "Core files for all X4 tools.",
             "support": {
                 "issues": "https://github.com/Mistralys/x4-core/issues",
-                "source": "https://github.com/Mistralys/x4-core/tree/0.0.3"
+                "source": "https://github.com/Mistralys/x4-core/tree/0.0.4"
             },
-            "time": "2023-05-29T13:26:48+00:00"
+            "time": "2023-05-30T17:05:09+00:00"
         },
         {
             "name": "neitanod/forceutf8",
@@ -1777,16 +1777,16 @@
         },
         {
             "name": "twbs/bootstrap",
-            "version": "v5.2.3",
+            "version": "v5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "cb021439c683d9805e2864c58095b92d405e9b11"
+                "reference": "60098ac499d30aa50575b0b7137391c06ef25429"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/cb021439c683d9805e2864c58095b92d405e9b11",
-                "reference": "cb021439c683d9805e2864c58095b92d405e9b11",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/60098ac499d30aa50575b0b7137391c06ef25429",
+                "reference": "60098ac499d30aa50575b0b7137391c06ef25429",
                 "shasum": ""
             },
             "replace": {
@@ -1821,9 +1821,9 @@
             ],
             "support": {
                 "issues": "https://github.com/twbs/bootstrap/issues",
-                "source": "https://github.com/twbs/bootstrap/tree/v5.2.3"
+                "source": "https://github.com/twbs/bootstrap/tree/v5.3.0"
             },
-            "time": "2022-11-21T18:19:01+00:00"
+            "time": "2023-05-30T15:15:55+00:00"
         }
     ],
     "packages-dev": [
