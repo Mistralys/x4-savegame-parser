@@ -37,6 +37,7 @@ class SavesGridRenderer implements RenderableInterface
     private GridColumn $cType;
     private GridColumn $cKhaak;
     private GridColumn $cLosses;
+    private GridColumn $cXML;
 
     /**
      * @var array<string,bool>
@@ -67,6 +68,8 @@ class SavesGridRenderer implements RenderableInterface
             ->alignRight();
         $this->cModified = $this->grid->addColumn('modified', t('Modified'));
         $this->cBackup = $this->grid->addColumn('backup', t('Backup?'))
+            ->alignCenter();
+        $this->cXML = $this->grid->addColumn('xml', t('XML?'))
             ->alignCenter();
         $this->cActions = $this->grid->addColumn('actions', t('Actions'))
             ->alignRight();
@@ -153,6 +156,7 @@ class SavesGridRenderer implements RenderableInterface
 
             $row->setDate($this->cModified, $date, true, true);
             $row->setBool($this->cBackup, $save->hasBackup());
+            $row->setBool($this->cXML, $save->hasXML());
         }
 
         return $this->grid->render();
