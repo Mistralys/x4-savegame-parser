@@ -24,38 +24,15 @@ class SaveGameFile
     public const ERROR_CANNOT_GET_ARCHIVE_DATE = 136405;
 
     public const STORAGE_FOLDER_DATE_FORMAT = 'YmdHis';
+    public const FILE_MODE_ZIP = 'zip';
+    public const FILE_MODE_XML = 'xml';
 
-    private ?FileInfo $zipFile;
-    private ?FileInfo $xmlFile;
+    private FileInfo $zipFile;
+    private FileInfo $xmlFile;
     private FileInfo $referenceFile;
     private FolderInfo $outputFolder;
     private FileAnalysis $analysis;
-
-    /**
-     * @param FolderInfo|string $storageFolder
-     * @param FileInfo|null $zipFile
-     * @param FileInfo|null $xmlFile
-     * @return SaveGameFile
-     * @throws SaveViewerException
-     */
-    public static function create($storageFolder, ?FileInfo $zipFile=null, ?FileInfo $xmlFile=null) : SaveGameFile
-    {
-        try
-        {
-            $storage = FolderInfo::factory($storageFolder);
-        }
-        catch (FileHelper_Exception $e)
-        {
-            throw new SaveViewerException(
-                'Cannot access the storage folder.',
-                '',
-                self::ERROR_CANNOT_ACCESS_STORAGE_FOLDER,
-                $e
-            );
-        }
-
-        return new self($storage, $zipFile, $xmlFile);
-    }
+    private string $fileMode;
 
     /**
      * @param FolderInfo $outputFolder
@@ -65,16 +42,24 @@ class SaveGameFile
      */
     public function __construct(FolderInfo $outputFolder, ?FileInfo $zipFile, ?FileInfo $xmlFile)
     {
-        $this->zipFile = $zipFile;
-        $this->xmlFile = $xmlFile;
         $this->outputFolder = $outputFolder;
 
-        if(isset($this->zipFile)) {
-            $this->referenceFile = $this->zipFile;
-            $this->xmlFile = $this->resolveExtractionXMLFile($this->zipFile);
-        } else if(isset($this->xmlFile)) {
-            $this->referenceFile = $this->xmlFile;
-        } else {
+        if($zipFile !== null)
+        {
+            $this->referenceFile = $zipFile;
+            $this->zipFile = $zipFile;
+            $this->xmlFile = $this->resolveExtractionXMLFile($zipFile);
+            $this->fileMode = self::FILE_MODE_ZIP;
+        }
+        else if($xmlFile !== null)
+        {
+            $this->referenceFile = $xmlFile;
+            $this->fileMode = self::FILE_MODE_XML;
+            $this->xmlFile = $xmlFile;
+            $this->zipFile = FileInfo::factory(str_replace('.xml', '.xml.gz', $this->xmlFile->getPath()));
+        }
+        else
+        {
             throw new SaveViewerException(
                 'Either an archive file or an xml file must be specified, they can not both be empty.',
                 '',
@@ -83,6 +68,16 @@ class SaveGameFile
         }
 
         $this->analysis = FileAnalysis::createFromSaveFile($this);
+    }
+
+    /**
+     * @return string
+     * @see self::FILE_MODE_XML
+     * @see self::FILE_MODE_ZIP
+     */
+    public function getFileMode() : string
+    {
+        return $this->fileMode;
     }
 
     public function getID() : string
@@ -145,17 +140,17 @@ class SaveGameFile
 
     public function isUnzipped() : bool
     {
-        return $this->xmlFile !== null && $this->xmlFile->exists();
+        return $this->xmlFile->exists();
     }
 
-    public function getZipFile() : ?FileInfo
+    public function getZipFile() : FileInfo
     {
         return $this->zipFile;
     }
 
     public function requireZipFile() : FileInfo
     {
-        if(isset($this->zipFile)) {
+        if($this->zipFile->exists()) {
             return $this->zipFile;
         }
 
@@ -168,7 +163,7 @@ class SaveGameFile
 
     public function requireXMLFile() : FileInfo
     {
-        if(isset($this->xmlFile)) {
+        if($this->xmlFile->exists()) {
             return $this->xmlFile;
         }
 
@@ -181,7 +176,7 @@ class SaveGameFile
 
     public function unzip() : FileInfo
     {
-        if(isset($this->xmlFile) && $this->xmlFile->exists())
+        if($this->fileMode === self::FILE_MODE_XML)
         {
             return $this->xmlFile;
         }
@@ -278,9 +273,9 @@ class SaveGameFile
     }
 
     /**
-     * @return FileInfo|null
+     * @return FileInfo
      */
-    public function getXMLFile() : ?FileInfo
+    public function getXMLFile() : FileInfo
     {
         return $this->xmlFile;
     }
