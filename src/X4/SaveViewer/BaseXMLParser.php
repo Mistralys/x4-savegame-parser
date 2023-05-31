@@ -8,6 +8,7 @@ use AppUtils\ClassHelper;
 use AppUtils\ClassHelper\BaseClassHelperException;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
+use AppUtils\FileHelper\FolderInfo;
 use AppUtils\Microtime;
 use DOMElement;
 use DOMNode;
@@ -23,7 +24,6 @@ abstract class BaseXMLParser
 {
     private bool $logging = false;
     private string $xmlFile;
-    private string $outputPath;
     private XMLReader $xml;
 
     private array $tagPath = array();
@@ -41,11 +41,10 @@ abstract class BaseXMLParser
     protected FileAnalysis $analysis;
     protected bool $stopSignal = false;
 
-    public function __construct(Collections $collections, FileAnalysis $analysis, string $xmlFilePath, string $outputPath)
+    public function __construct(Collections $collections, FileAnalysis $analysis, string $xmlFilePath)
     {
         $this->id = ConvertHelper::string2shortHash($xmlFilePath);
         $this->xmlFile = $xmlFilePath;
-        $this->outputPath = $outputPath;
         $this->collections = $collections;
         $this->analysis = $analysis;
 
@@ -57,9 +56,9 @@ abstract class BaseXMLParser
         return $this->xmlFile;
     }
 
-    public function getOutputPath() : string
+    public function getAnalysis() : FileAnalysis
     {
-        return $this->outputPath;
+        return $this->analysis;
     }
 
     public function setLoggingEnabled(bool $logging) : self
@@ -204,9 +203,9 @@ abstract class BaseXMLParser
 
         $processors = array();
 
-        $folder = $this->outputPath.'/XML';
+        $folder = $this->analysis->getXMLFolder();
 
-        if(!is_dir($folder)) {
+        if(!$folder->exists()) {
             return $processors;
         }
 
@@ -234,7 +233,7 @@ abstract class BaseXMLParser
 
                 $processors[$file] = ClassHelper::requireObjectInstanceOf(
                     BaseFragment::class,
-                    new $class($this->collections, $this->analysis, $file, $this->outputPath)
+                    new $class($this->collections, $this->analysis, $file)
                 )
                     ->setLoggingEnabled($this->logging);
             }
@@ -286,8 +285,8 @@ abstract class BaseXMLParser
         self::$fileCounter++;
 
         $outputFile = sprintf(
-            '%s/XML/%s-%03d.xml',
-            $this->outputPath,
+            '%s/%s-%03d.xml',
+            $this->analysis->getXMLFolder(),
             $this->tagPathString,
             self::$fileCounter
         );

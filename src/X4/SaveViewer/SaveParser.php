@@ -22,6 +22,7 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\PlayerStatsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
+use function AppLocalize\t;
 
 /**
  * Main parser class that dispatches the extraction of the
@@ -86,13 +87,10 @@ class SaveParser extends BaseXMLParser
     {
         $this->saveFile = $saveFile;
 
-        $folder = $analysis->getStorageFolder()->getPath();
-
         parent::__construct(
-            new Collections($folder.'/JSON'),
+            new Collections($analysis->getJSONFolder()),
             $analysis,
-            $xmlFilePath,
-            $folder
+            $xmlFilePath
         );
     }
 
@@ -136,7 +134,7 @@ class SaveParser extends BaseXMLParser
     {
         $this->log('Cleanup | Running cleanup tasks.');
 
-        $xmlFolder = FolderInfo::factory($this->analysis->getStorageFolder()->getPath().'/XML');
+        $xmlFolder = $this->analysis->getXMLFolder();
 
         if(!$this->optionKeepXML && $xmlFolder->exists())
         {
@@ -149,6 +147,19 @@ class SaveParser extends BaseXMLParser
     {
         $this->optionAutoBackup = $enabled;
         return $this;
+    }
+
+    public function getCannotBackupMessage() : ?string
+    {
+        if(!isset($this->saveFile)) {
+            return t('No savegame specified.');
+        }
+
+        if($this->saveFile->getFileMode() !== SaveGameFile::FILE_MODE_ZIP) {
+            return t('No archive file available.');
+        }
+
+        return null;
     }
 
     /**
@@ -170,6 +181,10 @@ class SaveParser extends BaseXMLParser
                 'To back up a savegame, a main savegame instance must be passed to the parser.',
                 self::ERROR_CANNOT_BACKUP_WITHOUT_SAVE
             );
+        }
+
+        if($this->saveFile->getFileMode() !== SaveGameFile::FILE_MODE_ZIP) {
+            return $this;
         }
 
         $zipFile = $this->saveFile->requireZipFile();

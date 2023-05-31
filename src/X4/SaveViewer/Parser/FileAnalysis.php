@@ -17,8 +17,6 @@ use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class FileAnalysis extends ArrayDataCollection
 {
-    public const ERROR_CANNOT_GET_MODIFIED_DATE = 66756002;
-
     public const ANALYSIS_FILE_NAME = 'analysis.json';
     public const BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
 
@@ -31,6 +29,8 @@ class FileAnalysis extends ArrayDataCollection
     private string $saveName;
     private DateTime $modifiedDate;
     private FolderInfo $storageFolder;
+    private FolderInfo $xmlFolder;
+    private FolderInfo $jsonFolder;
 
     private function __construct(FolderInfo $storageFolder, DateTime $modifiedDate, string $saveName)
     {
@@ -38,6 +38,8 @@ class FileAnalysis extends ArrayDataCollection
         $this->storageFile = JSONFile::factory($storageFolder->getPath().'/'.self::ANALYSIS_FILE_NAME);
         $this->modifiedDate = $modifiedDate;
         $this->saveName = $saveName;
+        $this->xmlFolder = FolderInfo::factory($this->getStorageFolder().'/XML');
+        $this->jsonFolder = FolderInfo::factory($this->getStorageFolder().'/JSON');
 
         parent::__construct();
 
@@ -172,5 +174,20 @@ class FileAnalysis extends ArrayDataCollection
     public function hasSaveID() : bool
     {
         return $this->exists() && !empty($this->getKey(self::KEY_SAVE_ID));
+    }
+
+    public function getXMLFolder() : FolderInfo
+    {
+        return $this->xmlFolder;
+    }
+
+    public function getJSONFolder() : FolderInfo
+    {
+        return $this->jsonFolder;
+    }
+
+    public function hasXML() : bool
+    {
+        return $this->getXMLFolder()->exists();
     }
 }

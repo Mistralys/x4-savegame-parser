@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace X4\SaveGameParserTests\Tests;
 
+use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper\JSONFile;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\DataProcessing\Processors\DetectShipLosses;
@@ -59,7 +60,7 @@ final class LossDetectionTests extends X4ParserTestCase
 
         $this->assertCount(3, $data);
 
-        $collections = new Collections(X4_STORAGE_FOLDER);
+        $collections = new Collections(FolderInfo::factory(X4_STORAGE_FOLDER));
         $entry = new LogEntryType($collections, $data[0]);
 
         $info = DetectShipLosses::parseEntry($entry);

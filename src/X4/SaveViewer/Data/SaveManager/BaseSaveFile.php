@@ -88,6 +88,11 @@ abstract class BaseSaveFile
         return $this->analysis->getBackupFile()->exists();
     }
 
+    public function hasXML() : bool
+    {
+        return $this->analysis->hasXML();
+    }
+
     public function getDataFolder() : FolderInfo
     {
         return $this->analysis->getStorageFolder();
@@ -95,7 +100,7 @@ abstract class BaseSaveFile
 
     public function getJSONPath() : FolderInfo
     {
-        return FolderInfo::factory($this->getDataFolder()->getPath().'/JSON');
+        return $this->analysis->getJSONFolder();
     }
 
     public function getLabel() : string

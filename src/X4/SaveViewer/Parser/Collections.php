@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Parser;
 
+use AppUtils\FileHelper\FolderInfo;
 use Mistralys\X4\SaveViewer\Parser\Collections\BaseCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\CelestialsCollection;
 use Mistralys\X4\SaveViewer\Parser\Collections\ClustersCollection;
@@ -23,7 +24,7 @@ class Collections
     public const ERROR_INVALID_UNIQUE_ID = 135001;
     public const ERROR_NO_COMPONENT_FOUND_BY_ID = 135002;
 
-    private string $outputFolder;
+    private FolderInfo $outputFolder;
     private CelestialsCollection $celestials;
     private ClustersCollection $clusters;
     private RegionsCollection $regions;
@@ -41,9 +42,9 @@ class Collections
     private array $collections = array();
 
     /**
-     * @param string $outputFolder The savegame's data storage folder.
+     * @param FolderInfo $outputFolder The savegame's data storage folder.
      */
-    public function __construct(string $outputFolder)
+    public function __construct(FolderInfo $outputFolder)
     {
         $this->outputFolder = $outputFolder;
 
@@ -71,7 +72,7 @@ class Collections
             ->add($this->eventLog);
     }
 
-    public function getOutputFolder() : string
+    public function getOutputFolder() : FolderInfo
     {
         return $this->outputFolder;
     }

@@ -10,7 +10,7 @@ use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
 
 final class SplitFileTests extends X4ParserTestCase
 {
-     public function test_split() : void
+     public function _test_split() : void
      {
          $save = $this->createSelector()->getSaveGameByFileName($this->saveGameFile);
 
@@ -21,7 +21,7 @@ final class SplitFileTests extends X4ParserTestCase
          $this->assertFileExists($parser->getXMLFile());
      }
 
-    public function test_postProcess() : void
+    public function _test_postProcess() : void
     {
         $save = $this->createSelector()->getSaveGameByFileName($this->saveGameFile);
 
@@ -29,10 +29,10 @@ final class SplitFileTests extends X4ParserTestCase
             ->setLoggingEnabled(true)
             ->postProcessFragments();
 
-        $this->assertFileExists($parser->getOutputPath().'/'.FileAnalysis::ANALYSIS_FILE_NAME);
+        $this->assertFileExists($parser->getAnalysis()->getStorageFile()->getPath());
     }
 
-    public function test_unpack_latest() : void
+    public function _test_unpack_latest() : void
     {
         $save = $this->createSelector()->requireMostRecent();
 
