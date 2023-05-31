@@ -249,7 +249,16 @@ class CLIHandler
                     if($this->optionAutoBackup)
                     {
                         $this->cli->out('- ' . t('Creating backup...'));
-                        $parser->createBackup();
+                        $message = $parser->getCannotBackupMessage();
+
+                        if($message === null)
+                        {
+                            $parser->createBackup();
+                        }
+                        else
+                        {
+                            $this->cli->yellow('- '.t('Backup failed:').' '.$message);
+                        }
                     }
                     else
                     {
