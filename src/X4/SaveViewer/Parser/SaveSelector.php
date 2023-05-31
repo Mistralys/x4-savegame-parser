@@ -275,7 +275,6 @@ class SaveSelector implements DebuggableInterface
 
     /**
      * @return string[]
-     * @throws FileHelper_Exception
      * @throws SaveViewerException
      */
     public function getSaveNames() : array
