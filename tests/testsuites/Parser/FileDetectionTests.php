@@ -7,6 +7,7 @@ namespace X4\SaveGameParserTests\Tests;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
+use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
 
 final class FileDetectionTests extends X4ParserTestCase
@@ -49,9 +50,15 @@ final class FileDetectionTests extends X4ParserTestCase
 
         $archiveOnly = $selector->getSaveGameByFileName('1-archive-only.xml.gz');
         $this->assertFalse($archiveOnly->isUnzipped());
+        $this->assertTrue($archiveOnly->getZipFile()->exists());
+        $this->assertFalse($archiveOnly->getXMLFile()->exists());
+        $this->assertSame(SaveGameFile::FILE_MODE_ZIP, $archiveOnly->getFileMode());
 
         $xmlOnly = $selector->getSaveGameByFileName('2-xml-only.xml');
         $this->assertTrue($xmlOnly->isUnzipped());
+        $this->assertFalse($xmlOnly->getZipFile()->exists());
+        $this->assertTrue($xmlOnly->getXMLFile()->exists());
+        $this->assertSame(SaveGameFile::FILE_MODE_XML, $xmlOnly->getFileMode());
 
         // It is not considered unzipped, because when both
         // files exist, the XML file is ignored. As it cannot
@@ -59,6 +66,14 @@ final class FileDetectionTests extends X4ParserTestCase
         // a dynamically generated XML name is used.
         $both = $selector->getSaveGameByFileName('3-both.xml.gz');
         $this->assertFalse($both->isUnzipped());
+        $this->assertSame(SaveGameFile::FILE_MODE_ZIP, $both->getFileMode());
+        $this->assertTrue($both->getZipFile()->exists());
+        $this->assertFalse(
+            $both->getXMLFile()->exists(),
+            'Must not exist yet, because it is not unzipped. '.
+            'The XML file is the special extraction file used to avoid '.
+            'conflicts with user-extracted XML files.'
+        );
     }
 
     /**
