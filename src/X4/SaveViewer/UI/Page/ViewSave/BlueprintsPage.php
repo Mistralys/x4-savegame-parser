@@ -180,6 +180,10 @@ class BlueprintsPage extends SubPage
                 continue;
             }
 
+            if($this->countByCategory($category) === 0) {
+                continue;
+            }
+
             ?>
             <h4 id="category-<?php echo $category->getID() ?>"><?php echo $category->getLabel() ?></h4>
             <ul>
