@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Parser\ConstructionPlans;
 
 use DOMElement;
-use Mistralys\X4\Database\Blueprints\Categories\ModuleCategory;
 use Mistralys\X4\Database\Modules\ModuleCategories;
 use Mistralys\X4\Database\Modules\ModuleException;
+use Mistralys\X4\Database\Races\RaceDef;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
+use Mistralys\X4\UI\Page\BasePage;
 
 class ConstructionPlan
 {
@@ -21,6 +23,11 @@ class ConstructionPlan
     public function __construct(DOMElement $element)
     {
         $this->element = $element;
+    }
+
+    public function getID() : string
+    {
+        return $this->element->getAttribute('id');
     }
 
     public function getLabel() : string
@@ -108,5 +115,40 @@ class ConstructionPlan
         }
 
         return $this->modules;
+    }
+
+    public function getURL(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_PAGE] = ViewPlanPage::URL_NAME;
+        $params[ViewPlanPage::REQUEST_PARAM_PLAN_ID] = $this->getID();
+
+        return '?'.http_build_query($params);
+    }
+
+
+    /**
+     * @return RaceDef[]
+     */
+    public function getRaces() : array
+    {
+        $result = array();
+        $modules = $this->getModules();
+
+        foreach($modules as $module)
+        {
+            $race = $module->getModule()->getRace();
+
+            if($race->isGeneric()) {
+                continue;
+            }
+
+            $raceID = $race->getID();
+
+            if(!isset($result[$raceID])) {
+                $result[$raceID] = $race;
+            }
+        }
+
+        return array_values($result);
     }
 }
