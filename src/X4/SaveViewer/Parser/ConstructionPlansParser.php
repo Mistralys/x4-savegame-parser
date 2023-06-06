@@ -5,17 +5,24 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\Parser;
 
 use AppUtils\FileHelper\FileInfo;
+use AppUtils\Request;
 use DOMDocument;
 use DOMElement;
 use Mistralys\X4\SaveViewer\Parser\ConstructionPlans\ConstructionPlan;
+use Mistralys\X4\SaveViewer\Parser\ConstructionPlans\ConstructionPlanException;
+use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlansPage;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
+use Mistralys\X4\UI\Page\BasePage;
 
 class ConstructionPlansParser
 {
+    public const ERROR_PLAN_ID_NOT_FOUND = 138201;
+
     private FileInfo $xmlFile;
     private DOMDocument $dom;
 
     /**
-     * @var ConstructionPlan[]
+     * @var array<string,ConstructionPlan>
      */
     private array $plans = array();
 
@@ -50,14 +57,15 @@ class ConstructionPlansParser
             }
         }
 
-        usort($this->plans, static function(ConstructionPlan $a, ConstructionPlan $b) : int {
+        uasort($this->plans, static function(ConstructionPlan $a, ConstructionPlan $b) : int {
             return strnatcasecmp($a->getLabel(), $b->getLabel());
         });
     }
 
     private function parsePlan(DOMElement $planNode) : void
     {
-        $this->plans[] = new ConstructionPlan($planNode);
+        $plan = new ConstructionPlan($planNode);
+        $this->plans[$plan->getID()] = $plan;
     }
 
     /**
@@ -65,11 +73,66 @@ class ConstructionPlansParser
      */
     public function getPlans() : array
     {
-        return $this->plans;
+        return array_values($this->plans);
     }
 
     public function getXMLFile() : FileInfo
     {
         return $this->xmlFile;
+    }
+
+    public function getURLList(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_PAGE] = ConstructionPlansPage::URL_NAME;
+
+        return '?'.http_build_query($params);
+    }
+
+    public function getByRequest() : ?ConstructionPlan
+    {
+        $id = (string)Request::getInstance()
+            ->registerParam(ViewPlanPage::REQUEST_PARAM_PLAN_ID)
+            ->setEnum($this->getPlanIDs())
+            ->get();
+
+        if(!empty($id)) {
+            return $this->getByID($id);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $id
+     * @return ConstructionPlan
+     * @throws ConstructionPlanException {@see self::ERROR_PLAN_ID_NOT_FOUND}
+     */
+    public function getByID(string $id) : ConstructionPlan
+    {
+         if(isset($this->plans[$id])) {
+             return $this->plans[$id];
+         }
+
+        throw new ConstructionPlanException(
+            'Construction plan not found by ID.',
+            sprintf(
+                'The plan ID [%s] does not exist.',
+                $id
+            ),
+            self::ERROR_PLAN_ID_NOT_FOUND
+        );
+    }
+
+    public function planIDExists(string $id) : bool
+    {
+        return isset($this->plans[$id]);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPlanIDs() : array
+    {
+        return array_keys($this->plans);
     }
 }
