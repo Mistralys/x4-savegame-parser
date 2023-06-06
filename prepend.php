@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer;
 
-$autoloader = __DIR__.'/../../vendor/autoload.php';
+$autoloader = __DIR__.'/vendor/autoload.php';
 if(!file_exists($autoloader)) {
     die('Autoloader not found. Please run `composer install` first.');
 }
 
 require_once $autoloader;
 
-$configFile = __DIR__.'/../../config.php';
+$configFile = __DIR__.'/config.php';
 if(!file_exists($configFile)) {
     die(sprintf('Configuration not found. Please create the `%s` file first.', basename($configFile)));
 }
