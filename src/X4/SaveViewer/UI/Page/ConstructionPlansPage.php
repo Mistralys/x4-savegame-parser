@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages;
 
+use Mistralys\X4\Database\Races\RaceDef;
 use Mistralys\X4\SaveViewer\Parser\ConstructionPlansParser;
 use Mistralys\X4\SaveViewer\UI\MainPage;
 use Mistralys\X4\UserInterface\DataGrid\DataGrid;
 use Mistralys\X4\UserInterface\DataGrid\GridColumn;
 use function AppLocalize\t;
+use function AppUtils\sb;
 
 class ConstructionPlansPage extends MainPage
 {
@@ -20,6 +22,7 @@ class ConstructionPlansPage extends MainPage
     private GridColumn $cElements;
     private GridColumn $cProductions;
     private GridColumn $cHabitats;
+    private GridColumn $cRaces;
 
     public function getURLName() : string
     {
@@ -48,7 +51,7 @@ class ConstructionPlansPage extends MainPage
 
     protected function preRender() : void
     {
-        $this->parser = ConstructionPlansParser::createFromConfig();
+        $this->parser = $this->getApplication()->getConstructionPlans();
 
         $this->createDataGrid();
     }
@@ -62,13 +65,28 @@ class ConstructionPlansPage extends MainPage
             $row = $this->grid->createRow();
             $this->grid->addRow($row);
 
-            $row->setValue($this->cLabel, $plan->getLabel());
+            $row->setValue($this->cLabel, sb()->link($plan->getLabel(), $plan->getURL()));
+            $row->setValue($this->cRaces, $this->renderRaces($plan->getRaces()));
             $row->setValue($this->cElements, $this->renderAmount($plan->countElements()));
             $row->setValue($this->cProductions, $this->renderAmount($plan->countProductions()));
             $row->setValue($this->cHabitats, $this->renderAmount(count($plan->getHabitats())));
         }
 
         $this->grid->display();
+    }
+
+    /**
+     * @param RaceDef[] $races
+     * @return string
+     */
+    private function renderRaces(array $races) : string
+    {
+        $names = array();
+        foreach($races as $race) {
+            $names[] = $race->getLabel();
+        }
+
+        return implode(', ', $names);
     }
 
     private function renderAmount(int $amount) : string
@@ -85,6 +103,8 @@ class ConstructionPlansPage extends MainPage
         $grid = $this->ui->createDataGrid();
 
         $this->cLabel = $grid->addColumn('label', t('Label'));
+
+        $this->cRaces = $grid->addColumn('races', t('Races'));
 
         $this->cHabitats = $grid->addColumn('habitats', t('Habitats'))
             ->alignRight();
