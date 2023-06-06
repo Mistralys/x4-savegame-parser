@@ -8,7 +8,7 @@ use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\UI\BaseSubPage;
 
-abstract class SubPage extends BaseSubPage
+abstract class ViewerSubPage extends BaseSubPage
 {
     public function getReader() : SaveReader
     {
@@ -18,5 +18,10 @@ abstract class SubPage extends BaseSubPage
     public function getSave() : BaseSaveFile
     {
         return $this->page->getSave();
+    }
+
+    protected function sendRedirect(string $url) : void
+    {
+        throw new RedirectException($url);
     }
 }

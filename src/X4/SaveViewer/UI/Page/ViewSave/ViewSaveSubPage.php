@@ -6,19 +6,15 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 use Mistralys\X4\SaveViewer\UI\RedirectException;
+use Mistralys\X4\SaveViewer\UI\ViewerSubPage;
 
 /**
  * @property ViewSave $page
  */
-abstract class SubPage extends \Mistralys\X4\SaveViewer\UI\SubPage
+abstract class ViewSaveSubPage extends ViewerSubPage
 {
     protected function getURLParams() : array
     {
         return array();
-    }
-
-    protected function sendRedirect(string $url) : void
-    {
-        throw new RedirectException($url);
     }
 }
