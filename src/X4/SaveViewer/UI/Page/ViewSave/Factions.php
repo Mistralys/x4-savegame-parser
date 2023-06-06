@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
-class Factions extends SubPage
+class Factions extends ViewSaveSubPage
 {
     const URL_PARAM = 'Factions';
 

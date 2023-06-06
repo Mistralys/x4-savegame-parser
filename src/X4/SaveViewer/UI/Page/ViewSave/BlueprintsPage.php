@@ -18,7 +18,7 @@ use function AppLocalize\pts;
 use function AppLocalize\t;
 use function AppUtils\sb;
 
-class BlueprintsPage extends SubPage
+class BlueprintsPage extends ViewSaveSubPage
 {
     public const URL_NAME = 'Blueprints';
     public const REQUEST_PARAM_GENERATE_XML = 'generate-xml';

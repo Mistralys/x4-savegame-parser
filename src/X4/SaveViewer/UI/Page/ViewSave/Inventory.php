@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
-class Inventory extends SubPage
+class Inventory extends ViewSaveSubPage
 {
     const URL_PARAM = 'Inventory';
 

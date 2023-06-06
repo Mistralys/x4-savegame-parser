@@ -11,7 +11,7 @@ use function AppLocalize\pt;
 use function AppLocalize\t;
 use function AppUtils\sb;
 
-class Home extends SubPage
+class Home extends ViewSaveSubPage
 {
     public const URL_PARAM = 'Home';
 
