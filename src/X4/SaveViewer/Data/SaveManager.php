@@ -13,6 +13,7 @@ use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
 use Mistralys\X4\SaveViewer\SaveViewerException;
+use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlansPage;
 use Mistralys\X4\SaveViewer\UI\Pages\SavesList;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
 use Mistralys\X4\UI\Page\BasePage;
@@ -288,6 +289,13 @@ class SaveManager
     public function getURLSavesArchive(array $params=array()) : string
     {
         $params[BasePage::REQUEST_PARAM_PAGE] = ArchivedSavesPage::URL_NAME;
+
+        return $this->getURL($params);
+    }
+
+    public function getURLConstructionPlans(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_PAGE] = ConstructionPlansPage::URL_NAME;
 
         return $this->getURL($params);
     }
