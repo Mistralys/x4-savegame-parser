@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\UI;
 
-use Mistralys\X4\SaveViewer\UI\Pages\SavesList;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
 use Mistralys\X4\UI\Page\NavItem;
 use function AppLocalize\t;
 
@@ -21,6 +19,10 @@ abstract class MainPage extends Page
             new NavItem(
                 t('Saves archive'),
                 $this->manager->getURLSavesArchive()
+            ),
+            new NavItem(
+                t('Construction plans'),
+                $this->manager->getURLConstructionPlans()
             )
         );
     }
