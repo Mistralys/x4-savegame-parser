@@ -1,9 +1,16 @@
 <?php
 
 /**
- * Absolute path to the folder in which the X4 savegames are stored.
+ * Absolute path to the folder where the game's user-specific files
+ * are kept. On Windows, this is typically something like:
+ *
+ * <pre>
+ * C:\Users\{USERNAME}\Documents\Egosoft\X4\{UNIQUE-NUMBER}
+ * </pre>
+ *
+ * Where <code>{UNIQUE-NUMBER}</code> is a number unique for the player.
  */
-const X4_SAVES_FOLDER = 'C:\Users\Someone\Documents\Egosoft\X4\70814229\save';
+const X4_FOLDER = 'C:\Users\Someone\Documents\Egosoft\X4\11111111';
 
 /**
  * Absolute path to where unpacked savegame data and backups are stored.
