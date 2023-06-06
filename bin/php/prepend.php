@@ -7,11 +7,7 @@ namespace Mistralys\X4\SaveViewer\Bin;
 use Mistralys\X4\SaveViewer\Monitor\BaseMonitor;
 use Throwable;
 
-require_once __DIR__.'/../../vendor/autoload.php';
-require_once __DIR__.'/../../config.php';
-
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+require_once __DIR__.'/../../prepend.php';
 
 function runMonitor(BaseMonitor $monitor) : void
 {
