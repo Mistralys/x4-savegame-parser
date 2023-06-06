@@ -13,6 +13,7 @@ and to extract interesting information from them.
   - Khaa'k hives and nests list.
   - Ship losses list.
   - Categorized event log with search function.
+  - Detailed list of user-added construction plans.
 - JSON files can be used by third party apps.
 - Via [X4 Core][], OOP access to game information.
 
@@ -168,6 +169,18 @@ autosave will automatically be processed as well.
 > CAUTION: This can quickly fill your disk if you have the `X4_MONITOR_KEEP_XML`
 > option enabled. More information on this in the _Monitor options_ section.
  
+#### Windows usage
+
+On Windows, it is possible to add the monitor to the task bar:
+
+1. Right-click `run-monitor.bat`, select _Create shortcut_.
+2. Right-click the shortcut, select _Properties_.
+3. Add `cmd /c` at the beginning in the _Target_ field.
+4. Change the icon if you like.
+5. Drag the shortcut to the task bar.
+
+> TIP: This also works with the UI batch file.
+
 #### Monitor options
 
 ##### Keep XML files
