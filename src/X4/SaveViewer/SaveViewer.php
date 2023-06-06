@@ -11,7 +11,9 @@ namespace Mistralys\X4\SaveViewer;
 
 use AppUtils\FileHelper;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
+use Mistralys\X4\SaveViewer\Parser\ConstructionPlansParser;
 use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlansPage;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
 use Mistralys\X4\UI\UserInterface;
 use Mistralys\X4\X4Application;
@@ -58,6 +60,7 @@ class SaveViewer extends X4Application
         $ui->registerPage(ViewSave::URL_NAME, ViewSave::class);
         $ui->registerPage(UnpackSave::URL_NAME, UnpackSave::class);
         $ui->registerPage(ConstructionPlansPage::URL_NAME, ConstructionPlansPage::class);
+        $ui->registerPage(ViewPlanPage::URL_NAME, ViewPlanPage::class);
     }
 
     public function getDefaultPageID() : ?string
@@ -68,5 +71,16 @@ class SaveViewer extends X4Application
     public function getVersion() : string
     {
         return FileHelper::readContents(__DIR__.'/../../../VERSION');
+    }
+
+    private ?ConstructionPlansParser $plans = null;
+
+    public function getConstructionPlans() : ConstructionPlansParser
+    {
+        if(!isset($this->plans)) {
+            $this->plans = ConstructionPlansParser::createFromConfig();
+        }
+
+        return $this->plans;
     }
 }
