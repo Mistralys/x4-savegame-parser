@@ -61,7 +61,6 @@
       <path value="$PROJECT_DIR$/vendor/react/event-loop" />
       <path value="$PROJECT_DIR$/vendor/react/http" />
       <path value="$PROJECT_DIR$/vendor/react/promise" />
-      <path value="$PROJECT_DIR$/vendor/react/promise-timer" />
       <path value="$PROJECT_DIR$/vendor/react/socket" />
       <path value="$PROJECT_DIR$/vendor/react/stream" />
       <path value="$PROJECT_DIR$/vendor/psr/http-message" />

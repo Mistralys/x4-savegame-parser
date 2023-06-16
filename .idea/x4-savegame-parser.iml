@@ -54,7 +54,6 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/event-loop" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/http" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/promise" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/react/promise-timer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/socket" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/react/stream" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/psr/http-message" />
