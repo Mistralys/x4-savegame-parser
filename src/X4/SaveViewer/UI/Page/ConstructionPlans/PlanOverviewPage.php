@@ -6,16 +6,16 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlans;
 
 use Mistralys\X4\Database\Modules\ModuleDef;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
-use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\PlanSubPage;
+use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BasePlanSubPage;
 use function AppLocalize\t;
 use function AppUtils\sb;
 
 /**
  * @property ViewPlanPage $page
  */
-class PlanOverviewPage extends PlanSubPage
+class PlanOverviewPage extends BasePlanSubPage
 {
-    public const URL_NAME = 'ViewPlan';
+    public const URL_NAME = 'PlanOverview';
 
     public function isInSubnav() : bool
     {
