@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages;
 
 use Mistralys\X4\SaveViewer\Parser\ConstructionPlans\ConstructionPlan;
 use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlans\PlanOverviewPage;
+use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlans\PlanSettingsPage;
 use Mistralys\X4\SaveViewer\UI\PageWithNav;
 use Mistralys\X4\SaveViewer\UI\RedirectException;
 use function AppLocalize\t;
@@ -80,7 +81,8 @@ class ViewPlanPage extends PageWithNav
     protected function initSubPages() : void
     {
         $this->subPages = array(
-            new PlanOverviewPage($this)
+            new PlanOverviewPage($this),
+            new PlanSettingsPage($this)
         );
     }
 }
