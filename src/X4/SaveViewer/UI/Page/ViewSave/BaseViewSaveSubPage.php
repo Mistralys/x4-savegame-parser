@@ -11,7 +11,7 @@ use Mistralys\X4\SaveViewer\UI\ViewerSubPage;
 /**
  * @property ViewSave $page
  */
-abstract class ViewSaveSubPage extends ViewerSubPage
+abstract class BaseViewSaveSubPage extends ViewerSubPage
 {
     protected function getURLParams() : array
     {

@@ -11,7 +11,7 @@ use Mistralys\X4\SaveViewer\UI\ViewerSubPage;
 /**
  * @property ViewPlanPage $page
  */
-abstract class PlanSubPage extends ViewerSubPage
+abstract class BasePlanSubPage extends ViewerSubPage
 {
     public function getPlan() : ConstructionPlan
     {
@@ -20,6 +20,8 @@ abstract class PlanSubPage extends ViewerSubPage
 
     protected function getURLParams() : array
     {
-        return array();
+        return array(
+            ViewPlanPage::REQUEST_PARAM_PLAN_ID => $this->getPlan()->getID()
+        );
     }
 }
