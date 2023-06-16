@@ -1,3 +1,8 @@
+### v0.1.1 - Construction plans
+- Construction Plans: Added possibility to rename plans via the UI.
+- Construction Plans: Added `setLabel()` and `save()` to plans.
+- UI: Now handling POST variables for forms.
+
 ### v0.1.0 - Construction plans viewer
 - Construction Plans: Added a page to view all construction plans.
 - Configuration: Added `X4_FOLDER`.
