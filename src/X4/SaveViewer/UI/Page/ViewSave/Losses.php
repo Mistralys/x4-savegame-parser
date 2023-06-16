@@ -8,7 +8,7 @@ use AppUtils\ConvertHelper;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Log\LogEntry;
 use function AppLocalize\pt;use function AppLocalize\t;
 
-class Losses extends ViewSaveSubPage
+class Losses extends BaseViewSaveSubPage
 {
     public const URL_NAME = 'Losses';
 

@@ -14,7 +14,7 @@ use function AppLocalize\pts;
 use function AppLocalize\t;
 use function AppUtils\sb;
 
-class DeleteArchivePage extends ViewSaveSubPage
+class DeleteArchivePage extends BaseViewSaveSubPage
 {
     public const URL_NAME = 'DeleteArchive';
     public const REQUEST_PARAM_CONFIRM = 'confirm';

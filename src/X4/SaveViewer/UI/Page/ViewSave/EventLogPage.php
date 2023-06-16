@@ -17,7 +17,7 @@ use function AppLocalize\pt;
 use function AppLocalize\pts;
 use function AppLocalize\t;
 
-class EventLogPage extends ViewSaveSubPage
+class EventLogPage extends BaseViewSaveSubPage
 {
     public const URL_NAME = 'EventLog';
     public const REQUEST_PARAM_CATEGORY = 'category';

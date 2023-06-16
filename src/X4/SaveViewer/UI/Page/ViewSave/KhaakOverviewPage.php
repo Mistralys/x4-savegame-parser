@@ -12,7 +12,7 @@ use function AppLocalize\t;
 use function AppLocalize\tex;
 use function AppUtils\sb;
 
-class KhaakOverviewPage extends ViewSaveSubPage
+class KhaakOverviewPage extends BaseViewSaveSubPage
 {
     public const URL_NAME = 'KhaakOverview';
 

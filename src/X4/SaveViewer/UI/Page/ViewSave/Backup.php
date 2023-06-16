@@ -7,7 +7,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
 
-class Backup extends ViewSaveSubPage
+class Backup extends BaseViewSaveSubPage
 {
     const URL_PARAM = 'Backup';
 
