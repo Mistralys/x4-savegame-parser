@@ -62,12 +62,17 @@ class X4Server extends BaseMonitor
     {
         $this->requestCounter++;
 
-
         $this->logHeader('Request %s', $this->requestCounter);
+
+        $body = $request->getParsedBody();
+        $post = array();
+        if(is_array($body)) {
+            $post = $body;
+        }
 
         $response =  $this->handleRequestTarget(
             $request->getRequestTarget(),
-            array_merge($request->getQueryParams(), $request->getServerParams())
+            array_merge($request->getQueryParams(), $request->getServerParams(), $post)
         );
 
         $this->log('Request [%s] | Sending response code [%s].', $this->requestCounter, $response->getStatusCode());
