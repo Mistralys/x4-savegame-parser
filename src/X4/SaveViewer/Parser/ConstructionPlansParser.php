@@ -31,6 +31,7 @@ class ConstructionPlansParser
         $this->xmlFile = $xmlFile;
         $this->dom = new DOMDocument();
         $this->dom->preserveWhiteSpace = false;
+        $this->dom->formatOutput = true;
 
         $this->parse();
     }
@@ -62,9 +63,24 @@ class ConstructionPlansParser
         });
     }
 
+    public function save() : self
+    {
+        $this->xmlFile->copyTo(sprintf(
+            '%s/%s-backup-%s.%s',
+            $this->xmlFile->getFolderPath(),
+            $this->xmlFile->getBaseName(),
+            date('YmdHis'),
+            $this->xmlFile->getExtension()
+        ));
+
+        $this->xmlFile->putContents($this->dom->saveXML());
+
+        return $this;
+    }
+
     private function parsePlan(DOMElement $planNode) : void
     {
-        $plan = new ConstructionPlan($planNode);
+        $plan = new ConstructionPlan($this, $planNode);
         $this->plans[$plan->getID()] = $plan;
     }
 
