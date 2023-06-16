@@ -8,6 +8,8 @@ use DOMElement;
 use Mistralys\X4\Database\Modules\ModuleCategories;
 use Mistralys\X4\Database\Modules\ModuleException;
 use Mistralys\X4\Database\Races\RaceDef;
+use Mistralys\X4\SaveViewer\Parser\ConstructionPlansParser;
+use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlans\PlanSettingsPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
 use Mistralys\X4\UI\Page\BasePage;
 
@@ -19,9 +21,11 @@ class ConstructionPlan
      * @var PlanModule[]|null
      */
     private ?array $modules = null;
+    private ConstructionPlansParser $parser;
 
-    public function __construct(DOMElement $element)
+    public function __construct(ConstructionPlansParser $parser, DOMElement $element)
     {
+        $this->parser = $parser;
         $this->element = $element;
     }
 
@@ -150,5 +154,24 @@ class ConstructionPlan
         }
 
         return array_values($result);
+    }
+
+    public function getURLSettings(array $params=array()) : string
+    {
+        $params[BasePage::REQUEST_PARAM_VIEW] = PlanSettingsPage::URL_NAME;
+
+        return $this->getURL($params);
+    }
+
+    public function setLabel(string $label) : self
+    {
+        $this->element->setAttribute('name', $label);
+        return $this;
+    }
+
+    public function save() : self
+    {
+        $this->parser->save();
+        return $this;
     }
 }
