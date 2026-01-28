@@ -173,6 +173,16 @@ Simply run the following in a terminal:
 ./bin/run-monitor
 ```
 
+#### Machine-readable output
+
+If you are wrapping the monitor in another application, you can enable
+NDJSON (Newline Delimited JSON) output mode. This will output structured
+JSON objects for events and status updates instead of human-readable text.
+
+```shell
+./bin/run-monitor --json
+```
+
 The monitor will periodically display a status message in the terminal to
 explain what it's doing. If a new savegame is detected, it will say so
 and unpack it as well as create a backup (if enabled in the config).

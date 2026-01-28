@@ -11,6 +11,8 @@ use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\SaveParser;
 use Mistralys\X4\SaveViewer\SaveViewerException;
+use Mistralys\X4\SaveViewer\Monitor\Output\ConsoleOutput;
+use Mistralys\X4\SaveViewer\Monitor\Output\MonitorOutputInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
@@ -36,6 +38,7 @@ abstract class BaseMonitor
 
     protected SaveManager $manager;
     protected LoopInterface $loop;
+    protected MonitorOutputInterface $output;
 
     /**
      * @throws SaveViewerException
@@ -50,6 +53,14 @@ abstract class BaseMonitor
             Config::getSavesFolder(),
             Config::getStorageFolder()
         ));
+
+        $this->output = new ConsoleOutput();
+    }
+
+    public function setOutput(MonitorOutputInterface $output) : self
+    {
+        $this->output = $output;
+        return $this;
     }
 
     public function getTickCounter() : int
@@ -110,19 +121,23 @@ abstract class BaseMonitor
 
     protected function log(...$args) : void
     {
-        echo sprintf(...$args).PHP_EOL;
+        $this->output->log(...$args);
     }
 
     protected function logHeader(...$args) : void
     {
-        $this->log('--------------------------------------------');
-        $this->log(...$args);
-        $this->log('--------------------------------------------');
+        $this->output->logHeader(...$args);
+    }
+
+    protected function notify(string $eventName, array $payload = []) : void
+    {
+        $this->output->notify($eventName, $payload);
     }
 
     public function handleTick() : void
     {
         $this->tickCounter++;
+        $this->output->tick($this->tickCounter);
 
         $this->_handleTick();
     }

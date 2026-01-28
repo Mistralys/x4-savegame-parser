@@ -17,6 +17,18 @@ function runMonitor(BaseMonitor $monitor) : void
     }
     catch (Throwable $e)
     {
+        global $argv;
+
+        if (in_array('--json', $argv ?? [])) {
+            echo json_encode([
+                    'type' => 'error',
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'trace' => $e->getTraceAsString()
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            exit(1);
+        }
+
         die(
             'An exception occurred. '.PHP_EOL.
             'Message: ['.$e->getMessage().'] '.PHP_EOL.

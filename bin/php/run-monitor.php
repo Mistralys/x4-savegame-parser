@@ -13,10 +13,18 @@ namespace Mistralys\X4\SaveViewer\Bin;
 
 use Mistralys\X4\SaveViewer\Monitor\X4Monitor;
 use Mistralys\X4\SaveViewer\Config\Config;
+use Mistralys\X4\SaveViewer\Monitor\Output\ConsoleOutput;
+use Mistralys\X4\SaveViewer\Monitor\Output\JsonOutput;
 
 require_once __DIR__.'/prepend.php';
 
-runMonitor(new X4Monitor()
+$output = new ConsoleOutput();
+if(in_array('--json', $argv)) {
+    $output = new JsonOutput();
+}
+
+runMonitor((new X4Monitor())
+    ->setOutput($output)
     ->optionKeepXML(Config::isKeepXMLFiles())
     ->optionAutoBackup(Config::isAutoBackupEnabled())
     ->optionLogging(Config::isLoggingEnabled())

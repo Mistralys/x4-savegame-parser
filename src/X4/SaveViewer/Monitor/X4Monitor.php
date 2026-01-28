@@ -29,6 +29,7 @@ class X4Monitor extends BaseMonitor
     public function optionLogging(bool $enabled) : self
     {
         $this->optionLogging = $enabled;
+        $this->output->setLoggingEnabled($enabled);
         return $this;
     }
 
@@ -46,6 +47,8 @@ class X4Monitor extends BaseMonitor
 
     protected function setup() : void
     {
+        $this->notify('MONITOR_STARTED');
+
         $this->logHeader('X4 Savegame unpacker');
         $this->log('Updates are run every [%s].', ConvertHelper::time2string($this->getTickSize()));
         $this->log('Keep XML files: %s', strtoupper(ConvertHelper::bool2string($this->optionKeepXML, true)));
@@ -65,6 +68,11 @@ class X4Monitor extends BaseMonitor
 
         $this->log('Latest savegame is [%s].', $save->getSaveName());
 
+        $this->notify('SAVE_DETECTED', [
+            'name' => $save->getSaveName(),
+            'path' => $save->getSaveFile()->getPath()
+        ]);
+
         if($save->hasData()) {
             $this->log('> Skipping, already parsed.');
             return;
@@ -72,14 +80,20 @@ class X4Monitor extends BaseMonitor
 
         $this->log('> Parsing.');
 
+        $this->notify('SAVE_PARSING_STARTED', [
+            'name' => $save->getSaveName()
+        ]);
+
         await(new Promise(function(callable $resolve) use ($save)
         {
             $file = $save->getSaveFile();
 
             $this->log('...Unzipping.');
+            $this->notify('SAVE_UNZIPPING');
             $file->unzip();
 
             $this->log('...Extracting and writing files.');
+            $this->notify('SAVE_EXTRACTING');
 
             SaveParser::create($file)
                 ->optionAutoBackup($this->optionAutoBackup)
@@ -88,6 +102,7 @@ class X4Monitor extends BaseMonitor
                 ->unpack();
 
             $this->log('...Done.');
+            $this->notify('SAVE_PARSING_COMPLETE');
             $this->log('');
 
             $resolve();
