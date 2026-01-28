@@ -4,10 +4,15 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "license": "MIT",
+  "homepage": "https://github.com/Mistralys/x4-savegame-parser",
+  "support": {
+    "issues": "https://github.com/Mistralys/x4-savegame-parser/issues"
+  },
   "authors": [
     {
       "name": "Sebastian Mordziol",
-      "email": "s.mordziol@mistralys.eu"
+      "email": "s.mordziol@mistralys.eu",
+      "role": "Lead"
     }
   ],
   "autoload": {
@@ -21,12 +26,13 @@
     ]
   },
   "require": {
-    "mistralys/x4-core": "^0.0.6",
+    "mistralys/x4-core": ">=1.2.0",
     "mistralys/version-parser": ">=1.0.0",
     "mistralys/application-localization": ">=1.4.1",
     "react/http": ">=v1.9.0",
     "react/async": ">=v3.0.0",
     "league/climate": "^3.8.2",
+    "php": ">=8.4",
     "ext-xmlreader": "*",
     "ext-dom": "*"
   },
