@@ -1,6 +1,5 @@
 composer.phar
 /vendor/
-config.php
 .phpunit.result.cache
 /tests/files/unpack*
 /archived-saves/unpack*
@@ -9,4 +8,3 @@ bin/X4 SaveGame Monitor.lnk
 .idea/copilot.data.migration.agent.xml
 .idea/copilot.data.migration.ask2agent.xml
 .idea/copilot.data.migration.edit.xml
-.idea/copilot.data.migration.agent.xml

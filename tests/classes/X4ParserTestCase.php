@@ -11,6 +11,7 @@ use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\Traits\DebuggableInterface;
 use Mistralys\X4\SaveViewer\Traits\DebuggableTrait;
 use PHPUnit\Framework\TestCase;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 require_once __DIR__.'/../bootstrap.php';
 
@@ -62,7 +63,7 @@ abstract class X4ParserTestCase extends TestCase implements DebuggableInterface
 
     public function createSelector() : SaveSelector
     {
-        return SaveSelector::create(X4_SAVES_FOLDER, X4_STORAGE_FOLDER)
+        return SaveSelector::create(Config::getSavesFolder(), Config::getString('X4_STORAGE_FOLDER'))
             ->setLoggingEnabled($this->isLoggingEnabled());
     }
 }

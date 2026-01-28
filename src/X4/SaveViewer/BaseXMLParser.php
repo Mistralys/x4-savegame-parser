@@ -8,7 +8,6 @@ use AppUtils\ClassHelper;
 use AppUtils\ClassHelper\BaseClassHelperException;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
-use AppUtils\FileHelper\FolderInfo;
 use AppUtils\Microtime;
 use DOMElement;
 use DOMNode;
@@ -212,7 +211,7 @@ abstract class BaseXMLParser
         $files = FileHelper::createFileFinder($folder)
             ->includeExtension('xml')
             ->setPathmodeAbsolute()
-            ->getAll();
+            ->getMatches();
 
         foreach($this->tagActions as $tagPath => $tagData)
         {
@@ -360,7 +359,6 @@ abstract class BaseXMLParser
 
     /**
      * @return XMLReader
-     * @throws BaseClassHelperException
      * @throws X4Exception
      */
     private function createReader() : XMLReader

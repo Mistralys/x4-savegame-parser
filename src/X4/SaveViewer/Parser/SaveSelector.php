@@ -12,6 +12,7 @@ use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 use Mistralys\X4\SaveViewer\Traits\DebuggableInterface;
 use Mistralys\X4\SaveViewer\Traits\DebuggableTrait;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 class SaveSelector implements DebuggableInterface
 {
@@ -78,8 +79,8 @@ class SaveSelector implements DebuggableInterface
     public static function createFromConfig() : SaveSelector
     {
         return self::create(
-            X4_SAVES_FOLDER,
-            X4_STORAGE_FOLDER
+            Config::getSavesFolder(),
+            Config::getString('X4_STORAGE_FOLDER')
         );
     }
 

@@ -18,6 +18,7 @@ use React\Socket\SocketServer;
 use Throwable;
 use function AppUtils\parseThrowable;
 use function AppUtils\parseURL;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 class X4Server extends BaseMonitor
 {
@@ -50,7 +51,10 @@ class X4Server extends BaseMonitor
     {
         $server = new HttpServer($this->loop, array($this, 'handleRequest'));
 
-        $socket = new SocketServer(X4_SERVER_HOST.':'.X4_SERVER_PORT, array(), $this->loop);
+        $host = Config::getString('X4_SERVER_HOST', 'localhost');
+        $port = Config::getInt('X4_SERVER_PORT', 9494);
+
+        $socket = new SocketServer($host.':'.$port, array(), $this->loop);
         $server->listen($socket);
 
         $this->logHeader('X4 Savegame server');
@@ -245,7 +249,7 @@ class X4Server extends BaseMonitor
         try
         {
             $app = new SaveViewer();
-            $ui = new UserInterface($app, 'http://'.X4_SERVER_HOST.':'.X4_SERVER_PORT);
+            $ui = new UserInterface($app, 'http://'.Config::getString('X4_SERVER_HOST', 'localhost').':'.Config::getInt('X4_SERVER_PORT', 9494));
             $content = $ui->render();
         }
         catch (RedirectException $e)

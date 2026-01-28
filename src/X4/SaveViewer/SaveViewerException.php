@@ -6,12 +6,13 @@ namespace Mistralys\X4\SaveViewer;
 
 use Mistralys\X4\X4Exception;
 use Throwable;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 class SaveViewerException extends X4Exception
 {
     public function __construct(string $message, ?string $details = null, ?int $code = null, ?Throwable $previous = null)
     {
-        if(defined('X4_TESTSUITE') && X4_TESTSUITE && !empty($details)) {
+        if(Config::getBool('X4_TESTSUITE', false) && !empty($details)) {
             $message .= PHP_EOL.$details;
         }
 

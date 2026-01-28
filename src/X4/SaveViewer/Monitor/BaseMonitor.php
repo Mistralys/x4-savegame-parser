@@ -19,6 +19,7 @@ use React\Http\Message\Response;
 use React\Promise\Promise;
 use React\Socket\SocketServer;
 use function React\Async\await;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 abstract class BaseMonitor
 {
@@ -46,8 +47,8 @@ abstract class BaseMonitor
         $this->requireCLI();
 
         $this->manager = new SaveManager(SaveSelector::create(
-            X4_SAVES_FOLDER,
-            X4_STORAGE_FOLDER
+            Config::getSavesFolder(),
+            Config::getString('X4_STORAGE_FOLDER')
         ));
     }
 

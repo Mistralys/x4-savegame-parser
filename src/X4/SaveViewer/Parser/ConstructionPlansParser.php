@@ -13,6 +13,7 @@ use Mistralys\X4\SaveViewer\Parser\ConstructionPlans\ConstructionPlanException;
 use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlansPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
 use Mistralys\X4\UI\Page\BasePage;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 class ConstructionPlansParser
 {
@@ -38,7 +39,7 @@ class ConstructionPlansParser
 
     public static function createFromConfig() : ConstructionPlansParser
     {
-        return new ConstructionPlansParser(FileInfo::factory(X4_FOLDER.'/constructionplans.xml'));
+        return new ConstructionPlansParser(FileInfo::factory(Config::getString('X4_FOLDER') . DIRECTORY_SEPARATOR . 'constructionplans.xml'));
     }
 
     private function parse() : void

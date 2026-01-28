@@ -6,6 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 class Backup extends BaseViewSaveSubPage
 {
@@ -59,7 +60,7 @@ class Backup extends BaseViewSaveSubPage
                 </p>
                 <p>
                     Location on disk:<br>
-                    <code><?php echo FileHelper::relativizePath($backup->getBackupPath(), X4_SAVES_FOLDER) ?></code>
+                    <code><?php echo FileHelper::relativizePath($backup->getBackupPath(), Config::getSavesFolder()) ?></code>
                 </p>
             <?php
         }

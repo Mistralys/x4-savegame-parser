@@ -11,7 +11,6 @@ namespace Mistralys\X4\SaveViewer;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
-use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper_Exception;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
@@ -22,6 +21,7 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\PlayerStatsFragment;
 use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
+use Mistralys\X4\SaveViewer\Config\Config;
 use function AppLocalize\t;
 
 /**
@@ -97,8 +97,8 @@ class SaveParser extends BaseXMLParser
     public static function createFromMonitorConfig(MainSave $save) : SaveParser
     {
         return self::create($save)
-            ->optionKeepXML(X4_MONITOR_KEEP_XML)
-            ->optionAutoBackup(X4_MONITOR_AUTO_BACKUP);
+            ->optionKeepXML(Config::getBool('X4_MONITOR_KEEP_XML', false))
+            ->optionAutoBackup(Config::getBool('X4_MONITOR_AUTO_BACKUP', true));
     }
 
     public function getCollections() : Collections
