@@ -19,42 +19,14 @@ if(!file_exists($autoloader)) {
 
 require_once $autoloader;
 
-$configFile = __DIR__.'/config.php';
-if(!file_exists($configFile)) {
-    die(sprintf('Configuration not found. Please create the `%s` file first.', basename($configFile)));
-}
+// Load JSON-backed configuration via the new Config class
+use Mistralys\X4\SaveViewer\Config\Config;
 
-require_once $configFile;
-
-$configKeys = array(
-    'X4_FOLDER' => null,
-    'X4_STORAGE_FOLDER' => null,
-    'X4_SERVER_HOST' => 'localhost',
-    'X4_SERVER_PORT' => 9494,
-    'X4_MONITOR_AUTO_BACKUP' => true,
-    'X4_MONITOR_KEEP_XML' => false,
-    'X4_MONITOR_LOGGING' => false
-);
-
-foreach($configKeys as $key => $default)
-{
-    if(defined($key)) {
-        continue;
-    }
-
-    if($default === null) {
-        die(sprintf(
-            'The configuration setting `%s` has not been set. Please add it in `%s`.',
-            $key,
-            basename($configFile)
-        ));
-    }
-
-    define($key, $default);
-}
-
-if(!defined('X4_SAVES_FOLDER')) {
-    define('X4_SAVES_FOLDER', X4_FOLDER.'\save');
+try {
+    // Falls back to config.dist.json if config.json is missing
+    Config::ensureLoaded();
+} catch (\Throwable $e) {
+    die('Configuration error: '.$e->getMessage());
 }
 
 error_reporting(E_ALL);
