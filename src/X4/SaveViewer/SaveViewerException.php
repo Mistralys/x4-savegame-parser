@@ -12,7 +12,7 @@ class SaveViewerException extends X4Exception
 {
     public function __construct(string $message, ?string $details = null, ?int $code = null, ?Throwable $previous = null)
     {
-        if(Config::getBool('X4_TESTSUITE', false) && !empty($details)) {
+        if(Config::isTestSuiteEnabled() && !empty($details)) {
             $message .= PHP_EOL.$details;
         }
 

@@ -80,7 +80,7 @@ class SaveSelector implements DebuggableInterface
     {
         return self::create(
             Config::getSavesFolder(),
-            Config::getString('X4_STORAGE_FOLDER')
+            Config::getStorageFolder()
         );
     }
 

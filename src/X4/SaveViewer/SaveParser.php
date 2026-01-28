@@ -97,8 +97,8 @@ class SaveParser extends BaseXMLParser
     public static function createFromMonitorConfig(MainSave $save) : SaveParser
     {
         return self::create($save)
-            ->optionKeepXML(Config::getBool('X4_MONITOR_KEEP_XML', false))
-            ->optionAutoBackup(Config::getBool('X4_MONITOR_AUTO_BACKUP', true));
+            ->optionKeepXML(Config::isKeepXMLFiles())
+            ->optionAutoBackup(Config::isAutoBackupEnabled());
     }
 
     public function getCollections() : Collections

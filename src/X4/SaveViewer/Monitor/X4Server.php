@@ -51,8 +51,8 @@ class X4Server extends BaseMonitor
     {
         $server = new HttpServer($this->loop, array($this, 'handleRequest'));
 
-        $host = Config::getString('X4_SERVER_HOST', 'localhost');
-        $port = Config::getInt('X4_SERVER_PORT', 9494);
+        $host = Config::getViewerHost();
+        $port = Config::getViewerPort();
 
         $socket = new SocketServer($host.':'.$port, array(), $this->loop);
         $server->listen($socket);
@@ -249,7 +249,7 @@ class X4Server extends BaseMonitor
         try
         {
             $app = new SaveViewer();
-            $ui = new UserInterface($app, 'http://'.Config::getString('X4_SERVER_HOST', 'localhost').':'.Config::getInt('X4_SERVER_PORT', 9494));
+            $ui = new UserInterface($app, 'http://'.Config::getViewerHost().':'.Config::getViewerPort());
             $content = $ui->render();
         }
         catch (RedirectException $e)

@@ -1,6 +1,6 @@
 <?php
 
-// ...existing code...
+declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Config;
 
@@ -53,7 +53,11 @@ class Config
     {
         self::ensureLoaded();
 
-        return array_key_exists($key, self::$instance->data) ? self::$instance->data[$key] : $default;
+        if (array_key_exists($key, self::$instance->data)) {
+            return self::$instance->data[$key];
+        }
+
+        return $default;
     }
 
     public static function getString(string $key, string $default = '') : string
@@ -91,52 +95,8 @@ class Config
     public static function has(string $key) : bool
     {
         self::ensureLoaded();
+
         return array_key_exists($key, self::$instance->data);
-    }
-
-    /**
-     * Bootstrap compatibility: define legacy constants from config values if they are not already defined.
-     * Call this early in the application's bootstrap (e.g. in prepend.php) to keep existing code working.
-     */
-    public static function bootstrapCompatibility(?string $path = null) : void
-    {
-        self::ensureLoaded($path);
-
-        $map = array(
-            'X4_FOLDER' => null,
-            'X4_STORAGE_FOLDER' => null,
-            'X4_SERVER_HOST' => 'localhost',
-            'X4_SERVER_PORT' => 9494,
-            'X4_MONITOR_AUTO_BACKUP' => true,
-            'X4_MONITOR_KEEP_XML' => false,
-            'X4_MONITOR_LOGGING' => false
-        );
-
-        foreach($map as $key => $default) {
-            if(defined($key)) {
-                continue;
-            }
-
-            $value = self::get($key, $default);
-
-            // If the value is a string, quote properly for define
-            if(is_string($value)) {
-                define($key, $value);
-            } elseif(is_bool($value) || is_int($value) || is_float($value)) {
-                define($key, $value);
-            } else {
-                // For arrays or objects, serialize to JSON string
-                define($key, json_encode($value));
-            }
-        }
-
-        if(!defined('X4_SAVES_FOLDER')) {
-            // X4_SAVES_FOLDER was previously defined as X4_FOLDER.'\save'
-            $folder = self::getString('X4_FOLDER', '');
-            if($folder !== '') {
-                define('X4_SAVES_FOLDER', $folder . DIRECTORY_SEPARATOR . 'save');
-            }
-        }
     }
 
     /**
@@ -149,11 +109,102 @@ class Config
 
     public static function getSavesFolder() : string
     {
-        if(self::has('X4_SAVES_FOLDER')) {
-            return self::getString('X4_SAVES_FOLDER');
+        if(self::has('savesFolder')) {
+            return self::getString('savesFolder');
         }
 
-        $folder = self::getString('X4_FOLDER');
+        $folder = self::getGameFolder();
         return $folder . DIRECTORY_SEPARATOR . 'save';
+    }
+
+    public static function getGameFolder() : string
+    {
+        return self::getString('gameFolder');
+    }
+
+    public static function getStorageFolder() : string
+    {
+        return self::getString('storageFolder');
+    }
+
+    public static function getViewerHost() : string
+    {
+        return self::getString('viewerHost', 'localhost');
+    }
+
+    public static function getViewerPort() : int
+    {
+        return self::getInt('viewerPort', 9494);
+    }
+
+    public static function isAutoBackupEnabled() : bool
+    {
+        return self::getBool('autoBackupEnabled', true);
+    }
+
+    public static function isKeepXMLFiles() : bool
+    {
+        return self::getBool('keepXMLFiles', false);
+    }
+
+    public static function isTestSuiteEnabled() : bool
+    {
+        return self::getBool('testSuiteEnabled', false);
+    }
+
+    public static function isLoggingEnabled() : bool
+    {
+        return self::getBool('loggingEnabled', false);
+    }
+
+    public static function set(string $key, $value) : void
+    {
+        self::ensureLoaded();
+        self::$instance->data[$key] = $value;
+    }
+
+    public static function setGameFolder(string $value) : void
+    {
+        self::set('gameFolder', $value);
+    }
+
+    public static function setStorageFolder(string $value) : void
+    {
+        self::set('storageFolder', $value);
+    }
+
+    public static function setViewerHost(string $value) : void
+    {
+        self::set('viewerHost', $value);
+    }
+
+    public static function setViewerPort(int $value) : void
+    {
+        self::set('viewerPort', $value);
+    }
+
+    public static function setAutoBackupEnabled(bool $value) : void
+    {
+        self::set('autoBackupEnabled', $value);
+    }
+
+    public static function setKeepXMLFiles(bool $value) : void
+    {
+        self::set('keepXMLFiles', $value);
+    }
+
+    public static function setLoggingEnabled(bool $value) : void
+    {
+        self::set('loggingEnabled', $value);
+    }
+
+    public static function setSavesFolder(string $value) : void
+    {
+        self::set('savesFolder', $value);
+    }
+
+    public static function setTestSuiteEnabled(bool $value) : void
+    {
+        self::set('testSuiteEnabled', $value);
     }
 }

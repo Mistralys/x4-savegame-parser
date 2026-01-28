@@ -63,7 +63,7 @@ abstract class X4ParserTestCase extends TestCase implements DebuggableInterface
 
     public function createSelector() : SaveSelector
     {
-        return SaveSelector::create(Config::getSavesFolder(), Config::getString('X4_STORAGE_FOLDER'))
+        return SaveSelector::create(Config::getSavesFolder(), Config::getStorageFolder())
             ->setLoggingEnabled($this->isLoggingEnabled());
     }
 }

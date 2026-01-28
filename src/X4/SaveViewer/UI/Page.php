@@ -22,7 +22,7 @@ abstract class Page extends BasePage
     {
         $this->manager = new SaveManager(SaveSelector::create(
             Config::getSavesFolder(),
-            Config::getString('X4_STORAGE_FOLDER')
+            Config::getStorageFolder()
         ));
     }
 

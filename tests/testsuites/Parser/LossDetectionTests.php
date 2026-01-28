@@ -61,7 +61,7 @@ final class LossDetectionTests extends X4ParserTestCase
 
         $this->assertCount(3, $data);
 
-        $collections = new Collections(FolderInfo::factory(Config::getString('X4_STORAGE_FOLDER')));
+        $collections = new Collections(FolderInfo::factory(Config::getStorageFolder()));
         $entry = new LogEntryType($collections, $data[0]);
 
         $info = DetectShipLosses::parseEntry($entry);
