@@ -1,0 +1,9 @@
+{
+  "X4_FOLDER": "C:\\Users\\Someone\\Documents\\Egosoft\\X4\\11111111",
+  "X4_STORAGE_FOLDER": "archived-saves",
+  "X4_SERVER_HOST": "localhost",
+  "X4_SERVER_PORT": 9494,
+  "X4_MONITOR_AUTO_BACKUP": true,
+  "X4_MONITOR_KEEP_XML": false,
+  "X4_MONITOR_LOGGING": false
+}
