@@ -16,7 +16,7 @@ use Mistralys\X4\SaveViewer\Config\Config;
 
 require_once __DIR__.'/prepend.php';
 
-runMonitor((new X4Monitor())
+runMonitor(new X4Monitor()
     ->optionKeepXML(Config::isKeepXMLFiles())
     ->optionAutoBackup(Config::isAutoBackupEnabled())
     ->optionLogging(Config::isLoggingEnabled())
