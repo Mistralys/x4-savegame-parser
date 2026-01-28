@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Config;
 
+use AppUtils\FileHelper\JSONFile;
+use AppUtils\FileHelper_Exception;
 use RuntimeException;
 
 class Config
@@ -19,14 +21,19 @@ class Config
 
     public static function loadFromFile(string $path) : void
     {
-        if(!file_exists($path)) {
+        $file = JSONFile::factory($path);
+
+        if(!$file->exists()) {
             throw new RuntimeException(sprintf('Config file not found: %s', $path));
         }
 
-        $contents = file_get_contents($path);
-        $json = json_decode($contents, true);
-        if($json === null || !is_array($json)) {
-            throw new RuntimeException(sprintf('Invalid JSON in config file: %s', $path));
+        try
+        {
+            $json = $file->parse();
+        }
+        catch (FileHelper_Exception $e)
+        {
+            throw new RuntimeException(sprintf('Invalid JSON in config file: %s', $path), $e->getCode(), $e);
         }
 
         self::$instance = new self($json);
