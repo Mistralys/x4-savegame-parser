@@ -93,13 +93,13 @@ The application is configured via a `config.json` file in the root folder.
 You can copy `config.dist.json` to `config.json` to get started.
 
 Available keys:
-- `X4_FOLDER` (string): Path to X4 documents folder
-- `X4_STORAGE_FOLDER` (string): Path to store extracted data
-- `X4_SERVER_HOST` (string): Hostname for UI server
-- `X4_SERVER_PORT` (int): Port for UI server
-- `X4_MONITOR_AUTOBACKUP` (bool): Enable auto backups
-- `X4_MONITOR_KEEP_XML` (bool): Keep extracted XML files
-- `X4_MONITOR_LOGGING` (bool): Enable verbose logging
+- `gameFolder` (string): Path to X4 documents folder
+- `storageFolder` (string): Path to store extracted data
+- `viewerHost` (string): Hostname for UI server
+- `viewerPort` (int): Port for UI server
+- `autoBackupEnabled` (bool): Enable auto backups
+- `keepXMLFiles` (bool): Keep extracted XML files
+- `loggingEnabled` (bool): Enable verbose logging
 
 ### Extract tool command line
 
@@ -180,7 +180,7 @@ and unpack it as well as create a backup (if enabled in the config).
 If you leave your game running unattended with autosave on, each new
 autosave will automatically be processed as well.
 
-> CAUTION: This can quickly fill your disk if you have the `X4_MONITOR_KEEP_XML`
+> CAUTION: This can quickly fill your disk if you have the `keepXMLFiles`
 > option enabled in `config.json`. More information on this in the _Monitor options_ section.
  
 #### Windows usage
@@ -199,7 +199,7 @@ On Windows, it is possible to add the monitor to the task bar:
 
 ##### Keep XML files
 
-Config key: `X4_MONITOR_KEEP_XML` (boolean)
+Config key: `keepXMLFiles` (boolean)
 
 Whether to keep the extracted XML fragment files after extraction.
 
@@ -209,7 +209,7 @@ can be useful if you wish to study the XML structure.
 
 ##### Auto-Backup
 
-Config key: `X4_MONITOR_AUTO_BACKUP` (boolean) 
+Config key: `autoBackupEnabled` (boolean) 
 
 Whether to create a copy of the savegame `.gz` file.
 
@@ -222,7 +222,7 @@ savegame folder, as `backup.gz`.
 
 ##### Detailed log output
 
-Config key: `X4_MONITOR_LOGGING` (boolean)
+Config key: `loggingEnabled` (boolean)
 
 Whether to display detailed logging messages in the Monitor's
 command line. This is mainly used for debugging purposes when developing.
