@@ -10,6 +10,7 @@ use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\DataProcessing\Processors\DetectShipLosses;
 use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
+use Mistralys\X4\SaveViewer\Config\Config;
 
 final class LossDetectionTests extends X4ParserTestCase
 {
@@ -60,7 +61,7 @@ final class LossDetectionTests extends X4ParserTestCase
 
         $this->assertCount(3, $data);
 
-        $collections = new Collections(FolderInfo::factory(X4_STORAGE_FOLDER));
+        $collections = new Collections(FolderInfo::factory(Config::getString('X4_STORAGE_FOLDER')));
         $entry = new LogEntryType($collections, $data[0]);
 
         $info = DetectShipLosses::parseEntry($entry);
