@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+#
+# PHPStan / Clear cache
+#
+
+BinFolder=../../vendor/bin
+ConfigFile=config.neon
+
+echo "-------------------------------------------------------"
+echo "CLEARING PHPSTAN CACHE"
+echo "-------------------------------------------------------"
+echo ""
+
+$BinFolder/phpstan clear-result-cache -c $ConfigFile

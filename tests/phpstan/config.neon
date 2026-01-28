@@ -1,0 +1,9 @@
+# PHPStan / Analysis configuration file
+#
+parameters:
+    bootstrapFiles:
+        - ../bootstrap.php
+    paths:
+        - ../../src
+        - ../classes
+        - ../testsuites
