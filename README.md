@@ -60,8 +60,8 @@ There are several tools which can be used together:
 
 1. Clone the repository somewhere.
 2. Run `composer install`
-3. Rename `config.dist.php` to `config.php`
-4. Edit `config.php` to adjust the settings
+3. Copy `config.dist.json` to `config.json`
+4. Edit `config.json` to adjust the settings
 
 ## Quick start
 
@@ -86,6 +86,20 @@ in the game's savegame folder. Any previously archived
 saves are listed in the _Saves Archive_ tab.
 
 ## Advanced usage
+
+### Configuration
+
+The application is configured via a `config.json` file in the root folder.
+You can copy `config.dist.json` to `config.json` to get started.
+
+Available keys:
+- `X4_FOLDER` (string): Path to X4 documents folder
+- `X4_STORAGE_FOLDER` (string): Path to store extracted data
+- `X4_SERVER_HOST` (string): Hostname for UI server
+- `X4_SERVER_PORT` (int): Port for UI server
+- `X4_MONITOR_AUTOBACKUP` (bool): Enable auto backups
+- `X4_MONITOR_KEEP_XML` (bool): Keep extracted XML files
+- `X4_MONITOR_LOGGING` (bool): Enable verbose logging
 
 ### Extract tool command line
 
@@ -167,7 +181,7 @@ If you leave your game running unattended with autosave on, each new
 autosave will automatically be processed as well.
 
 > CAUTION: This can quickly fill your disk if you have the `X4_MONITOR_KEEP_XML`
-> option enabled. More information on this in the _Monitor options_ section.
+> option enabled in `config.json`. More information on this in the _Monitor options_ section.
  
 #### Windows usage
 
@@ -185,7 +199,7 @@ On Windows, it is possible to add the monitor to the task bar:
 
 ##### Keep XML files
 
-Config name: `X4_MONITOR_KEEP_XML`
+Config key: `X4_MONITOR_KEEP_XML` (boolean)
 
 Whether to keep the extracted XML fragment files after extraction.
 
@@ -195,7 +209,7 @@ can be useful if you wish to study the XML structure.
 
 ##### Auto-Backup
 
-Config name: `X4_MONITOR_AUTO_BACKUP` 
+Config key: `X4_MONITOR_AUTO_BACKUP` (boolean) 
 
 Whether to create a copy of the savegame `.gz` file.
 
@@ -208,7 +222,7 @@ savegame folder, as `backup.gz`.
 
 ##### Detailed log output
 
-Config name: `X4_MONITOR_LOGGING`
+Config key: `X4_MONITOR_LOGGING` (boolean)
 
 Whether to display detailed logging messages in the Monitor's
 command line. This is mainly used for debugging purposes when developing.
@@ -218,7 +232,7 @@ command line. This is mainly used for debugging purposes when developing.
 ### Archive folders
 
 The extraction process creates a folder for each savegame
-in the storage folder configured in the `config.php` file,
+in the storage folder configured in `config.json`,
 which looks like this:
 
 ```
