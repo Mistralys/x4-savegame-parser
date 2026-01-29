@@ -39,6 +39,13 @@ interface MonitorOutputInterface
     public function notify(string $eventName, array $payload = []): void;
 
     /**
+     * Send an error notification.
+     *
+     * @param \Throwable $e
+     */
+    public function error(\Throwable $e): void;
+
+    /**
      * Set whether logging messages should be output.
      *
      * @param bool $enabled

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Monitor\Output;
 
+use AppUtils\BaseException;
 use League\CLImate\CLImate;
 
 class ConsoleOutput implements MonitorOutputInterface
@@ -69,6 +70,46 @@ class ConsoleOutput implements MonitorOutputInterface
         }
 
         $this->climate->out($message);
+    }
+
+    public function error(\Throwable $e): void
+    {
+        $this->climate->error('ERROR: ' . $e->getMessage());
+        $this->climate->error('Code: ' . $e->getCode());
+        $this->climate->error('Type: ' . get_class($e));
+
+        // Show detailed information for BaseException
+        if ($e instanceof BaseException) {
+            $this->climate->error('Details: ' . $e->getDetails());
+        }
+
+        if ($this->loggingEnabled) {
+            $this->climate->error('Trace:');
+            $this->climate->error($e->getTraceAsString());
+        }
+
+        // Display previous exceptions in chain
+        $previous = $e->getPrevious();
+        $level = 1;
+        while ($previous !== null) {
+            $this->climate->br();
+            $indent = str_repeat('  ', $level);
+            $this->climate->error($indent . 'Caused by: ' . $previous->getMessage());
+            $this->climate->error($indent . 'Code: ' . $previous->getCode());
+            $this->climate->error($indent . 'Type: ' . get_class($previous));
+
+            if ($previous instanceof BaseException) {
+                $this->climate->error($indent . 'Details: ' . $previous->getDetails());
+            }
+
+            if ($this->loggingEnabled) {
+                $this->climate->error($indent . 'Trace:');
+                $this->climate->error($indent . $previous->getTraceAsString());
+            }
+
+            $previous = $previous->getPrevious();
+            $level++;
+        }
     }
 
     public function setLoggingEnabled(bool $enabled): self

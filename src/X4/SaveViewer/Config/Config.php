@@ -116,12 +116,7 @@ class Config
 
     public static function getSavesFolder() : string
     {
-        if(self::has('savesFolder')) {
-            return self::getString('savesFolder');
-        }
-
-        $folder = self::getGameFolder();
-        return $folder . DIRECTORY_SEPARATOR . 'save';
+        return self::getString('savesFolder');
     }
 
     public static function getGameFolder() : string
@@ -131,7 +126,7 @@ class Config
 
     public static function getStorageFolder() : string
     {
-        return self::getString('storageFolder');
+        return self::getGameFolder().PATH_SEPARATOR.'/archived-saves';
     }
 
     public static function getViewerHost() : string

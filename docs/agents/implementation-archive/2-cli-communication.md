@@ -66,6 +66,116 @@ interface MonitorOutputInterface {
 ## Future Considerations
 *   **Input Channel**: Listen to `STDIN` for commands from the launcher (e.g., "Force Update", "Shutdown").
 
+## Implementation Status
+
+### Completed Features
+
+#### WP1: Output Infrastructure ✅
+- Created `MonitorOutputInterface` with methods: `log()`, `logHeader()`, `tick()`, `notify()`, and `error()`
+- Implemented `ConsoleOutput` using `League\CLImate` for styled terminal output
+- Implemented `JsonOutput` for NDJSON streaming with:
+  - ISO 8601 timestamps (UTC) on all messages
+  - Monitor version injection in `MONITOR_STARTED` event
+  - Log level field (`info`) in log messages
+
+#### WP2: Monitor Integration ✅
+- Refactored `BaseMonitor` to use `MonitorOutputInterface`
+- Added `setOutput()` method for dependency injection
+- Added `notify()` method for structured events
+- Added `notifyError()` method for error handling
+- Updated `handleTick()` with try-catch to capture runtime exceptions
+- Updated `X4Monitor` to emit lifecycle events:
+  - `MONITOR_STARTED` (with version)
+  - `SAVE_DETECTED` (with name and path)
+  - `SAVE_PARSING_STARTED`
+  - `SAVE_UNZIPPING`
+  - `SAVE_EXTRACTING`
+  - `SAVE_PARSING_COMPLETE`
+- Added error handling within Promise to catch parsing exceptions
+
+#### WP3: CLI Entry Point & Error Handling ✅
+- Updated `run-monitor.php` to detect `--json` flag
+- Instantiates appropriate output strategy based on flag
+- Updated `prepend.php` error handler to output JSON errors with timestamps
+- Error handling now works at two levels:
+  - Startup errors (before event loop)
+  - Runtime errors (within event loop)
+
+### Error Handling Implementation
+
+The monitor now properly notifies the launcher of errors through:
+
+1. **Interface Method**: `MonitorOutputInterface::error(\Throwable $e)`
+   - `JsonOutput`: Sends structured JSON error with hierarchical exception chain
+   - `ConsoleOutput`: Displays formatted error with full chain and indentation
+
+2. **Hierarchical Exception Structure**:
+   - Top-level fields: `message`, `code`, `timestamp`
+   - `errors` array containing full exception chain
+   - Each exception includes: `message`, `code`, `class`, `trace`, and optional `details` (for BaseException)
+   - Walks the chain using `getPrevious()` to capture root causes
+
+3. **Runtime Error Catching**:
+   - `BaseMonitor::handleTick()` wraps tick processing in try-catch
+   - Calls `notifyError()` before stopping the loop and exiting
+   - `X4Monitor` Promise has try-catch to handle parsing exceptions
+
+4. **Startup Error Catching**:
+   - `prepend.php` catches exceptions during `monitor->start()`
+   - Sends JSON error with full chain if `--json` flag is present
+
+5. **BaseException Integration**:
+   - Automatically detects `AppUtils\BaseException` instances
+   - Includes `getDetails()` output in the `details` field
+   - Works for all exceptions in the chain
+
+### Example Error Output
+
+**Simple Exception**:
+```json
+{
+  "type": "error",
+  "message": "File not found",
+  "code": 404,
+  "timestamp": "2026-01-29T10:30:45+00:00",
+  "errors": [
+    {
+      "message": "File not found",
+      "code": 404,
+      "class": "RuntimeException",
+      "trace": "#0 /path/to/file.php(10): ..."
+    }
+  ]
+}
+```
+
+**Chained Exception with BaseException**:
+```json
+{
+  "type": "error",
+  "message": "Cannot read savegame files from the saves folder.",
+  "code": 136003,
+  "timestamp": "2026-01-29T10:30:45+00:00",
+  "errors": [
+    {
+      "message": "Cannot read savegame files from the saves folder.",
+      "code": 136003,
+      "class": "Mistralys\\X4\\SaveViewer\\SaveViewerException",
+      "trace": "#0 /path/to/SaveSelector.php(239): ..."
+    },
+    {
+      "message": "Permission denied",
+      "code": 13,
+      "class": "AppUtils\\FileHelper_Exception",
+      "details": "Failed to open directory: /path/to/saves",
+      "trace": "#0 /path/to/FileHelper.php(150): ..."
+    }
+  ]
+}
+```
+
+This ensures the launcher receives complete error context including the full exception chain and detailed debug information, making it easy to diagnose issues and display meaningful error messages to users.
+
 ## Work Packages
 
 ### WP1: Output Infrastructure

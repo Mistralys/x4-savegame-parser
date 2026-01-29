@@ -84,28 +84,33 @@ class X4Monitor extends BaseMonitor
             'name' => $save->getSaveName()
         ]);
 
-        await(new Promise(function(callable $resolve) use ($save)
+        await(new Promise(function(callable $resolve, callable $reject) use ($save)
         {
-            $file = $save->getSaveFile();
+            try {
+                $file = $save->getSaveFile();
 
-            $this->log('...Unzipping.');
-            $this->notify('SAVE_UNZIPPING');
-            $file->unzip();
+                $this->log('...Unzipping.');
+                $this->notify('SAVE_UNZIPPING');
+                $file->unzip();
 
-            $this->log('...Extracting and writing files.');
-            $this->notify('SAVE_EXTRACTING');
+                $this->log('...Extracting and writing files.');
+                $this->notify('SAVE_EXTRACTING');
 
-            SaveParser::create($file)
-                ->optionAutoBackup($this->optionAutoBackup)
-                ->optionKeepXML($this->optionKeepXML)
-                ->setLoggingEnabled($this->optionLogging)
-                ->unpack();
+                SaveParser::create($file)
+                    ->optionAutoBackup($this->optionAutoBackup)
+                    ->optionKeepXML($this->optionKeepXML)
+                    ->setLoggingEnabled($this->optionLogging)
+                    ->unpack();
 
-            $this->log('...Done.');
-            $this->notify('SAVE_PARSING_COMPLETE');
-            $this->log('');
+                $this->log('...Done.');
+                $this->notify('SAVE_PARSING_COMPLETE');
+                $this->log('');
 
-            $resolve();
+                $resolve();
+            } catch (\Throwable $e) {
+                $this->notifyError($e);
+                $reject($e);
+            }
         }));
     }
 }

@@ -134,12 +134,23 @@ abstract class BaseMonitor
         $this->output->notify($eventName, $payload);
     }
 
+    protected function notifyError(\Throwable $e) : void
+    {
+        $this->output->error($e);
+    }
+
     public function handleTick() : void
     {
         $this->tickCounter++;
         $this->output->tick($this->tickCounter);
 
-        $this->_handleTick();
+        try {
+            $this->_handleTick();
+        } catch (\Throwable $e) {
+            $this->notifyError($e);
+            $this->loop->stop();
+            exit(1);
+        }
     }
 
     abstract protected function _handleTick() : void;

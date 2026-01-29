@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Bin;
 
+use AppUtils\BaseException;
 use Mistralys\X4\SaveViewer\Monitor\BaseMonitor;
 use Throwable;
 
@@ -20,12 +21,35 @@ function runMonitor(BaseMonitor $monitor) : void
         global $argv;
 
         if (in_array('--json', $argv ?? [])) {
+            $dt = new \DateTime('now', new \DateTimeZone('UTC'));
+
+            $errors = [];
+            $current = $e;
+
+            // Build the exception chain
+            while ($current !== null) {
+                $errorData = [
+                    'message' => $current->getMessage(),
+                    'code' => $current->getCode(),
+                    'class' => get_class($current),
+                    'trace' => $current->getTraceAsString()
+                ];
+
+                if ($current instanceof BaseException) {
+                    $errorData['details'] = $current->getDetails();
+                }
+
+                $errors[] = $errorData;
+                $current = $current->getPrevious();
+            }
+
             echo json_encode([
-                    'type' => 'error',
-                    'message' => $e->getMessage(),
-                    'code' => $e->getCode(),
-                    'trace' => $e->getTraceAsString()
-                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
+                'type' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'errors' => $errors,
+                'timestamp' => $dt->format('c')
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
             exit(1);
         }
 
