@@ -7,6 +7,7 @@ use Mistralys\X4\SaveViewer\Config\Config;
 // Provide test-specific config values
 Config::setForTests(array());
 
+Config::setGameFolder(__DIR__.'/files');
 Config::setSavesFolder(__DIR__.'/files');
 Config::setStorageFolder(__DIR__.'/files');
 Config::setTestSuiteEnabled(true);
