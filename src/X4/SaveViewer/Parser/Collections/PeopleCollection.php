@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\PersonType;
 
 class PeopleCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'people';
+    public const string COLLECTION_ID = 'people';
 
     private static int $counter = 0;
 

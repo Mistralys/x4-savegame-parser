@@ -8,21 +8,21 @@ use Mistralys\X4\SaveViewer\Parser\Traits\PersonContainerInterface;
 
 class PersonType extends BaseComponentType
 {
-    public const ROLE_CAPTAIN = 'captain';
-    public const ROLE_SERVICE = 'service';
-    public const ROLE_MARINE = 'marine';
+    public const string ROLE_CAPTAIN = 'captain';
+    public const string ROLE_SERVICE = 'service';
+    public const string ROLE_MARINE = 'marine';
 
-    public const TYPE_ID = 'person';
-    public const KEY_ROLE = 'role';
-    public const KEY_SEED = 'seed';
-    public const KEY_CODE = 'code';
-    public const KEY_OWNER = 'owner';
-    public const KEY_COVER = 'cover';
-    public const KEY_RACE = 'race';
-    public const KEY_GENDER = 'gender';
-    public const KEY_MACRO = 'macro';
-    public const KEY_NAME = 'name';
-    public const KEY_IS_ANONYMOUS = 'anonymous';
+    public const string TYPE_ID = 'person';
+    public const string KEY_ROLE = 'role';
+    public const string KEY_SEED = 'seed';
+    public const string KEY_CODE = 'code';
+    public const string KEY_OWNER = 'owner';
+    public const string KEY_COVER = 'cover';
+    public const string KEY_RACE = 'race';
+    public const string KEY_GENDER = 'gender';
+    public const string KEY_MACRO = 'macro';
+    public const string KEY_NAME = 'name';
+    public const string KEY_IS_ANONYMOUS = 'anonymous';
 
     public function __construct(PersonContainerInterface $container, int $number, string $name='')
     {

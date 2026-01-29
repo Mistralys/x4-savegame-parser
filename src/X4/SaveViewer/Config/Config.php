@@ -12,15 +12,15 @@ use RuntimeException;
 class Config
 {
     // Configuration key constants
-    public const KEY_SAVES_FOLDER = 'savesFolder';
-    public const KEY_GAME_FOLDER = 'gameFolder';
-    public const KEY_STORAGE_FOLDER = 'storageFolder';
-    public const KEY_VIEWER_HOST = 'viewerHost';
-    public const KEY_VIEWER_PORT = 'viewerPort';
-    public const KEY_AUTO_BACKUP_ENABLED = 'autoBackupEnabled';
-    public const KEY_KEEP_XML_FILES = 'keepXMLFiles';
-    public const KEY_TEST_SUITE_ENABLED = 'testSuiteEnabled';
-    public const KEY_LOGGING_ENABLED = 'loggingEnabled';
+    public const string KEY_SAVES_FOLDER = 'savesFolder';
+    public const string KEY_GAME_FOLDER = 'gameFolder';
+    public const string KEY_STORAGE_FOLDER = 'storageFolder';
+    public const string KEY_VIEWER_HOST = 'viewerHost';
+    public const string KEY_VIEWER_PORT = 'viewerPort';
+    public const string KEY_AUTO_BACKUP_ENABLED = 'autoBackupEnabled';
+    public const string KEY_KEEP_XML_FILES = 'keepXMLFiles';
+    public const string KEY_TEST_SUITE_ENABLED = 'testSuiteEnabled';
+    public const string KEY_LOGGING_ENABLED = 'loggingEnabled';
 
     private static ?Config $instance = null;
 

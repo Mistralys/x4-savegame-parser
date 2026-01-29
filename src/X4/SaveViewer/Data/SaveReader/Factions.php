@@ -10,34 +10,34 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag\FactionsTag;
 
 class Factions extends Info
 {
-    const ERROR_FACTION_NAME_DOES_NOT_EXIST = 84601;
+    public const int ERROR_FACTION_NAME_DOES_NOT_EXIST = 84601;
 
-    const FACTION_PLAYER = 'player';
-    const FACTION_ALLIANCE_OF_THE_WORD = 'alliance';
-    const FACTION_ANTIGONE_REPUBLIC = 'antigone';
-    const FACTION_ARGON_FEDERATION = 'argon';
-    const FACTION_DUKES_BUCCANEERS = 'buccaneers';
-    const FACTION_CIVILIAN = 'civilian';
-    const FACTION_COURT_OF_CURBS = 'court';
-    const FACTION_CRIMINAL = 'criminal';
-    const FACTION_FALLEN_FAMILIES = 'fallensplit';
-    const FACTION_FREE_FAMILIES = 'freesplit';
-    const FACTION_HATIKVAH_FREE_LEAGUE = 'hatikvah';
-    const FACTION_HOLY_ORDER_PONTIFEX = 'holyorder';
-    const FACTION_HOLY_ORDER_FANATIC = 'holyorderfanatic';
-    const FACTION_KHAAK = 'khaak';
-    const FACTION_MINISTRY_OF_FINANCE = 'ministry';
-    const FACTION_OWNERLESS = 'ownerless';
-    const FACTION_GODREALM_PARANID = 'paranid';
-    const FACTION_SEGARIS_PIONEERS = 'pioneers';
-    const FACTION_SCALE_PLATE_PACT = 'scaleplate';
-    const FACTION_SMUGGLER = 'smuggler';
-    const FACTION_ZYARTH_PATRIARCHY = 'split';
-    const FACTION_TELADI_COMPANY = 'teladi';
-    const FACTION_TERRAN_PROTECTORATE = 'terran';
-    const FACTION_TRINITY = 'trinity';
-    const FACTION_XENON = 'xenon';
-    const FACTION_YAKI = 'yaki';
+    public const string FACTION_PLAYER = 'player';
+    public const string FACTION_ALLIANCE_OF_THE_WORD = 'alliance';
+    public const string FACTION_ANTIGONE_REPUBLIC = 'antigone';
+    public const string FACTION_ARGON_FEDERATION = 'argon';
+    public const string FACTION_DUKES_BUCCANEERS = 'buccaneers';
+    public const string FACTION_CIVILIAN = 'civilian';
+    public const string FACTION_COURT_OF_CURBS = 'court';
+    public const string FACTION_CRIMINAL = 'criminal';
+    public const string FACTION_FALLEN_FAMILIES = 'fallensplit';
+    public const string FACTION_FREE_FAMILIES = 'freesplit';
+    public const string FACTION_HATIKVAH_FREE_LEAGUE = 'hatikvah';
+    public const string FACTION_HOLY_ORDER_PONTIFEX = 'holyorder';
+    public const string FACTION_HOLY_ORDER_FANATIC = 'holyorderfanatic';
+    public const string FACTION_KHAAK = 'khaak';
+    public const string FACTION_MINISTRY_OF_FINANCE = 'ministry';
+    public const string FACTION_OWNERLESS = 'ownerless';
+    public const string FACTION_GODREALM_PARANID = 'paranid';
+    public const string FACTION_SEGARIS_PIONEERS = 'pioneers';
+    public const string FACTION_SCALE_PLATE_PACT = 'scaleplate';
+    public const string FACTION_SMUGGLER = 'smuggler';
+    public const string FACTION_ZYARTH_PATRIARCHY = 'split';
+    public const string FACTION_TELADI_COMPANY = 'teladi';
+    public const string FACTION_TERRAN_PROTECTORATE = 'terran';
+    public const string FACTION_TRINITY = 'trinity';
+    public const string FACTION_XENON = 'xenon';
+    public const string FACTION_YAKI = 'yaki';
 
     /**
      * @var Faction[]

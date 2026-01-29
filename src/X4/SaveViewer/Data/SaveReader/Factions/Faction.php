@@ -10,7 +10,7 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag\FactionsTag;
 
 class Faction
 {
-    const ERROR_FACTION_RELATION_DOES_NOT_EXIST = 84501;
+    public const int ERROR_FACTION_RELATION_DOES_NOT_EXIST = 84501;
 
     private string $name;
 

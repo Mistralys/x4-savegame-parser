@@ -6,7 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 class Statistics extends BaseViewSaveSubPage
 {
-    const URL_PARAM = 'Statistics';
+    public const string URL_PARAM = 'Statistics';
 
     public function getURLName() : string
     {

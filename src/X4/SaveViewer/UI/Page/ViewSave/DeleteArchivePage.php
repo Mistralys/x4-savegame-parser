@@ -16,8 +16,8 @@ use function AppUtils\sb;
 
 class DeleteArchivePage extends BaseViewSaveSubPage
 {
-    public const URL_NAME = 'DeleteArchive';
-    public const REQUEST_PARAM_CONFIRM = 'confirm';
+    public const string URL_NAME = 'DeleteArchive';
+    public const string REQUEST_PARAM_CONFIRM = 'confirm';
 
     public function isInSubnav() : bool
     {

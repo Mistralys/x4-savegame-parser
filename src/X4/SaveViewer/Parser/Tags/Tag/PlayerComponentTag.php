@@ -8,10 +8,10 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag;
 
 class PlayerComponentTag extends Tag
 {
-    const SAVE_NAME = 'player';
+    public const string SAVE_NAME = 'player';
 
-    const KEY_BLUEPRINTS = 'blueprints';
-    const KEY_INVENTORY = 'inventory';
+    public const string KEY_BLUEPRINTS = 'blueprints';
+    public const string KEY_INVENTORY = 'inventory';
 
     private array $player = array(
         self::KEY_BLUEPRINTS => array(),

@@ -9,7 +9,7 @@ use AppUtils\ClassHelper\BaseClassHelperException;
 
 class CelestialBodyType extends BaseComponentType
 {
-    public const TYPE_ID = 'celestial-body';
+    public const string TYPE_ID = 'celestial-body';
 
     public function __construct(ClusterType $cluster, string $connectionID, string $componentID)
     {

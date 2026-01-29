@@ -8,26 +8,26 @@ use Mistralys\X4\SaveViewer\SaveViewerException;
 
 abstract class LogCategories
 {
-    public const ERROR_CATEGORY_ID_DOES_NOT_EXIST = 137101;
+    public const int ERROR_CATEGORY_ID_DOES_NOT_EXIST = 137101;
 
-    public const CATEGORY_TIPS = 'tips';
-    public const CATEGORY_STATION_FINANCE = 'station-finance';
-    public const CATEGORY_PROMOTION = 'promotion';
-    public const CATEGORY_ALERT = 'alert';
-    public const CATEGORY_STATION_BUILDING = 'station-building';
-    public const CATEGORY_REWARD = 'reward';
-    public const CATEGORY_TRADE = 'trade';
-    public const CATEGORY_EMERGENCY = 'emergency';
-    public const CATEGORY_LOCKBOX = 'lockbox';
-    public const CATEGORY_REPUTATION = 'reputation';
-    public const CATEGORY_ATTACKED = 'attacked';
-    public const CATEGORY_SHIP_CONSTRUCTION = 'ship-construction';
-    public const CATEGORY_DESTROYED = 'destroyed';
-    public const CATEGORY_SHIP_SUPPLY = 'ship-supply';
-    public const CATEGORY_MISSIONS = 'missions';
-    public const CATEGORY_WAR = 'war';
-    public const CATEGORY_CREW_ASSIGNMENT = 'crew-assignment';
-    public const CATEGORY_MISCELLANEOUS = 'misc';
+    public const string CATEGORY_TIPS = 'tips';
+    public const string CATEGORY_STATION_FINANCE = 'station-finance';
+    public const string CATEGORY_PROMOTION = 'promotion';
+    public const string CATEGORY_ALERT = 'alert';
+    public const string CATEGORY_STATION_BUILDING = 'station-building';
+    public const string CATEGORY_REWARD = 'reward';
+    public const string CATEGORY_TRADE = 'trade';
+    public const string CATEGORY_EMERGENCY = 'emergency';
+    public const string CATEGORY_LOCKBOX = 'lockbox';
+    public const string CATEGORY_REPUTATION = 'reputation';
+    public const string CATEGORY_ATTACKED = 'attacked';
+    public const string CATEGORY_SHIP_CONSTRUCTION = 'ship-construction';
+    public const string CATEGORY_DESTROYED = 'destroyed';
+    public const string CATEGORY_SHIP_SUPPLY = 'ship-supply';
+    public const string CATEGORY_MISSIONS = 'missions';
+    public const string CATEGORY_WAR = 'war';
+    public const string CATEGORY_CREW_ASSIGNMENT = 'crew-assignment';
+    public const string CATEGORY_MISCELLANEOUS = 'misc';
 
     /**
      * @var array<string,LogCategory>

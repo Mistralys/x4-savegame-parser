@@ -13,7 +13,7 @@ use function AppUtils\sb;
 
 class Home extends BaseViewSaveSubPage
 {
-    public const URL_PARAM = 'Home';
+    public const string URL_PARAM = 'Home';
 
     public function getURLName() : string
     {

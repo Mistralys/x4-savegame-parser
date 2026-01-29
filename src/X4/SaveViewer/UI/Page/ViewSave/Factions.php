@@ -6,7 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 class Factions extends BaseViewSaveSubPage
 {
-    const URL_PARAM = 'Factions';
+    public const string URL_PARAM = 'Factions';
 
     public function getURLName() : string
     {

@@ -8,11 +8,11 @@ use function AppLocalize\t;
 
 class X4CategoriesEnum
 {
-    public const ALERTS = 'alerts';
-    public const MISSIONS = 'missions';
-    public const TIPS = 'tips';
-    public const UPKEEP = 'upkeep';
-    public const NEWS = 'news';
+    public const string ALERTS = 'alerts';
+    public const string MISSIONS = 'missions';
+    public const string TIPS = 'tips';
+    public const string UPKEEP = 'upkeep';
+    public const string NEWS = 'news';
 
     public static function getCategoryLabels() : array
     {

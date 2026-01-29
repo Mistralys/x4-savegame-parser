@@ -6,12 +6,12 @@ namespace Mistralys\X4\SaveViewer\Parser\Types;
 
 class PlayerType extends BaseComponentType
 {
-    public const TYPE_ID = 'player';
+    public const string TYPE_ID = 'player';
 
-    public const KEY_NAME = 'name';
-    public const KEY_CODE = 'code';
-    public const KEY_WARES = 'wares';
-    public const KEY_BLUEPRINTS = 'blueprints';
+    public const string KEY_NAME = 'name';
+    public const string KEY_CODE = 'code';
+    public const string KEY_WARES = 'wares';
+    public const string KEY_BLUEPRINTS = 'blueprints';
 
     protected function getDefaultData() : array
     {

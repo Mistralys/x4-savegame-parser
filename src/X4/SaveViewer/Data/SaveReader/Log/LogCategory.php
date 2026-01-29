@@ -6,10 +6,10 @@ namespace Mistralys\X4\SaveViewer\Data\SaveReader\Log;
 
 class LogCategory
 {
-    public const SERIALIZED_CATEGORY_ID = 'categoryID';
-    public const SERIALIZED_LABEL = 'label';
-    public const SERIALIZED_ENTRIES = 'entries';
-    public const SERIALIZED_START_TIME = 'startTime';
+    public const string SERIALIZED_CATEGORY_ID = 'categoryID';
+    public const string SERIALIZED_LABEL = 'label';
+    public const string SERIALIZED_ENTRIES = 'entries';
+    public const string SERIALIZED_START_TIME = 'startTime';
 
     /**
      * @var LogEntry[]

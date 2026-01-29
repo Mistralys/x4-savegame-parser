@@ -8,7 +8,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\PersonType;
 
 interface PersonContainerInterface extends ComponentInterface
 {
-    public const KEY_PERSONS = 'persons';
+    public const string KEY_PERSONS = 'persons';
 
     /**
      * @param  PersonType $person

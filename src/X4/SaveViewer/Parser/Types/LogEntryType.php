@@ -8,14 +8,14 @@ use Mistralys\X4\SaveViewer\Parser\Collections;
 
 class LogEntryType extends BaseComponentType
 {
-    public const TYPE_ID = 'log-entry';
-    public const KEY_FACTION = 'faction';
-    public const KEY_MONEY = 'money';
-    public const KEY_TIME = 'time';
-    public const KEY_TEXT = 'text';
-    public const KEY_CATEGORY = 'category';
-    public const KEY_TARGET_COMPONENT_ID = 'componentID';
-    public const KEY_TITLE = 'title';
+    public const string TYPE_ID = 'log-entry';
+    public const string KEY_FACTION = 'faction';
+    public const string KEY_MONEY = 'money';
+    public const string KEY_TIME = 'time';
+    public const string KEY_TEXT = 'text';
+    public const string KEY_CATEGORY = 'category';
+    public const string KEY_TARGET_COMPONENT_ID = 'componentID';
+    public const string KEY_TITLE = 'title';
 
 
     public function __construct(Collections $collections, array $data)

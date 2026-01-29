@@ -18,11 +18,11 @@ class SaveSelector implements DebuggableInterface
 {
     use DebuggableTrait;
 
-    public const ERROR_MOST_RECENT_FILE_NOT_FOUND = 136001;
-    public const ERROR_SAVEGAME_NOT_FOUND = 136002;
-    public const ERROR_CANNOT_ACCESS_SAVES_FOLDER = 136003;
-    public const ERROR_CANNOT_ACCESS_SAVE_FILE = 136004;
-    public const TEMP_SAVE_NAME = 'temp_save';
+    public const int ERROR_MOST_RECENT_FILE_NOT_FOUND = 136001;
+    public const int ERROR_SAVEGAME_NOT_FOUND = 136002;
+    public const int ERROR_CANNOT_ACCESS_SAVES_FOLDER = 136003;
+    public const int ERROR_CANNOT_ACCESS_SAVE_FILE = 136004;
+    public const string TEMP_SAVE_NAME = 'temp_save';
 
     private FolderInfo $savesFolder;
 

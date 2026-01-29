@@ -25,8 +25,8 @@ use Mistralys\X4\SaveViewer\Config\Config;
 
 abstract class BaseMonitor
 {
-    public const ERROR_NOT_COMMAND_LINE = 136301;
-    public const ERROR_CANNOT_START_LOOP = 136302;
+    public const int ERROR_NOT_COMMAND_LINE = 136301;
+    public const int ERROR_CANNOT_START_LOOP = 136302;
 
     /**
      * The amount of seconds between updates.

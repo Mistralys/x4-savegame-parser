@@ -23,23 +23,23 @@ class ShipType extends BaseComponentType
     use ShipContainerTrait;
     use PlayerContainerTrait;
 
-    public const TYPE_ID = 'ship';
+    public const string TYPE_ID = 'ship';
 
-    public const KEY_NAME = 'name';
-    public const KEY_OWNER = 'owner';
-    public const KEY_STATE = 'state';
-    public const STATE_WRECK = 'wreck';
-    public const STATE_NORMAL = 'normal';
-    public const KEY_CODE = 'code';
-    public const KEY_CLASS = 'class';
-    public const KEY_SIZE = 'size';
-    public const KEY_COVER = 'cover';
-    public const KEY_PILOT = 'pilot';
-    public const KEY_BUILD_FACTION = 'build-faction';
-    public const KEY_HULL = 'hull';
-    public const KEY_HULL_TYPE = 'hull-type';
-    public const KEY_MACRO = 'macro';
-    public const KEY_CLUSTER = 'cluster';
+    public const string KEY_NAME = 'name';
+    public const string KEY_OWNER = 'owner';
+    public const string KEY_STATE = 'state';
+    public const string STATE_WRECK = 'wreck';
+    public const string STATE_NORMAL = 'normal';
+    public const string KEY_CODE = 'code';
+    public const string KEY_CLASS = 'class';
+    public const string KEY_SIZE = 'size';
+    public const string KEY_COVER = 'cover';
+    public const string KEY_PILOT = 'pilot';
+    public const string KEY_BUILD_FACTION = 'build-faction';
+    public const string KEY_HULL = 'hull';
+    public const string KEY_HULL_TYPE = 'hull-type';
+    public const string KEY_MACRO = 'macro';
+    public const string KEY_CLUSTER = 'cluster';
 
     private ShipContainerInterface $container;
 

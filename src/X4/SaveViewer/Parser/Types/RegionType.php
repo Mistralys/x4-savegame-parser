@@ -8,9 +8,9 @@ use AppUtils\ClassHelper;
 
 class RegionType extends BaseComponentType
 {
-    public const TYPE_ID = 'region';
+    public const string TYPE_ID = 'region';
 
-    public const KEY_SECTOR_CONNECTIONS = 'sector-connections';
+    public const string KEY_SECTOR_CONNECTIONS = 'sector-connections';
 
     public function __construct(ClusterType $cluster, string $connectionID, string $componentID)
     {

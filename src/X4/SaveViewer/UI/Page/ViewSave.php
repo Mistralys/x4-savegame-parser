@@ -19,7 +19,7 @@ use function AppUtils\sb;
 
 class ViewSave extends PageWithNav
 {
-    public const URL_NAME = 'ViewSave';
+    public const string URL_NAME = 'ViewSave';
 
     protected BaseSaveFile $save;
     protected SaveReader $reader;

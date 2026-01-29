@@ -11,7 +11,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\ZoneType;
 
 class StationsCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'stations';
+    public const string COLLECTION_ID = 'stations';
 
     public function getCollectionID() : string
     {

@@ -31,14 +31,14 @@ use function AppUtils\sb;
  */
 class CLIHandler
 {
-    public const COMMAND_EXTRACT = 'extract';
-    public const COMMAND_HELP = 'help';
-    public const COMMAND_LIST = 'list';
-    public const COMMAND_EXTRACT_ALL = 'extract-all';
-    public const COMMAND_KEEP_XML = 'keep-xml';
-    public const COMMAND_NO_BACKUP = 'no-backup';
-    public const COMMAND_REBUILD_JSON = 'rebuild-json';
-    public const COMMAND_LIST_ARCHIVED = 'list-archived';
+    public const string COMMAND_EXTRACT = 'extract';
+    public const string COMMAND_HELP = 'help';
+    public const string COMMAND_LIST = 'list';
+    public const string COMMAND_EXTRACT_ALL = 'extract-all';
+    public const string COMMAND_KEEP_XML = 'keep-xml';
+    public const string COMMAND_NO_BACKUP = 'no-backup';
+    public const string COMMAND_REBUILD_JSON = 'rebuild-json';
+    public const string COMMAND_LIST_ARCHIVED = 'list-archived';
 
     private SaveManager $manager;
     private CLImate $cli;

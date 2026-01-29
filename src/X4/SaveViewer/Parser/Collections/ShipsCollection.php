@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\ShipType;
 
 class ShipsCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'ships';
+    public const string COLLECTION_ID = 'ships';
 
     public function getCollectionID() : string
     {

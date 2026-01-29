@@ -10,7 +10,7 @@ use function AppLocalize\t;
 
 class CreateBackup extends Page
 {
-    const URL_NAME = 'CreateBackup';
+    public const string URL_NAME = 'CreateBackup';
 
     public function getTitle(): string
     {

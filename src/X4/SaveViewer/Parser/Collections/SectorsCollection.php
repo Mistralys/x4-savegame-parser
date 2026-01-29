@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\SectorType;
 
 class SectorsCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'sectors';
+    public const string COLLECTION_ID = 'sectors';
 
     public function getCollectionID() : string
     {

@@ -14,7 +14,7 @@ use function AppUtils\sb;
 
 class KhaakOverviewPage extends BaseViewSaveSubPage
 {
-    public const URL_NAME = 'KhaakOverview';
+    public const string URL_NAME = 'KhaakOverview';
 
     public function getURLName() : string
     {

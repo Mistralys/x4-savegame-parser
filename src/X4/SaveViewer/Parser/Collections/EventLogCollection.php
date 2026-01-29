@@ -8,7 +8,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 
 class EventLogCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'event-log';
+    public const string COLLECTION_ID = 'event-log';
 
     public function getCollectionID() : string
     {

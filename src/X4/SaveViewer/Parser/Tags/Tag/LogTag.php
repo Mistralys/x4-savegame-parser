@@ -8,15 +8,15 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag;
 
 class LogTag extends Tag
 {
-    const SAVE_NAME = 'log';
+    public const string SAVE_NAME = 'log';
 
-    const KEY_TIME = 'time';
-    const KEY_CATEGORY = 'category';
-    const KEY_TITLE = 'title';
-    const KEY_TEXT = 'text';
-    const KEY_ENTITY = 'entity';
-    const KEY_FACTION = 'faction';
-    const KEY_MONEY = 'money';
+    public const string KEY_TIME = 'time';
+    public const string KEY_CATEGORY = 'category';
+    public const string KEY_TITLE = 'title';
+    public const string KEY_TEXT = 'text';
+    public const string KEY_ENTITY = 'entity';
+    public const string KEY_FACTION = 'faction';
+    public const string KEY_MONEY = 'money';
 
     private array $log = array();
 

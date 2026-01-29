@@ -6,13 +6,13 @@ namespace Mistralys\X4\SaveViewer\Parser\Types;
 
 class ClusterType extends BaseComponentType
 {
-    public const TYPE_ID = 'cluster';
+    public const string TYPE_ID = 'cluster';
 
-    public const KEY_SECTORS = 'sectors';
-    public const KEY_REGIONS = 'regions';
-    public const KEY_CELESTIALS = 'celestials';
-    public const KEY_CODE = 'code';
-    public const KEY_NAME = 'name';
+    public const string KEY_SECTORS = 'sectors';
+    public const string KEY_REGIONS = 'regions';
+    public const string KEY_CELESTIALS = 'celestials';
+    public const string KEY_CODE = 'code';
+    public const string KEY_NAME = 'name';
 
     protected function getDefaultData() : array
     {

@@ -20,8 +20,8 @@ class SavesGridRenderer implements RenderableInterface
 {
     use RenderableTrait;
 
-    public const COL_SAVE_TYPE = 'save-type';
-    public const LAST_X_HOURS = 12;
+    public const string COL_SAVE_TYPE = 'save-type';
+    public const int LAST_X_HOURS = 12;
 
     /**
      * @var BaseSaveFile[]

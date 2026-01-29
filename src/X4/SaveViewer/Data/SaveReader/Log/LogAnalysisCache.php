@@ -10,8 +10,8 @@ use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 
 class LogAnalysisCache
 {
-    public const KEY_CACHE_WRITTEN = 'log-cache-written';
-    public const KEY_CATEGORY_IDS = 'log-category-ids';
+    public const string KEY_CACHE_WRITTEN = 'log-cache-written';
+    public const string KEY_CATEGORY_IDS = 'log-category-ids';
 
     private FileAnalysis $analysis;
     private LogAnalysisWriter $writer;

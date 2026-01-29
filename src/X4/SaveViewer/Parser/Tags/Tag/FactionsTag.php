@@ -8,17 +8,17 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag;
 
 class FactionsTag extends Tag
 {
-    const SAVE_NAME = 'factions';
+    public const string SAVE_NAME = 'factions';
 
-    const KEY_FACTION_ID = 'id';
-    const KEY_ACTIVE = 'active';
-    const KEY_RELATIONS_LOCKED = 'relationsLocked';
-    const KEY_RELATIONS = 'relations';
-    const KEY_MOODS = 'moods';
-    const KEY_BOOSTERS = 'boosters';
-    const KEY_LICENCES = 'licences';
-    const KEY_BOOSTER_AMOUNT = 'amount';
-    const KEY_BOOSTER_TIME = 'time';
+    public const string KEY_FACTION_ID = 'id';
+    public const string KEY_ACTIVE = 'active';
+    public const string KEY_RELATIONS_LOCKED = 'relationsLocked';
+    public const string KEY_RELATIONS = 'relations';
+    public const string KEY_MOODS = 'moods';
+    public const string KEY_BOOSTERS = 'boosters';
+    public const string KEY_LICENCES = 'licences';
+    public const string KEY_BOOSTER_AMOUNT = 'amount';
+    public const string KEY_BOOSTER_TIME = 'time';
 
     private array $factions = array();
 

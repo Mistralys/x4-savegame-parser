@@ -20,9 +20,9 @@ use Mistralys\X4\UI\Page\BasePage;
 
 abstract class BaseSaveFile
 {
-    public const ERROR_BACKUP_INVALID_DATA = 89601;
+    public const int ERROR_BACKUP_INVALID_DATA = 89601;
 
-    public const PARAM_SAVE_ID = 'save';
+    public const string PARAM_SAVE_ID = 'save';
 
     private SaveManager $manager;
 

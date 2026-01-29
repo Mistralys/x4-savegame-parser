@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\RegionType;
 
 class RegionsCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'regions';
+    public const string COLLECTION_ID = 'regions';
 
     public function getCollectionID() : string
     {

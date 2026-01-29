@@ -17,13 +17,13 @@ use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class FileAnalysis extends ArrayDataCollection
 {
-    public const ANALYSIS_FILE_NAME = 'analysis.json';
-    public const BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
+    public const string ANALYSIS_FILE_NAME = 'analysis.json';
+    public const string BACKUP_ARCHIVE_FILE_NAME = 'backup.gz';
 
-    public const KEY_PROCESS_DATE = 'process-dates';
-    public const KEY_SAVE_DATE = 'save-date';
-    public const KEY_SAVE_ID = 'save-id';
-    public const KEY_SAVE_NAME = 'save-name';
+    public const string KEY_PROCESS_DATE = 'process-dates';
+    public const string KEY_SAVE_DATE = 'save-date';
+    public const string KEY_SAVE_ID = 'save-id';
+    public const string KEY_SAVE_NAME = 'save-name';
 
     private JSONFile $storageFile;
     private string $saveName;

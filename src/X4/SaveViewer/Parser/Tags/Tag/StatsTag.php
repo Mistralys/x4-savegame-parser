@@ -8,7 +8,7 @@ use Mistralys\X4\SaveViewer\Parser\Tags\Tag;
 
 class StatsTag extends Tag
 {
-    const SAVE_NAME = 'stats';
+    public const string SAVE_NAME = 'stats';
 
     private array $stats = array();
 

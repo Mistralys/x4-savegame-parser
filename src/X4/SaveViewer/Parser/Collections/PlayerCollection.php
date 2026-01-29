@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 
 class PlayerCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'player';
+    public const string COLLECTION_ID = 'player';
 
     public function getCollectionID() : string
     {

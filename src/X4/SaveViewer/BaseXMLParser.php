@@ -28,8 +28,8 @@ abstract class BaseXMLParser
     private array $tagPath = array();
     private string $tagPathString = '';
 
-    public const ACTION_WRITE = 'write';
-    public const ACTION_IGNORE = 'ignore';
+    public const string ACTION_WRITE = 'write';
+    public const string ACTION_IGNORE = 'ignore';
 
     /**
      * @var array<string,array{action:string,params:array<string,mixed>}>

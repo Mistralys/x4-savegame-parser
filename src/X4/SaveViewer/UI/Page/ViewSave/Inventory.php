@@ -6,7 +6,7 @@ namespace Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
 
 class Inventory extends BaseViewSaveSubPage
 {
-    const URL_PARAM = 'Inventory';
+    public const string URL_PARAM = 'Inventory';
 
     public function getURLName() : string
     {

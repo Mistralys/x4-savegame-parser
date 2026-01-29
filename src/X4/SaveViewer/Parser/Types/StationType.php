@@ -14,17 +14,17 @@ class StationType extends BaseComponentType implements ShipContainerInterface, P
     use ShipContainerTrait;
     use PlayerContainerTrait;
 
-    public const TYPE_ID = 'station';
+    public const string TYPE_ID = 'station';
 
-    public const KEY_MACRO = 'macro';
-    public const KEY_OWNER = 'owner';
-    public const KEY_CODE = 'code';
-    public const KEY_CLASS = 'class';
-    public const KEY_NAME = 'name';
-    public const KEY_STATE = 'state';
+    public const string KEY_MACRO = 'macro';
+    public const string KEY_OWNER = 'owner';
+    public const string KEY_CODE = 'code';
+    public const string KEY_CLASS = 'class';
+    public const string KEY_NAME = 'name';
+    public const string KEY_STATE = 'state';
 
-    public const STATE_NORMAL = 'normal';
-    public const STATE_WRECK = 'wreck';
+    public const string STATE_NORMAL = 'normal';
+    public const string STATE_WRECK = 'wreck';
 
     private ZoneType $zone;
 

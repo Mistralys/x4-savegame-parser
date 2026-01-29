@@ -8,7 +8,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\ClusterType;
 
 class ClustersCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'clusters';
+    public const string COLLECTION_ID = 'clusters';
 
     public function getCollectionID() : string
     {

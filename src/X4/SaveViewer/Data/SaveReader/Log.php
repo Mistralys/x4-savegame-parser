@@ -22,7 +22,7 @@ use Mistralys\X4\UI\Page\BasePage;
 
 class Log extends Info
 {
-    public const ERROR_CANNOT_LOAD_ANALYSIS_MISSING = 137201;
+    public const int ERROR_CANNOT_LOAD_ANALYSIS_MISSING = 137201;
 
     /**
      * @var array<string,LogEntry>

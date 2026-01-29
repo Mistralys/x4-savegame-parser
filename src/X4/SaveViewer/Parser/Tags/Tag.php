@@ -10,7 +10,7 @@ use SimpleXMLElement;
 
 abstract class Tag
 {
-    const PATH_SEPARATOR = ';';
+    public const string PATH_SEPARATOR = ';';
 
     private string $outputFolder;
     protected int $startAt = 0;

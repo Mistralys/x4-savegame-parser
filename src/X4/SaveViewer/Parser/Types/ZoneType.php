@@ -13,10 +13,10 @@ class ZoneType extends BaseComponentType implements ShipContainerInterface
 {
     use ShipContainerTrait;
 
-    public const TYPE_ID = 'zone';
+    public const string TYPE_ID = 'zone';
 
-    public const KEY_CODE = 'code';
-    public const KEY_STATIONS = 'stations';
+    public const string KEY_CODE = 'code';
+    public const string KEY_STATIONS = 'stations';
 
     public function __construct(SectorType $sector, string $connectionID, string $componentID)
     {

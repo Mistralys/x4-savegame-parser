@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\ZoneType;
 
 class ZonesCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'zones';
+    public const string COLLECTION_ID = 'zones';
 
     public function getCollectionID() : string
     {

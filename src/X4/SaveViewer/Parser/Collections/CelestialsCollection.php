@@ -9,7 +9,7 @@ use Mistralys\X4\SaveViewer\Parser\Types\ClusterType;
 
 class CelestialsCollection extends BaseCollection
 {
-    public const COLLECTION_ID = 'celestial-bodies';
+    public const string COLLECTION_ID = 'celestial-bodies';
 
     public function getCollectionID() : string
     {

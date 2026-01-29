@@ -10,8 +10,8 @@ use DateInterval;
 
 class GameTime
 {
-    public const SERIALIZED_VALUE = 'value';
-    public const SERIALIZED_START_TIME = 'start';
+    public const string SERIALIZED_VALUE = 'value';
+    public const string SERIALIZED_START_TIME = 'start';
     private float $time;
     private float $startTime;
 

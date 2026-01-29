@@ -20,8 +20,8 @@ use Mistralys\X4\UI\Page\BasePage;
 
 class SaveManager
 {
-    public const ERROR_CANNOT_FIND_BY_NAME = 12125;
-    public const ERROR_CANNOT_FIND_BY_ID = 12126;
+    public const int ERROR_CANNOT_FIND_BY_NAME = 12125;
+    public const int ERROR_CANNOT_FIND_BY_ID = 12126;
 
     /**
      * @var MainSave[]

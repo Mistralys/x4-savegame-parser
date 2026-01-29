@@ -17,7 +17,7 @@ use Mistralys\X4\SaveViewer\Config\Config;
 
 class ConstructionPlansParser
 {
-    public const ERROR_PLAN_ID_NOT_FOUND = 138201;
+    public const int ERROR_PLAN_ID_NOT_FOUND = 138201;
 
     private FileInfo $xmlFile;
     private DOMDocument $dom;

@@ -38,8 +38,8 @@ use function AppLocalize\t;
  */
 class SaveParser extends BaseXMLParser
 {
-    public const ERROR_SAVEGAME_MUST_BE_UNZIPPED = 137401;
-    public const ERROR_CANNOT_BACKUP_WITHOUT_SAVE = 137402;
+    public const int ERROR_SAVEGAME_MUST_BE_UNZIPPED = 137401;
+    public const int ERROR_CANNOT_BACKUP_WITHOUT_SAVE = 137402;
 
     protected ?SaveGameFile $saveFile = null;
     protected bool $optionAutoBackup = false;

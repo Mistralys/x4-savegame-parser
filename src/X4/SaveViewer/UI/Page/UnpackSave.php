@@ -11,7 +11,7 @@ use function AppLocalize\t;
 
 class UnpackSave extends Page
 {
-    const URL_NAME = 'UnpackSave';
+    public const string URL_NAME = 'UnpackSave';
 
     public function getTitle(): string
     {

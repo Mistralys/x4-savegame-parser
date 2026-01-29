@@ -10,7 +10,7 @@ use function AppLocalize\pt;use function AppLocalize\t;
 
 class Losses extends BaseViewSaveSubPage
 {
-    public const URL_NAME = 'Losses';
+    public const string URL_NAME = 'Losses';
 
     public function getURLName() : string
     {

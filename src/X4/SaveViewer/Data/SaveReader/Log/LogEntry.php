@@ -10,11 +10,11 @@ use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 
 class LogEntry
 {
-    public const SERIALIZED_TIME = 'time';
-    public const SERIALIZED_TITLE = 'title';
-    public const SERIALIZED_TEXT = 'text';
-    public const SERIALIZED_FACTION_ID = 'factionID';
-    public const SERIALIZED_MONEY = 'money';
+    public const string SERIALIZED_TIME = 'time';
+    public const string SERIALIZED_TITLE = 'title';
+    public const string SERIALIZED_TEXT = 'text';
+    public const string SERIALIZED_FACTION_ID = 'factionID';
+    public const string SERIALIZED_MONEY = 'money';
     private ArrayDataCollection $data;
     private GameTime $time;
     private LogCategory $category;

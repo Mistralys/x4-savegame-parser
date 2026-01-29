@@ -20,15 +20,15 @@ use function AppUtils\sb;
 
 class BlueprintsPage extends BaseViewSaveSubPage
 {
-    public const URL_NAME = 'Blueprints';
-    public const REQUEST_PARAM_GENERATE_XML = 'generate-xml';
-    public const REQUEST_PARAM_GENERATE_MARKDOWN = 'generate-markdown';
-    public const REQUEST_PARAM_SHOW_TYPE = 'show-type';
+    public const string URL_NAME = 'Blueprints';
+    public const string REQUEST_PARAM_GENERATE_XML = 'generate-xml';
+    public const string REQUEST_PARAM_GENERATE_MARKDOWN = 'generate-markdown';
+    public const string REQUEST_PARAM_SHOW_TYPE = 'show-type';
 
-    public const SHOW_TYPE_ALL = 'all';
-    public const SHOW_TYPE_OWNED = 'owned';
-    public const SHOW_TYPE_UNOWNED = 'unowned';
-    public const REQUEST_PARAM_CATEGORY = 'category';
+    public const string SHOW_TYPE_ALL = 'all';
+    public const string SHOW_TYPE_OWNED = 'owned';
+    public const string SHOW_TYPE_UNOWNED = 'unowned';
+    public const string REQUEST_PARAM_CATEGORY = 'category';
     private string $showType;
     private string $activeID = '';
 

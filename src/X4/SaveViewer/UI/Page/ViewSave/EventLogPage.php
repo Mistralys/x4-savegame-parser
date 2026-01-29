@@ -19,13 +19,13 @@ use function AppLocalize\t;
 
 class EventLogPage extends BaseViewSaveSubPage
 {
-    public const URL_NAME = 'EventLog';
-    public const REQUEST_PARAM_CATEGORY = 'category';
-    public const REQUEST_PARAM_ANALYZE = 'analyze';
-    public const REQUEST_PARAM_PAGE = 'grid-page';
-    public const DEFAULT_ITEMS_PER_PAGE = 20;
-    public const REQUEST_PARAM_ITEMS_PER_PAGE = 'items_per_page';
-    public const REQUEST_PARAM_SEARCH = 'search';
+    public const string URL_NAME = 'EventLog';
+    public const string REQUEST_PARAM_CATEGORY = 'category';
+    public const string REQUEST_PARAM_ANALYZE = 'analyze';
+    public const string REQUEST_PARAM_PAGE = 'grid-page';
+    public const int DEFAULT_ITEMS_PER_PAGE = 20;
+    public const string REQUEST_PARAM_ITEMS_PER_PAGE = 'items_per_page';
+    public const string REQUEST_PARAM_SEARCH = 'search';
 
     private DataGrid $grid;
     private GridColumn $cTime;

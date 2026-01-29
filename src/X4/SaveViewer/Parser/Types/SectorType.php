@@ -10,11 +10,11 @@ use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class SectorType extends BaseComponentType
 {
-    public const TYPE_ID = 'sector';
+    public const string TYPE_ID = 'sector';
 
-    public const KEY_ZONES = 'zones';
-    public const KEY_OWNER = 'owner';
-    public const KEY_NAME = 'name';
+    public const string KEY_ZONES = 'zones';
+    public const string KEY_OWNER = 'owner';
+    public const string KEY_NAME = 'name';
 
     public function __construct(ClusterType $cluster, string $connectionID, string $componentID)
     {

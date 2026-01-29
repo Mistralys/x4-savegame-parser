@@ -21,8 +21,8 @@ use Mistralys\X4\SaveViewer\SaveViewerException;
 
 class Collections
 {
-    public const ERROR_INVALID_UNIQUE_ID = 135001;
-    public const ERROR_NO_COMPONENT_FOUND_BY_ID = 135002;
+    public const int ERROR_INVALID_UNIQUE_ID = 135001;
+    public const int ERROR_NO_COMPONENT_FOUND_BY_ID = 135002;
 
     private FolderInfo $outputFolder;
     private CelestialsCollection $celestials;

@@ -10,7 +10,7 @@ use Mistralys\X4\SaveViewer\Config\Config;
 
 class Backup extends BaseViewSaveSubPage
 {
-    const URL_PARAM = 'Backup';
+    public const string URL_PARAM = 'Backup';
 
     public function getURLName() : string
     {

@@ -8,7 +8,7 @@ use AppUtils\BaseException;
 
 class FactionDefs
 {
-    const ERROR_FACTION_DOES_NOT_EXIST = 85001;
+    public const int ERROR_FACTION_DOES_NOT_EXIST = 85001;
 
     private static $defs = array(
         Factions::FACTION_PLAYER => array(
