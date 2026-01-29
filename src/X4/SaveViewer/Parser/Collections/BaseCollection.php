@@ -37,7 +37,7 @@ abstract class BaseCollection
     {
         return sprintf(
             '%s/collection-%s.json',
-            $this->collections->getOutputFolder(),
+            $this->collections->getOutputFolder()->getPath(),
             $this->getCollectionID()
         );
     }

@@ -96,7 +96,7 @@ class SaveGameFile
     {
         return FolderInfo::factory(sprintf(
             '%s/unpack-%s-%s',
-            $this->outputFolder,
+            $this->outputFolder->getPath(),
             $this->getDateModified()->format(self::STORAGE_FOLDER_DATE_FORMAT),
             $this->getBaseName()
         ));

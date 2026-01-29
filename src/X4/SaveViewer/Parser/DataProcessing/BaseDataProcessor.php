@@ -34,7 +34,7 @@ abstract class BaseDataProcessor
     {
         return sprintf(
             '%s/data-%s.json',
-            $this->collections->getOutputFolder(),
+            $this->collections->getOutputFolder()->getPath(),
             $fileID
         );
     }

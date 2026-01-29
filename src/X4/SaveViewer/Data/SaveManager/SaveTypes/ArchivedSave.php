@@ -16,6 +16,6 @@ class ArchivedSave extends BaseSaveFile
 
     public function deleteArchive() : void
     {
-        FileHelper::deleteTree($this->getStorageFolder());
+        FileHelper::deleteTree($this->getStorageFolder()->getPath());
     }
 }

@@ -38,8 +38,8 @@ class FileAnalysis extends ArrayDataCollection
         $this->storageFile = JSONFile::factory($storageFolder->getPath().'/'.self::ANALYSIS_FILE_NAME);
         $this->modifiedDate = $modifiedDate;
         $this->saveName = $saveName;
-        $this->xmlFolder = FolderInfo::factory($this->getStorageFolder().'/XML');
-        $this->jsonFolder = FolderInfo::factory($this->getStorageFolder().'/JSON');
+        $this->xmlFolder = FolderInfo::factory($this->getStorageFolder()->getPath().'/XML');
+        $this->jsonFolder = FolderInfo::factory($this->getStorageFolder()->getPath().'/JSON');
 
         parent::__construct();
 

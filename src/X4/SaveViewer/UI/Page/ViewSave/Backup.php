@@ -60,7 +60,7 @@ class Backup extends BaseViewSaveSubPage
                 </p>
                 <p>
                     Location on disk:<br>
-                    <code><?php echo FileHelper::relativizePath($backup->getBackupPath(), Config::getSavesFolder()) ?></code>
+                    <code><?php echo FileHelper::relativizePath($backup->getBackupPath(), Config::getSavesFolder()->getPath()) ?></code>
                 </p>
             <?php
         }

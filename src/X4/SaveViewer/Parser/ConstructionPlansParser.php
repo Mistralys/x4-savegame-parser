@@ -39,7 +39,7 @@ class ConstructionPlansParser
 
     public static function createFromConfig() : ConstructionPlansParser
     {
-        return new ConstructionPlansParser(FileInfo::factory(Config::getGameFolder() . DIRECTORY_SEPARATOR . 'constructionplans.xml'));
+        return new ConstructionPlansParser(FileInfo::factory(Config::getGameFolder()->getPath() . DIRECTORY_SEPARATOR . 'constructionplans.xml'));
     }
 
     private function parse() : void
