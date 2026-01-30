@@ -70,7 +70,7 @@ class X4Monitor extends BaseMonitor
 
         $this->notify('SAVE_DETECTED', [
             'name' => $save->getSaveName(),
-            'path' => $save->getSaveFile()->getPath()
+            'path' => $save->getSaveFile()->getReferenceFile()->getPath()
         ]);
 
         if($save->hasData()) {
@@ -106,7 +106,7 @@ class X4Monitor extends BaseMonitor
                 $this->notify('SAVE_PARSING_COMPLETE');
                 $this->log('');
 
-                $resolve();
+                $resolve(null);
             } catch (\Throwable $e) {
                 $this->notifyError($e);
                 $reject($e);
