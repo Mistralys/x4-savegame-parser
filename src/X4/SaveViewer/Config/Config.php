@@ -7,7 +7,6 @@ namespace Mistralys\X4\SaveViewer\Config;
 use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper\JSONFile;
 use AppUtils\FileHelper_Exception;
-use RuntimeException;
 
 class Config
 {
@@ -36,7 +35,7 @@ class Config
         $file = JSONFile::factory($path);
 
         if(!$file->exists()) {
-            throw new RuntimeException(sprintf('Config file not found: %s', $path));
+            throw new ConfigException('Config file not found.');
         }
 
         try
@@ -45,27 +44,19 @@ class Config
         }
         catch (FileHelper_Exception $e)
         {
-            throw new RuntimeException(sprintf('Invalid JSON in config file: %s', $path), $e->getCode(), $e);
+            throw new ConfigException(sprintf('Invalid JSON in config file: %s', $path), null, $e->getCode(), $e);
         }
 
         self::$instance = new self($json);
     }
 
-    public static function ensureLoaded(?string $path = null) : void
+    public static function ensureLoaded() : void
     {
         if(self::$instance !== null) {
             return;
         }
 
-        if($path === null) {
-            $path = __DIR__ . '/../../../../config.json';
-            if(!file_exists($path)) {
-                // fall back to dist
-                $path = __DIR__ . '/../../../../config.dist.json';
-            }
-        }
-
-        self::loadFromFile($path);
+        self::loadFromFile(__DIR__ . '/../../../../config.json');
     }
 
     public static function get(string $key, $default = null)
@@ -131,7 +122,7 @@ class Config
         $path = self::getString(self::KEY_SAVES_FOLDER);
 
         if(empty($path)) {
-            throw new RuntimeException('Configuration error: savesFolder is not set or is empty.');
+            throw new ConfigException('Configuration error: savesFolder is not set or is empty.');
         }
 
         return FolderInfo::factory($path);
@@ -142,7 +133,7 @@ class Config
         $path = self::getString(self::KEY_GAME_FOLDER);
 
         if(empty($path)) {
-            throw new RuntimeException('Configuration error: gameFolder is not set or is empty.');
+            throw new ConfigException('Configuration error: gameFolder is not set or is empty.');
         }
 
         return FolderInfo::factory($path);

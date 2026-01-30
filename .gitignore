@@ -9,3 +9,4 @@ bin/X4 SaveGame Monitor.lnk
 .idea/copilot.data.migration.ask2agent.xml
 .idea/copilot.data.migration.edit.xml
 tests/phpstan/result.txt
+config.json
