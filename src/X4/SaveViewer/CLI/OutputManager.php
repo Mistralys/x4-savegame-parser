@@ -12,6 +12,7 @@ namespace Mistralys\X4\SaveViewer\CLI;
 use AppUtils\BaseException;
 use DateTime;
 use DateTimeZone;
+use Mistralys\X4\SaveViewer\Monitor\BaseMonitor;
 use Throwable;
 
 /**
@@ -27,17 +28,16 @@ class OutputManager
 {
     /**
      * Handles an exception by outputting it in either JSON or CLI format
-     * based on the presence of a JSON output flag in the command-line arguments.
+     * based on the presence of the JSON output flag in the command-line arguments.
      *
      * @param Throwable $e The exception to handle
-     * @param string $jsonFlag The flag that indicates JSON output mode (e.g., '--json')
      * @return never
      */
-    public static function handleException(Throwable $e, string $jsonFlag) : never
+    public static function handleException(Throwable $e) : never
     {
         global $argv;
 
-        if (in_array($jsonFlag, $argv ?? [], true)) {
+        if (in_array(BaseMonitor::ARG_JSON_OUTPUT, $argv ?? [], true)) {
             self::outputJsonError($e);
         }
 

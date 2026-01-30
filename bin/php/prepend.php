@@ -18,7 +18,6 @@ function runMonitor(BaseMonitor $monitor) : void
     }
     catch (Throwable $e)
     {
-        global $argv;
-        OutputManager::handleException($e, $argv ?? [], BaseMonitor::ARG_JSON_OUTPUT);
+        OutputManager::handleException($e);
     }
 }
