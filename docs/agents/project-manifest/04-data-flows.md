@@ -25,7 +25,7 @@ Parse Arguments (league/climate)
     ↓
 ┌─────────────────────────────────────────┐
 │ SaveParser::unpack() - Main Pipeline   │
-│ - Capture start time (Microtime)       │
+│ - Capture start time (microtime(true)) │
 └─────────────────────────────────────────┘
     ↓
 ┌──────────────────────────────────────┐
