@@ -59,6 +59,16 @@ class SaveInfo extends Info
         return $this->getFloat(SaveInfoFragment::KEY_START_TIME);
     }
 
+    public function getExtractionDuration() : ?float
+    {
+        return $this->reader->getAnalysis()->getExtractionDuration();
+    }
+
+    public function getExtractionDurationFormatted() : ?string
+    {
+        return $this->reader->getAnalysis()->getExtractionDurationFormatted();
+    }
+
     /**
      * Convert SaveInfo to array suitable for CLI API output.
      *
@@ -74,7 +84,9 @@ class SaveInfo extends Info
             'saveDate' => $this->getSaveDate()?->format('c'),
             'gameStartTime' => $this->getGameStartTime(),
             'gameGUID' => $this->getGameGUID(),
-            'gameCode' => $this->getGameCode()
+            'gameCode' => $this->getGameCode(),
+            'extractionDuration' => $this->getExtractionDuration(),
+            'extractionDurationFormatted' => $this->getExtractionDurationFormatted()
         ];
     }
 }

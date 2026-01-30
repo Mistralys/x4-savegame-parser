@@ -105,6 +105,7 @@ class SaveReader
     // Core access
     public function getSaveFile() : BaseSaveFile;
     public function getCollections() : Collections;
+    public function getAnalysis() : FileAnalysis;
 
     // Specialized readers (lazy-loaded)
     public function getSaveInfo() : SaveInfo;
@@ -226,6 +227,7 @@ class FileAnalysis extends ArrayDataCollection
     public const string KEY_SAVE_DATE = 'save-date';
     public const string KEY_SAVE_ID = 'save-id';
     public const string KEY_SAVE_NAME = 'save-name';
+    public const string KEY_EXTRACTION_DURATION = 'extraction-duration';
 
     // Factory methods
     public static function createFromSaveFile(SaveGameFile $file) : FileAnalysis;
@@ -248,6 +250,11 @@ class FileAnalysis extends ArrayDataCollection
     public function getDateModified() : DateTime;
     public function hasSaveID() : bool;
     public function hasXML() : bool;
+    
+    // Extraction tracking
+    public function setExtractionDuration(float $seconds) : self;
+    public function getExtractionDuration() : ?float;
+    public function getExtractionDurationFormatted() : ?string;
     
     // Processing tracking
     public function markProcessed() : self;
@@ -702,11 +709,16 @@ class SaveInfo
     public function __construct(SaveReader $reader);
     
     public function getSaveName() : string;
-    public function getSaveDate() : string;
-    public function getGameCode() : string;
+    public function getSaveDate() : ?DateTime;
+    public function getPlayerName() : string;
+    public function getMoney() : int;
+    public function getMoneyPretty() : string;
     public function getGameGUID() : string;
-    public function getStartTime() : string;
-    public function exists() : bool;
+    public function getGameCode() : int;
+    public function getGameStartTime() : float;
+    public function getExtractionDuration() : ?float;
+    public function getExtractionDurationFormatted() : ?string;
+    public function toArrayForAPI() : array;
 }
 ```
 

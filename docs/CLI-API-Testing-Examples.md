@@ -265,6 +265,24 @@ Shows all available saves (main folder and archived) with extraction status.
 
 ---
 
+### Queue Saves for Extraction
+```bash
+# Queue a single save
+./bin/query queue-extraction --save=autosave_01 --pretty
+
+# Queue multiple saves
+./bin/query queue-extraction --saves="autosave_01 autosave_02 save_020" --pretty
+
+# View the queue
+./bin/query queue-extraction --list --pretty
+
+# Clear the queue
+./bin/query queue-extraction --clear --pretty
+```
+Queues saves to be automatically extracted by the monitor.
+
+---
+
 ### Clear All Caches
 ```bash
 ./bin/query clear-cache --pretty

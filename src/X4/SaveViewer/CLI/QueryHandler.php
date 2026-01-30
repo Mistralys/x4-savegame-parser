@@ -47,6 +47,7 @@ class QueryHandler
     public const string COMMAND_EVENT_LOG = 'event-log';
     public const string COMMAND_CLEAR_CACHE = 'clear-cache';
     public const string COMMAND_LIST_SAVES = 'list-saves';
+    public const string COMMAND_QUEUE_EXTRACTION = 'queue-extraction';
 
     private SaveManager $manager;
     private QueryCache $cache;
@@ -133,6 +134,21 @@ class QueryHandler
                 'longPrefix' => 'pretty',
                 'description' => 'Pretty-print JSON output',
                 'noValue' => true
+            ],
+            'saves' => [
+                'longPrefix' => 'saves',
+                'description' => 'Space-separated list of save names/IDs (for queue-extraction)',
+                'defaultValue' => ''
+            ],
+            'list' => [
+                'longPrefix' => 'list',
+                'description' => 'List queue contents (for queue-extraction)',
+                'noValue' => true
+            ],
+            'clear' => [
+                'longPrefix' => 'clear',
+                'description' => 'Clear the queue (for queue-extraction)',
+                'noValue' => true
             ]
         ]);
     }
@@ -170,6 +186,11 @@ class QueryHandler
 
         if ($command === self::COMMAND_LIST_SAVES) {
             $this->execute_listSaves();
+            return;
+        }
+
+        if ($command === self::COMMAND_QUEUE_EXTRACTION) {
+            $this->execute_queueExtraction();
             return;
         }
 
@@ -419,6 +440,104 @@ class QueryHandler
         }
 
         $this->outputSuccess(self::COMMAND_LIST_SAVES, $result);
+    }
+
+    private function execute_queueExtraction(): void
+    {
+        $queue = new ExtractionQueue($this->manager);
+
+        // Check for --list flag
+        if ($this->cli->arguments->defined('list')) {
+            $items = $queue->getAll();
+            $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, [
+                'queue' => $items,
+                'count' => count($items)
+            ]);
+            return;
+        }
+
+        // Check for --clear flag
+        if ($this->cli->arguments->defined('clear')) {
+            $count = $queue->count();
+            $queue->clear();
+            $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, [
+                'cleared' => $count,
+                'message' => sprintf('Cleared %d item%s from queue', $count, $count === 1 ? '' : 's')
+            ]);
+            return;
+        }
+
+        // Get saves to queue
+        $savesList = $this->cli->arguments->get('saves');
+        $singleSave = $this->cli->arguments->get('save');
+
+        $toQueue = [];
+
+        // Handle --saves flag (space-separated list)
+        if (!empty($savesList)) {
+            $toQueue = array_merge($toQueue, preg_split('/\s+/', trim($savesList)));
+        }
+
+        // Handle --save flag (single save)
+        if (!empty($singleSave)) {
+            $toQueue[] = $singleSave;
+        }
+
+        if (empty($toQueue)) {
+            throw new QueryValidationException(
+                'No saves specified. Use --save or --saves to queue saves, --list to view queue, or --clear to empty queue.',
+                0,
+                [
+                    'Example: bin/query queue-extraction --save=autosave_01',
+                    'Example: bin/query queue-extraction --saves="autosave_01 autosave_02"',
+                    'Example: bin/query queue-extraction --list',
+                    'Example: bin/query queue-extraction --clear'
+                ]
+            );
+        }
+
+        // Validate all saves exist
+        $validated = [];
+        $errors = [];
+        foreach ($toQueue as $identifier) {
+            try {
+                $this->validator->validateSaveExists($identifier);
+                $validated[] = $identifier;
+            } catch (QueryValidationException $e) {
+                // Track which saves were not found
+                $errors[] = $identifier;
+            }
+        }
+
+        if (empty($validated)) {
+            $message = 'None of the specified saves were found';
+            if (!empty($errors)) {
+                $message .= ': ' . implode(', ', $errors);
+            }
+            throw new QueryValidationException(
+                $message,
+                0,
+                ['Run: bin/query list-saves  (to see available saves)']
+            );
+        }
+
+        // Add to queue
+        $queue->addMultiple($validated);
+
+        $result = [
+            'queued' => $validated,
+            'count' => count($validated),
+            'message' => sprintf('Queued %d save%s for extraction', count($validated), count($validated) === 1 ? '' : 's'),
+            'totalInQueue' => $queue->count()
+        ];
+
+        // Include warnings about skipped saves
+        if (!empty($errors)) {
+            $result['skipped'] = $errors;
+            $result['warning'] = sprintf('%d save%s not found and skipped', count($errors), count($errors) === 1 ? '' : 's');
+        }
+
+        $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, $result);
     }
 
     // endregion

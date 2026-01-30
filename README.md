@@ -212,7 +212,36 @@ This is the recommended way to integrate with external applications.
 
 **Special Commands**:
 - `list-saves` - List all available saves (main and archived)
+- `queue-extraction` - Queue saves for automatic extraction by monitor
 - `clear-cache` - Remove all cached query results
+
+#### Queuing Saves for Extraction
+
+You can queue older saves to be automatically extracted by the monitor:
+
+```bash
+# Queue a single save
+./bin/query queue-extraction --save=autosave_01
+
+# Queue multiple saves at once
+./bin/query queue-extraction --saves="autosave_01 autosave_02 save_020"
+
+# View what's queued
+./bin/query queue-extraction --list
+
+# Clear the queue
+./bin/query queue-extraction --clear
+```
+
+Once queued, the monitor will automatically extract these saves the next time
+it runs (or during its next tick if already running). This is useful for
+processing older saves without manually running the extract command.
+
+**How it works**:
+1. Use `list-saves` to see available saves
+2. Queue the ones you want with `queue-extraction`
+3. The monitor will process them automatically (before checking for new saves)
+4. Already-extracted saves are skipped automatically
 
 #### Filtering with JMESPath
 

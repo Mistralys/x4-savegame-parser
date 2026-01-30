@@ -16,7 +16,7 @@ use Mistralys\X4\SaveViewer\Data\SaveReader\SaveInfo;
 use Mistralys\X4\SaveViewer\Data\SaveReader\ShipLossesReader;
 use Mistralys\X4\SaveViewer\Data\SaveReader\Statistics;
 use Mistralys\X4\SaveViewer\Parser\Collections;
-use testsuites\FileHelperTests\ResolvePathTypeTest;
+use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 
 class SaveReader
 {
@@ -40,6 +40,11 @@ class SaveReader
     public function getCollections() : Collections
     {
         return $this->collections;
+    }
+
+    public function getAnalysis() : FileAnalysis
+    {
+        return $this->saveFile->getAnalysis();
     }
 
     public function getSaveInfo() : SaveInfo

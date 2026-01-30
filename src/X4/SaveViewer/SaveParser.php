@@ -12,6 +12,7 @@ namespace Mistralys\X4\SaveViewer;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper_Exception;
+use AppUtils\Microtime;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
@@ -119,6 +120,8 @@ class SaveParser extends BaseXMLParser
      */
     public function unpack() : self
     {
+        $startTime = Microtime::createNow();
+
         if($this->optionAutoBackup) {
             $this->createBackup();
         }
@@ -126,6 +129,10 @@ class SaveParser extends BaseXMLParser
         $this->processFile();
         $this->postProcessFragments();
         $this->cleanUp();
+
+        $endTime = Microtime::createNow();
+        $duration = $endTime->getDifferenceFrom($startTime, Microtime::FORMAT_SECONDS);
+        $this->analysis->setExtractionDuration($duration);
 
         return $this;
     }

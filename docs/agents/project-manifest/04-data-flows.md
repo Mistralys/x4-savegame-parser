@@ -25,6 +25,7 @@ Parse Arguments (league/climate)
     ↓
 ┌─────────────────────────────────────────┐
 │ SaveParser::unpack() - Main Pipeline   │
+│ - Capture start time (Microtime)       │
 └─────────────────────────────────────────┘
     ↓
 ┌──────────────────────────────────────┐
@@ -98,8 +99,11 @@ Parse Arguments (league/climate)
     ↓
 ┌──────────────────────────────────────┐
 │ STAGE 6: Metadata & Backup           │
+│ - Calculate extraction duration      │
+│ - FileAnalysis::setExtractionDuration│
 │ - FileAnalysis::save()               │
-│ - Write analysis.json                │
+│ - Write analysis.json (includes      │
+│   duration in seconds + formatted)   │
 │ - Optional: create backup.gz         │
 └──────────────────────────────────────┘
     ↓

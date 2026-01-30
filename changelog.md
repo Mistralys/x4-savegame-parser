@@ -2,8 +2,10 @@
 - **NEW**: CLI API with JMESPath filtering for programmatic data access
 - **NEW**: Query caching for efficient pagination of large datasets  
 - **NEW**: Standard JSON response envelope with success/error handling
-- **NEW**: 20 query commands covering all savegame data
+- **NEW**: 21 query commands covering all savegame data
 - **NEW**: `list-saves` command to enumerate available saves
+- **NEW**: `queue-extraction` command to queue saves for automatic extraction by monitor
+- **NEW**: Monitor now processes extraction queue before checking for new saves
 - **NEW**: Comprehensive API documentation for integration
 - **DEPRECATED**: Web UI (use CLI API via `bin/query` instead)
 - **DEPRECATED**: UI Server (will be removed in future version)

@@ -44,22 +44,7 @@ class QueryValidator
      */
     public function validateSave(string $saveIdentifier): BaseSaveFile
     {
-        // Try by name first
-        if ($this->manager->nameExists($saveIdentifier)) {
-            $save = $this->manager->getSaveByName($saveIdentifier);
-        }
-        // Try by ID
-        elseif ($this->manager->idExists($saveIdentifier)) {
-            $save = $this->manager->getByID($saveIdentifier);
-        }
-        // Not found
-        else {
-            $this->throwValidationError(
-                sprintf('Save "%s" not found', $saveIdentifier),
-                SaveManager::ERROR_CANNOT_FIND_BY_NAME,
-                ['Run: bin/extract -l  (to list available saves)']
-            );
-        }
+        $save = $this->validateSaveExists($saveIdentifier);
 
         // Check if extracted
         if (!$save->isUnpacked()) {
@@ -71,6 +56,35 @@ class QueryValidator
         }
 
         return $save;
+    }
+
+    /**
+     * Validate a save identifier exists (does not check extraction status).
+     *
+     * This is useful for queue-extraction where we want to queue unextracted saves.
+     *
+     * @param string $saveIdentifier Save name or ID
+     * @return BaseSaveFile The save file
+     * @throws QueryValidationException If save does not exist
+     */
+    public function validateSaveExists(string $saveIdentifier): BaseSaveFile
+    {
+        // Try by name first
+        if ($this->manager->nameExists($saveIdentifier)) {
+            return $this->manager->getSaveByName($saveIdentifier);
+        }
+
+        // Try by ID
+        if ($this->manager->idExists($saveIdentifier)) {
+            return $this->manager->getByID($saveIdentifier);
+        }
+
+        // Not found
+        $this->throwValidationError(
+            sprintf('Save "%s" not found', $saveIdentifier),
+            SaveManager::ERROR_CANNOT_FIND_BY_NAME,
+            ['Run: bin/query list-saves  (to list available saves)']
+        );
     }
 
     /**

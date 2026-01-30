@@ -7,6 +7,7 @@ namespace Mistralys\X4\SaveViewer\Monitor;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper_Exception;
 use AppUtils\StringBuilder;
+use Mistralys\X4\SaveViewer\CLI\ExtractionQueue;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
 use Mistralys\X4\SaveViewer\SaveParser;
@@ -60,6 +61,95 @@ class X4Monitor extends BaseMonitor
     {
         $this->logHeader('Handling tick [%s]', $this->getTickCounter());
 
+        // Check extraction queue first
+        $queue = new ExtractionQueue($this->manager);
+
+        if ($queue->hasItems()) {
+            $this->processQueuedSave($queue);
+            return;
+        }
+
+        // Fall back to current behavior (most recent save)
+        $this->processCurrentSave();
+    }
+
+    private function processQueuedSave(ExtractionQueue $queue): void
+    {
+        $saveId = $queue->peek();
+        $this->log('Processing queued save [%s]...', $saveId);
+
+        // Validate save exists
+        try {
+            $save = $this->manager->idExists($saveId)
+                ? $this->manager->getByID($saveId)
+                : $this->manager->getSaveByName($saveId);
+        } catch (\Throwable $e) {
+            // Save not found - remove from queue
+            $queue->pop();
+            $this->log('> Queued save not found, removing from queue.');
+            $this->log('');
+            return;
+        }
+
+        // Check if already extracted
+        if ($save->hasData()) {
+            $queue->pop(); // Remove from queue
+            $this->log('> Already extracted, skipping.');
+            $this->log('');
+            return;
+        }
+
+        // Extract the save
+        $this->notify('SAVE_DETECTED', [
+            'name' => $save->getSaveName(),
+            'path' => $save->getSaveFile()->getReferenceFile()->getPath(),
+            'source' => 'queue'
+        ]);
+
+        $this->notify('SAVE_PARSING_STARTED', [
+            'name' => $save->getSaveName()
+        ]);
+
+        await(new Promise(function(callable $resolve, callable $reject) use ($save, $queue)
+        {
+            try {
+                $file = $save->getSaveFile();
+
+                $this->log('...Unzipping.');
+                $this->notify('SAVE_UNZIPPING');
+                $file->unzip();
+
+                $this->log('...Extracting and writing files.');
+                $this->notify('SAVE_EXTRACTING');
+
+                SaveParser::create($file)
+                    ->optionAutoBackup($this->optionAutoBackup)
+                    ->optionKeepXML($this->optionKeepXML)
+                    ->setLoggingEnabled($this->optionLogging)
+                    ->unpack();
+
+                $this->log('...Done.');
+                $this->notify('SAVE_PARSING_COMPLETE', [
+                    'saveName' => $save->getSaveName(),
+                    'extractionDuration' => $save->getAnalysis()->getExtractionDuration(),
+                    'extractionDurationFormatted' => $save->getAnalysis()->getExtractionDurationFormatted()
+                ]);
+                $this->log('');
+
+                // Remove from queue after successful extraction
+                $queue->pop();
+
+                $resolve(null);
+            } catch (\Throwable $e) {
+                $this->notifyError($e);
+                // Don't remove from queue on error - will retry next tick
+                $reject($e);
+            }
+        }));
+    }
+
+    private function processCurrentSave(): void
+    {
         $save = $this->manager->getCurrentSave();
 
         if($save === null) {
@@ -81,7 +171,8 @@ class X4Monitor extends BaseMonitor
             $this->lastDetectedSavePath = $currentPath;
             $this->notify('SAVE_DETECTED', [
                 'name' => $save->getSaveName(),
-                'path' => $currentPath
+                'path' => $currentPath,
+                'source' => 'monitor'
             ]);
         }
 
@@ -111,7 +202,11 @@ class X4Monitor extends BaseMonitor
                     ->unpack();
 
                 $this->log('...Done.');
-                $this->notify('SAVE_PARSING_COMPLETE');
+                $this->notify('SAVE_PARSING_COMPLETE', [
+                    'saveName' => $save->getSaveName(),
+                    'extractionDuration' => $save->getAnalysis()->getExtractionDuration(),
+                    'extractionDurationFormatted' => $save->getAnalysis()->getExtractionDurationFormatted()
+                ]);
                 $this->log('');
 
                 $resolve(null);

@@ -24,6 +24,7 @@ class FileAnalysis extends ArrayDataCollection
     public const string KEY_SAVE_DATE = 'save-date';
     public const string KEY_SAVE_ID = 'save-id';
     public const string KEY_SAVE_NAME = 'save-name';
+    public const string KEY_EXTRACTION_DURATION = 'extraction-duration';
 
     private JSONFile $storageFile;
     private string $saveName;
@@ -189,5 +190,52 @@ class FileAnalysis extends ArrayDataCollection
     public function hasXML() : bool
     {
         return $this->getXMLFolder()->exists();
+    }
+
+    public function setExtractionDuration(float $seconds) : self
+    {
+        $this->setKey(self::KEY_EXTRACTION_DURATION, $seconds);
+        return $this->save();
+    }
+
+    public function getExtractionDuration() : ?float
+    {
+        $duration = $this->getKey(self::KEY_EXTRACTION_DURATION);
+
+        if($duration === null || $duration === '') {
+            return null;
+        }
+
+        return (float)$duration;
+    }
+
+    public function getExtractionDurationFormatted() : ?string
+    {
+        $duration = $this->getExtractionDuration();
+
+        if($duration === null) {
+            return null;
+        }
+
+        $seconds = (int)$duration;
+        $hours = (int)floor($seconds / 3600);
+        $minutes = (int)floor(($seconds % 3600) / 60);
+        $secs = $seconds % 60;
+
+        $parts = [];
+
+        if($hours > 0) {
+            $parts[] = $hours . 'h';
+        }
+
+        if($minutes > 0) {
+            $parts[] = $minutes . 'm';
+        }
+
+        if($secs > 0 || empty($parts)) {
+            $parts[] = $secs . 's';
+        }
+
+        return implode(' ', $parts);
     }
 }

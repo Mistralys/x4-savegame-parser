@@ -134,10 +134,19 @@ Emitted when the entire process is finished for the current save.
 { 
   "type": "event", 
   "name": "SAVE_PARSING_COMPLETE", 
-  "payload": [],
+  "payload": {
+    "saveName": "quicksave",
+    "extractionDuration": 135.42,
+    "extractionDurationFormatted": "2m 15s"
+  },
   "timestamp": "2026-01-29T10:32:30+00:00"
 }
 ```
+
+**Payload Fields**:
+- `saveName` (string): Name of the save that was extracted
+- `extractionDuration` (float|null): Time in seconds the extraction took, or `null` for legacy saves
+- `extractionDurationFormatted` (string|null): Human-readable duration (e.g., "2m 15s"), or `null` for legacy saves
 
 ### 3. Logging (`log`)
 
@@ -286,7 +295,7 @@ Here is an example of what the stream looks like when a new savegame is detected
 {"type":"log","level":"info","message":"...Extracting and writing files.","timestamp":"2026-01-29T10:30:10+00:00"}
 {"type":"event","name":"SAVE_EXTRACTING","payload":[],"timestamp":"2026-01-29T10:30:10+00:00"}
 {"type":"log","level":"info","message":"...Done.","timestamp":"2026-01-29T10:31:45+00:00"}
-{"type":"event","name":"SAVE_PARSING_COMPLETE","payload":[],"timestamp":"2026-01-29T10:31:45+00:00"}
+{"type":"event","name":"SAVE_PARSING_COMPLETE","payload":{"saveName":"save_001","extractionDuration":95.3,"extractionDurationFormatted":"1m 35s"},"timestamp":"2026-01-29T10:31:45+00:00"}
 {"type":"tick","counter":2,"timestamp":"2026-01-29T10:31:45+00:00"}
 ```
 
