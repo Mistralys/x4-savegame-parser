@@ -229,6 +229,12 @@ This manifest was created on **2026-01-29** as a comprehensive "Source of Truth"
   - Standard JSON response envelope
   - 19 query commands covering all savegame data
   - Comprehensive integration guide for Rust/Tauri applications
+- 2026-01-30: Added extraction duration tracking feature
+  - Tracks time taken for each savegame extraction
+  - Exposed via CLI API `save-info` command (dual format: seconds + formatted)
+  - Included in Monitor NDJSON `SAVE_PARSING_COMPLETE` event payload
+  - Returns `null` for saves extracted before this feature
+  - Documented in NDJSON Interface and CLI API Reference
 
 ---
 
