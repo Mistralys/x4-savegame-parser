@@ -33,4 +33,23 @@ class Inventory extends Info
     {
         return $this->wares;
     }
+
+    /**
+     * Convert Inventory to array suitable for CLI API output.
+     *
+     * @return array<int,array<string,mixed>> JSON-serializable array of ware objects
+     */
+    public function toArrayForAPI(): array
+    {
+        $result = [];
+
+        foreach ($this->wares as $ware) {
+            $result[] = [
+                'name' => $ware->getName(),
+                'amount' => $ware->getAmount()
+            ];
+        }
+
+        return $result;
+    }
 }

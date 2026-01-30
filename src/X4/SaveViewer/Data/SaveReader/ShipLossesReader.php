@@ -79,4 +79,28 @@ class ShipLossesReader extends Info
             BasePage::REQUEST_PARAM_VIEW => Losses::URL_NAME
         ));
     }
+
+    /**
+     * Convert ship losses to array suitable for CLI API output.
+     *
+     * @return array<int,array<string,mixed>> JSON-serializable array of loss entries
+     */
+    public function toArrayForAPI(): array
+    {
+        $result = [];
+
+        foreach ($this->entries as $entry) {
+            $result[] = [
+                'time' => $entry->getTime()->getDuration(),
+                'timeFormatted' => $entry->getTime()->getIntervalStr(),
+                'shipName' => $entry->getShipName(),
+                'shipCode' => $entry->getShipCode(),
+                'location' => $entry->getLocation(),
+                'commander' => $entry->getCommander(),
+                'destroyedBy' => $entry->getDestroyedBy()
+            ];
+        }
+
+        return $result;
+    }
 }

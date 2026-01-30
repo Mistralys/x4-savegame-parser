@@ -122,6 +122,21 @@ audit.
 
 ---
 
+### 7. [CLI API Reference](./07-cli-api-reference.md)
+**Purpose**: Complete reference for the CLI query API and JMESPath filtering.
+
+**Contents**:
+- Standard response envelope specification
+- All query commands with input/output schemas
+- JMESPath feature subset and filtering examples
+- Pagination and caching workflows
+- Error codes and handling
+- Integration guide for external applications (Rust/Tauri)
+
+**When to read**: When building applications that query savegame data or implementing launchers.
+
+---
+
 ## Document Relationships
 
 ```
@@ -137,7 +152,8 @@ Start Here
     ↓
 [05-constraints-and-rules.md] ← "Why" are things done this way
     ↓
-[ndjson-interface.md] ← Specialized: Monitor protocol
+    ├─→ [ndjson-interface.md] ← Specialized: Monitor protocol
+    └─→ [07-cli-api-reference.md] ← Specialized: CLI Query API
 ```
 
 ---
@@ -150,7 +166,9 @@ Start Here
 2. **Implementation Tasks**: Reference document 3 for API signatures
 3. **Understanding Flows**: Use document 4 to trace data paths
 4. **Constraint Validation**: Check document 5 before making changes
-5. **Specialized Features**: Refer to document 6 for NDJSON work
+5. **Specialized Features**: 
+   - Refer to document 6 (NDJSON) for monitor integration
+   - Refer to document 7 (CLI API) for query interface integration
 
 ### For Human Developers
 
@@ -158,7 +176,9 @@ Start Here
 2. **Quick Reference**: Bookmark document 3 for daily API lookups
 3. **Debugging**: Use document 4 to understand data transformations
 4. **Architecture Decisions**: Consult document 5 before major changes
-5. **Integration**: Read document 6 when building external tools
+5. **Integration**: 
+   - Read document 6 (NDJSON) when building monitor consumers
+   - Read document 7 (CLI API) when building query-based applications
 
 ### For Documentation Updates
 
@@ -203,6 +223,12 @@ This manifest was created on **2026-01-29** as a comprehensive "Source of Truth"
 
 **Major updates should be noted here**:
 - 2026-01-29: Initial manifest creation (documents 1-6)
+- 2026-01-30: Added CLI API implementation and documentation (document 7)
+  - New CLI query interface with JMESPath filtering
+  - Query caching system for pagination
+  - Standard JSON response envelope
+  - 19 query commands covering all savegame data
+  - Comprehensive integration guide for Rust/Tauri applications
 
 ---
 

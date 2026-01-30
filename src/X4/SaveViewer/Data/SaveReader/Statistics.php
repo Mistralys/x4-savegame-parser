@@ -22,4 +22,14 @@ class Statistics extends Info
     {
         return $this->data;
     }
+
+    /**
+     * Convert Statistics to array suitable for CLI API output.
+     *
+     * @return array<string,mixed> JSON-serializable array
+     */
+    public function toArrayForAPI(): array
+    {
+        return $this->getStats();
+    }
 }

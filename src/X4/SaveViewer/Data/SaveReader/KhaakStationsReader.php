@@ -60,4 +60,27 @@ class KhaakStationsReader extends Info
 
         return $total;
     }
+
+    /**
+     * Convert Khaa'k stations to array suitable for CLI API output.
+     *
+     * @return array<int,array<string,mixed>> JSON-serializable array of station objects
+     */
+    public function toArrayForAPI(): array
+    {
+        $result = [];
+
+        foreach ($this->sectors as $sector) {
+            foreach ($sector->getStations() as $station) {
+                $result[] = [
+                    'type' => $station->isHive() ? 'hive' : 'nest',
+                    'sector' => $sector->getName(),
+                    'zone' => $station->getZoneName(),
+                    'name' => $station->getName()
+                ];
+            }
+        }
+
+        return $result;
+    }
 }

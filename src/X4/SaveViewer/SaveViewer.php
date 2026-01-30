@@ -15,6 +15,7 @@ use Mistralys\X4\SaveViewer\Parser\ConstructionPlansParser;
 use Mistralys\X4\SaveViewer\UI\Pages\ConstructionPlansPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewPlanPage;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\ArchivedSavesPage;
+use Mistralys\X4\UI\Ajax\AjaxMethods;
 use Mistralys\X4\UI\UserInterface;
 use Mistralys\X4\X4Application;
 use Mistralys\X4\SaveViewer\UI\Pages\CreateBackup;
@@ -27,6 +28,7 @@ use Mistralys\X4\SaveViewer\UI\Pages\ViewSave;
  * Based on the {@see X4Application} classes to handle
  * the UI structuring and rendering.
  *
+ * @deprecated Use CLI API via bin/query instead. This UI will be removed in a future version.
  * @package SaveViewer
  * @subpackage UI
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
@@ -82,5 +84,10 @@ class SaveViewer extends X4Application
         }
 
         return $this->plans;
+    }
+
+    public function registerAjaxMethods(AjaxMethods $methods): void
+    {
+        // TODO: Implement registerAjaxMethods() method.
     }
 }

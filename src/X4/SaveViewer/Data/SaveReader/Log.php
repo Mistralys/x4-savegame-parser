@@ -165,4 +165,22 @@ class Log extends Info
     }
 
     // endregion
+
+    /**
+     * Convert Log to array suitable for CLI API output.
+     * Returns raw event log collection data.
+     *
+     * @return array<int,array<string,mixed>> JSON-serializable array of log entries
+     */
+    public function toArrayForAPI(): array
+    {
+        // Return the raw event log collection data
+        $data = $this->collections->eventLog()->loadData();
+
+        if (!isset($data[LogEntryType::TYPE_ID])) {
+            return [];
+        }
+
+        return $data[LogEntryType::TYPE_ID];
+    }
 }

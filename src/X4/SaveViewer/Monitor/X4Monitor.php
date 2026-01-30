@@ -25,6 +25,7 @@ class X4Monitor extends BaseMonitor
     private bool $optionKeepXML = false;
     private bool $optionAutoBackup = true;
     private bool $optionLogging = false;
+    private ?string $lastDetectedSavePath = null;
 
     public function optionLogging(bool $enabled) : self
     {
@@ -68,15 +69,22 @@ class X4Monitor extends BaseMonitor
 
         $this->log('Latest savegame is [%s].', $save->getSaveName());
 
-        $this->notify('SAVE_DETECTED', [
-            'name' => $save->getSaveName(),
-            'path' => $save->getSaveFile()->getReferenceFile()->getPath()
-        ]);
+        $currentPath = $save->getSaveFile()->getReferenceFile()->getPath();
 
         if($save->hasData()) {
             $this->log('> Skipping, already parsed.');
             return;
         }
+
+        // Only emit SAVE_DETECTED event when a new save file is detected that needs processing
+        if ($this->lastDetectedSavePath !== $currentPath) {
+            $this->lastDetectedSavePath = $currentPath;
+            $this->notify('SAVE_DETECTED', [
+                'name' => $save->getSaveName(),
+                'path' => $currentPath
+            ]);
+        }
+
 
         $this->log('> Parsing.');
 

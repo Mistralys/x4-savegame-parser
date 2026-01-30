@@ -28,6 +28,10 @@
   - Command-line argument parsing
   - Formatted terminal output
 
+- **mtdowling/jmespath.php** (^2.7) - JMESPath query language
+  - JSON filtering and transformation
+  - Used in CLI API for data queries
+
 ### Supporting Libraries
 
 - **mistralys/application-utils** family - Utility collections
@@ -115,7 +119,35 @@ SaveReader (facade)
   └── [more specialized readers]
 ```
 
-### 5. Monitor Pattern (Observer)
+### 5. CLI API Pattern
+
+Query interface for programmatic access to savegame data with filtering and pagination.
+
+```
+QueryHandler (orchestrator)
+  ├── QueryValidator - Input validation
+  ├── QueryCache - Result caching per-save
+  ├── JsonResponseBuilder - Standard envelope
+  └── JMESPath filtering - Query language
+```
+
+**Key components**:
+- **Standard Response Envelope**: Consistent JSON structure (`success`, `version`, `data`, `pagination`)
+- **JMESPath Filtering**: Powerful query language for filtering arrays/objects
+- **Query Caching**: Per-save cache isolation for efficient pagination
+- **Validation Layer**: Pre-execution validation with actionable error messages
+- **Data Serializers**: `toArrayForAPI()` methods on all readers for JSON output
+
+**Query flow**:
+1. Parse CLI arguments (command, flags)
+2. Validate save, pagination, cache key
+3. Load data from SaveReader
+4. Apply JMESPath filter (if provided)
+5. Check/use cache (if cache-key provided)
+6. Apply pagination (limit/offset)
+7. Build JSON response envelope
+
+### 6. Monitor Pattern (Observer)
 
 Event-driven monitoring system with pluggable output formats.
 
@@ -132,7 +164,7 @@ MonitorOutputInterface
 **Event Loop**: ReactPHP event loop with tick-based polling
 **Notifications**: Fire events (`SAVE_DETECTED`, `SAVE_PARSING_STARTED`, etc.)
 
-### 6. UI Page Hierarchy
+### 7. UI Page Hierarchy (DEPRECATED)
 
 Three-tier page structure inherited from `mistralys/x4-core`:
 
@@ -153,7 +185,7 @@ BasePage (from x4-core)
 3. Page renders navigation, then `renderContent()`
 4. Output HTML via UserInterface templating
 
-### 7. Configuration Management
+### 8. Configuration Management
 
 Singleton configuration loader with type-safe getters.
 
@@ -178,6 +210,8 @@ storage/
   └── unpack-{datetime}-{savename}/
       ├── analysis.json         # Metadata
       ├── backup.gz             # Original savegame backup
+      ├── .cache/               # Query result cache (hidden)
+      │   └── query-{key}.json  # Cached filtered results
       ├── JSON/                 # Parsed data
       │   ├── collection-ships.json
       │   ├── collection-stations.json
@@ -200,13 +234,20 @@ storage/
 - **Handler**: `CLIHandler`
 - **Features**: List saves, extract single/multiple, rebuild JSON
 
-### 2. UI Server Mode
+### 2. CLI API Mode
+- **Entry**: `bin/query` (wrapper) → `bin/php/query.php`
+- **Handler**: `QueryHandler`
+- **Output**: Standard JSON response envelope
+- **Features**: Query savegame data with JMESPath filtering, pagination, caching
+
+### 3. UI Server Mode (DEPRECATED)
 - **Entry**: `bin/run-ui` (wrapper) → `bin/php/run-ui.php`
 - **Server**: `X4Server` with ReactPHP HTTP server
 - **Port**: Configurable (default: 9494)
 - **Access**: Browser-based interface
+- **Status**: Deprecated in favor of CLI API
 
-### 3. Monitor Mode
+### 4. Monitor Mode
 - **Entry**: `bin/run-monitor` (wrapper) → `bin/php/run-monitor.php`
 - **Monitor**: `X4Monitor` with event loop
 - **Output**: Console or NDJSON (`--json` flag)
@@ -221,3 +262,8 @@ storage/
 5. **Lazy Loading**: UI data readers parse JSON on-demand
 6. **Two-Stage XML**: Stream extraction + DOM parsing for memory efficiency
 7. **Event-Driven Monitoring**: ReactPHP event loop for responsiveness
+8. **CLI API over Web UI**: Programmatic JSON API preferred over browser interface
+9. **JMESPath for Filtering**: Standard query language for flexible data filtering
+10. **Per-Save Caching**: Query caches isolated by save to prevent cross-contamination
+11. **Standard Response Envelope**: Consistent JSON structure for predictable parsing
+12. **Deprecation of Web UI**: Moving away from HTTP server toward CLI-first approach

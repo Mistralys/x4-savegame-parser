@@ -1,9 +1,18 @@
-### v0.1.1 - Construction plans
+### v0.1.0 - CLI API Release
+- **NEW**: CLI API with JMESPath filtering for programmatic data access
+- **NEW**: Query caching for efficient pagination of large datasets  
+- **NEW**: Standard JSON response envelope with success/error handling
+- **NEW**: 19 query commands covering all savegame data
+- **NEW**: Comprehensive API documentation for integration
+- **DEPRECATED**: Web UI (use CLI API via `bin/query` instead)
+- **DEPRECATED**: UI Server (will be removed in future version)
+
+### v0.0.6 - Construction plans
 - Construction Plans: Added possibility to rename plans via the UI.
 - Construction Plans: Added `setLabel()` and `save()` to plans.
 - UI: Now handling POST variables for forms.
 
-### v0.1.0 - Construction plans viewer
+### v0.0.5 - Construction plans viewer
 - Construction Plans: Added a page to view all construction plans.
 - Configuration: Added `X4_FOLDER`.
 - Configuration: Removed `X4_SAVES_FOLDER` setting (still used if present).

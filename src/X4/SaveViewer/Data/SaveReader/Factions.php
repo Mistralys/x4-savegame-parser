@@ -126,4 +126,30 @@ class Factions extends Info
     {
         return $this->factions;
     }
+
+    /**
+     * Convert Factions to array suitable for CLI API output.
+     *
+     * @return array<string,mixed> JSON-serializable array
+     */
+    public function toArrayForAPI(): array
+    {
+        $result = [];
+
+        foreach ($this->factions as $faction) {
+            $playerRelation = $faction->getPlayerRelation();
+
+            $result[] = [
+                'id' => $faction->getName(),
+                'name' => $faction->getLabel(),
+                'ticker' => $faction->getTicker(),
+                'isActive' => $faction->isActive(),
+                'isMajor' => $faction->isMajor(),
+                'playerRelation' => $playerRelation ? $playerRelation->getValue() : null,
+                'playerDiscount' => $faction->getPlayerDiscount()
+            ];
+        }
+
+        return $result;
+    }
 }

@@ -74,7 +74,10 @@ There are several tools which can be used together:
 > for more extraction options - extract multiple saves and
 > more.
 
-### 2: Access the interface
+### 2: Access the interface (DEPRECATED)
+
+> **⚠️ DEPRECATED**: The web interface will be removed in a future version.
+> Please use the CLI API instead (see "CLI API" section above).
 
 1. Execute `./bin/run-ui`.
 2. You should see a message that the server is running.
@@ -152,7 +155,100 @@ XML fragments of an archived savegame.
 ```
 
 Where the parameter is the folder name of an archived savegame. Use
-the `-la` command to show a list. 
+the `-la` command to show a list.
+
+### CLI API
+
+The CLI API provides programmatic access to all savegame data via JSON output.
+This is the recommended way to integrate with external applications.
+
+#### Quick Start
+
+```bash
+# Query save information
+./bin/query save-info --save=quicksave --pretty
+
+# List all ships
+./bin/query ships --save=quicksave
+
+# Filter blueprints (owned only)
+./bin/query blueprints --save=quicksave --filter="[?owned==\`true\`]"
+
+# Paginate through ships
+./bin/query ships --save=quicksave --limit=50 --offset=0 --cache-key=ships-1
+
+# Clear cache
+./bin/query clear-cache
+```
+
+#### Available Commands
+
+**Summary Commands** (return objects):
+- `save-info` - Save metadata (player name, money, date, etc.)
+- `player` - Player information
+- `stats` - Game statistics
+- `factions` - Faction information and relations
+
+**List Commands** (return arrays):
+- `blueprints` - All blueprints with ownership status
+- `inventory` - Player inventory items
+- `log` - Event log entries
+- `khaak-stations` - Khaa'k hive and nest locations
+- `ship-losses` - Player ship losses
+
+**Collection Commands** (return arrays):
+- `ships` - All ships in the universe
+- `stations` - All stations in the universe
+- `people` - All NPCs and crew
+- `sectors` - All sectors
+- `zones` - All sector zones
+- `regions` - All regions
+- `clusters` - All clusters
+- `celestials` - All celestial bodies
+- `event-log` - Raw event log collection
+
+**Special Commands**:
+- `clear-cache` - Remove all cached query results
+
+#### Filtering with JMESPath
+
+The `--filter` flag accepts [JMESPath](https://jmespath.org/) expressions for powerful filtering:
+
+```bash
+# Ships owned by player
+./bin/query ships --save=quicksave --filter="[?owner=='player']"
+
+# Argon faction ships
+./bin/query ships --save=quicksave --filter="[?faction=='argon']"
+
+# Owned ship blueprints
+./bin/query blueprints --save=quicksave --filter="[?owned==\`true\` && category=='ships']"
+
+# Complex projection
+./bin/query ships --save=quicksave --filter="[?faction=='argon'].{name: name, sector: sector}"
+```
+
+#### Pagination
+
+Use `--limit` and `--offset` for pagination, with `--cache-key` for performance:
+
+```bash
+# First page (stores filtered results in cache)
+./bin/query ships --save=quicksave --filter="[?faction=='argon']" \
+  --limit=50 --offset=0 --cache-key=argon-ships
+
+# Second page (reuses cached filtered results)
+./bin/query ships --save=quicksave --limit=50 --offset=50 --cache-key=argon-ships
+```
+
+#### Complete Documentation
+
+See [CLI API Reference](docs/agents/project-manifest/07-cli-api-reference.md) for:
+- Complete command reference with schemas
+- JMESPath filtering guide
+- Pagination and caching workflows
+- Error handling
+- Rust/Tauri integration examples
 
 ### Running the savegame Monitor
 

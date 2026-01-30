@@ -31,4 +31,19 @@ class PlayerInfo extends Info
     {
         return $this->getString(PlayerType::KEY_CODE);
     }
+
+    /**
+     * Convert PlayerInfo to array suitable for CLI API output.
+     *
+     * @return array<string,mixed> JSON-serializable array
+     */
+    public function toArrayForAPI(): array
+    {
+        return [
+            'name' => $this->getName(),
+            'code' => $this->getCode(),
+            'blueprints' => $this->getArray(PlayerType::KEY_BLUEPRINTS),
+            'wares' => $this->getArray(PlayerType::KEY_WARES)
+        ];
+    }
 }

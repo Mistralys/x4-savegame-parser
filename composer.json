@@ -32,6 +32,7 @@
     "react/http": ">=v1.9.0",
     "react/async": ">=v3.0.0",
     "league/climate": "^3.8.2",
+    "mtdowling/jmespath.php": ">=2.8.0",
     "php": ">=8.4",
     "ext-xmlreader": "*",
     "ext-dom": "*"

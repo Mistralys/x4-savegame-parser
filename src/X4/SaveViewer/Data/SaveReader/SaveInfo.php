@@ -58,4 +58,23 @@ class SaveInfo extends Info
     {
         return $this->getFloat(SaveInfoFragment::KEY_START_TIME);
     }
+
+    /**
+     * Convert SaveInfo to array suitable for CLI API output.
+     *
+     * @return array<string,mixed> JSON-serializable array
+     */
+    public function toArrayForAPI(): array
+    {
+        return [
+            'saveName' => $this->getSaveName(),
+            'playerName' => $this->getPlayerName(),
+            'money' => $this->getMoney(),
+            'moneyFormatted' => $this->getMoneyPretty(),
+            'saveDate' => $this->getSaveDate()?->format('c'),
+            'gameStartTime' => $this->getGameStartTime(),
+            'gameGUID' => $this->getGameGUID(),
+            'gameCode' => $this->getGameCode()
+        ];
+    }
 }

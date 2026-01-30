@@ -20,6 +20,11 @@ use function AppUtils\parseThrowable;
 use function AppUtils\parseURL;
 use Mistralys\X4\SaveViewer\Config\Config;
 
+/**
+ * HTTP server for the web-based UI.
+ *
+ * @deprecated Use CLI API via bin/query instead. This server will be removed in a future version.
+ */
 class X4Server extends BaseMonitor
 {
     public const ALLOWED_EXTENSIONS = array(

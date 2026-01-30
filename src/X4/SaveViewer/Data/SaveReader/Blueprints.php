@@ -156,4 +156,29 @@ class Blueprints extends Info
 
         return $this->getURLView($params);
     }
+
+    /**
+     * Convert Blueprints to array suitable for CLI API output.
+     *
+     * @return array<int,array<string,mixed>> JSON-serializable array of blueprint objects
+     */
+    public function toArrayForAPI(): array
+    {
+        $result = [];
+        $all = BlueprintDefs::getInstance()->getBlueprints();
+
+        foreach ($all as $blueprint) {
+            $result[] = [
+                'id' => $blueprint->getID(),
+                'name' => $blueprint->getName(),
+                'owned' => $this->isOwned($blueprint),
+                'category' => $blueprint->getCategory()->getID(),
+                'categoryLabel' => $blueprint->getCategory()->getLabel(),
+                'race' => $blueprint->getRace()->getID(),
+                'raceLabel' => $blueprint->getRace()->getLabel()
+            ];
+        }
+
+        return $result;
+    }
 }
