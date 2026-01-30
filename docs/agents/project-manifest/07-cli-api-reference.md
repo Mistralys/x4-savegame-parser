@@ -72,7 +72,7 @@ All commands (except `clear-cache`) support these flags:
 | `--cache-key` | string | No | Cache identifier for reusing filtered results |
 | `--pretty` | flag | No | Enable pretty-printed JSON output |
 
-*Not required for `clear-cache` command
+*Not required for `list-saves` and `clear-cache` commands
 
 ### Exit Codes
 
@@ -416,6 +416,58 @@ bin/query factions --save=quicksave
 ---
 
 ### Special Commands
+
+#### `list-saves`
+Returns a list of all available saves (both main and archived).
+
+```bash
+bin/query list-saves
+```
+
+**No `--save` flag required**. Returns an object with two arrays:
+- `main`: Saves in the game folder
+- `archived`: Extracted saves in storage
+
+**Data Fields**:
+- `id`: Save identifier
+- `name`: Save name
+- `dateModified`: Last modification date (ISO 8601)
+- `isUnpacked`: Whether the save has been extracted
+- `hasBackup`: Whether a backup exists
+- `storageFolder`: Folder name in storage (archived saves only)
+
+**Example Response**:
+```json
+{
+  "success": true,
+  "version": "0.1.0",
+  "command": "list-saves",
+  "timestamp": "2026-01-30T15:30:00+00:00",
+  "data": {
+    "main": [
+      {
+        "id": "quicksave",
+        "name": "quicksave",
+        "dateModified": "2026-01-30T14:23:45+00:00",
+        "isUnpacked": true,
+        "hasBackup": true
+      }
+    ],
+    "archived": [
+      {
+        "id": "unpack-20230524120000-quicksave",
+        "name": "quicksave",
+        "dateModified": "2023-05-24T12:00:00+00:00",
+        "isUnpacked": true,
+        "hasBackup": true,
+        "storageFolder": "unpack-20230524120000-quicksave"
+      }
+    ]
+  }
+}
+```
+
+---
 
 #### `clear-cache`
 Removes all cached query results.

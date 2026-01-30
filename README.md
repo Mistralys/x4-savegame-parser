@@ -165,6 +165,9 @@ This is the recommended way to integrate with external applications.
 #### Quick Start
 
 ```bash
+# List available saves
+./bin/query list-saves --pretty
+
 # Query save information
 ./bin/query save-info --save=quicksave --pretty
 
@@ -208,6 +211,7 @@ This is the recommended way to integrate with external applications.
 - `event-log` - Raw event log collection
 
 **Special Commands**:
+- `list-saves` - List all available saves (main and archived)
 - `clear-cache` - Remove all cached query results
 
 #### Filtering with JMESPath

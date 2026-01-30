@@ -46,6 +46,7 @@ class QueryHandler
     public const string COMMAND_CELESTIALS = 'celestials';
     public const string COMMAND_EVENT_LOG = 'event-log';
     public const string COMMAND_CLEAR_CACHE = 'clear-cache';
+    public const string COMMAND_LIST_SAVES = 'list-saves';
 
     private SaveManager $manager;
     private QueryCache $cache;
@@ -161,9 +162,14 @@ class QueryHandler
      */
     private function executeCommand(string $command): void
     {
-        // Special command that doesn't require a save
+        // Special commands that don't require a save
         if ($command === self::COMMAND_CLEAR_CACHE) {
             $this->execute_clearCache();
+            return;
+        }
+
+        if ($command === self::COMMAND_LIST_SAVES) {
+            $this->execute_listSaves();
             return;
         }
 
@@ -377,6 +383,42 @@ class QueryHandler
             'cleared' => $count,
             'message' => sprintf('Cleared %d cache director%s', $count, $count === 1 ? 'y' : 'ies')
         ]);
+    }
+
+    private function execute_listSaves(): void
+    {
+        $saves = $this->manager->getSaves();
+        $archivedSaves = $this->manager->getArchivedSaves();
+
+        $result = [
+            'main' => [],
+            'archived' => []
+        ];
+
+        // Main saves (from game folder)
+        foreach ($saves as $save) {
+            $result['main'][] = [
+                'id' => $save->getSaveID(),
+                'name' => $save->getSaveName(),
+                'dateModified' => $save->getDateModified()->format('c'),
+                'isUnpacked' => $save->isUnpacked(),
+                'hasBackup' => $save->hasBackup()
+            ];
+        }
+
+        // Archived saves (extracted saves in storage)
+        foreach ($archivedSaves as $save) {
+            $result['archived'][] = [
+                'id' => $save->getSaveID(),
+                'name' => $save->getSaveName(),
+                'dateModified' => $save->getDateModified()->format('c'),
+                'isUnpacked' => $save->isUnpacked(),
+                'hasBackup' => $save->hasBackup(),
+                'storageFolder' => $save->getStorageFolder()->getName()
+            ];
+        }
+
+        $this->outputSuccess(self::COMMAND_LIST_SAVES, $result);
     }
 
     // endregion

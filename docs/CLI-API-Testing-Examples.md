@@ -2,6 +2,21 @@
 
 This document provides example commands to test the CLI API using the `quicksave` save file.
 
+## Getting Started
+
+### List Available Saves
+```bash
+./bin/query list-saves --pretty
+```
+Returns: All available saves (main and archived) with their extraction status.
+
+This is useful to:
+- See which saves are available
+- Check if a save has been extracted (`isUnpacked`)
+- Find the correct save name/ID to use in other commands
+
+---
+
 ## Prerequisites
 
 Ensure the save has been extracted first:
@@ -240,7 +255,15 @@ Returns: All sector zones.
 
 ---
 
-## Cache Management
+## Utility Commands
+
+### List Available Saves
+```bash
+./bin/query list-saves --pretty
+```
+Shows all available saves (main folder and archived) with extraction status.
+
+---
 
 ### Clear All Caches
 ```bash
@@ -288,6 +311,9 @@ Expected: Validation error about negative limit
 Run these commands in sequence to test all major features:
 
 ```bash
+# 0. List available saves
+./bin/query list-saves --pretty
+
 # 1. Extract the save
 ./bin/extract -e quicksave
 
