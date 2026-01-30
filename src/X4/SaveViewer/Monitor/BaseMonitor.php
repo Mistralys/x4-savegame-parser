@@ -4,29 +4,22 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Monitor;
 
-use AppUtils\ConvertHelper;
 use AppUtils\FileHelper_Exception;
-use AppUtils\StringBuilder;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector;
-use Mistralys\X4\SaveViewer\SaveParser;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 use Mistralys\X4\SaveViewer\Monitor\Output\ConsoleOutput;
 use Mistralys\X4\SaveViewer\Monitor\Output\MonitorOutputInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
-use React\Http\HttpServer;
-use React\Http\Message\Response;
-use React\Promise\Promise;
-use React\Socket\SocketServer;
-use function React\Async\await;
 use Mistralys\X4\SaveViewer\Config\Config;
 
 abstract class BaseMonitor
 {
     public const int ERROR_NOT_COMMAND_LINE = 136301;
     public const int ERROR_CANNOT_START_LOOP = 136302;
+
+    public const string ARG_JSON_OUTPUT = '--json';
 
     /**
      * The amount of seconds between updates.

@@ -19,13 +19,15 @@ if(!file_exists($autoloader)) {
 
 require_once $autoloader;
 
-// Load JSON-backed configuration via the new Config class
 use Mistralys\X4\SaveViewer\Config\Config;
 
-try {
-    // Falls back to config.dist.json if config.json is missing
+try
+{
     Config::ensureLoaded();
-} catch (\Throwable $e) {
+}
+catch (\Throwable $e)
+{
+
     die('Configuration error: '.$e->getMessage());
 }
 
