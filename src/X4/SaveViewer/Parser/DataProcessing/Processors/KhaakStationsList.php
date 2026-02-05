@@ -12,6 +12,7 @@ namespace Mistralys\X4\SaveViewer\Parser\DataProcessing\Processors;
 use Mistralys\X4\SaveViewer\Parser\DataProcessing\BaseDataProcessor;
 use Mistralys\X4\SaveViewer\Parser\Types\SectorType;
 use Mistralys\X4\SaveViewer\Parser\Types\StationType;
+use Mistralys\X4\SaveViewer\Parser\Types\ZoneType;
 
 /**
  * Identifies all Khaak stations in the universe,
@@ -37,6 +38,8 @@ class KhaakStationsList extends BaseDataProcessor
     public const TYPE_HIVE = 'hive';
     public const KEY_STATION_ID = 'stationID';
     public const KEY_STATION_TYPE = 'type';
+    public const KEY_ZONE_NAME = 'zoneName';
+    public const KEY_STATION_NAME = 'stationName';
     public const KEY_PLAYER_SHIPS = 'ships';
     public const KEY_PLAYER_STATIONS = 'stations';
 
@@ -91,9 +94,16 @@ class KhaakStationsList extends BaseDataProcessor
             $type = self::TYPE_HIVE;
         }
 
+        $zoneName = $station->getZone()->getString(ZoneType::KEY_CODE);
+        if(empty($zoneName)) {
+            $zoneName = $station->getZone()->getConnectionID();
+        }
+
         $this->data[$sectorID][self::KEY_STATIONS][] = array(
             self::KEY_STATION_ID => $station->getUniqueID(),
-            self::KEY_STATION_TYPE => $type
+            self::KEY_STATION_TYPE => $type,
+            self::KEY_ZONE_NAME => $zoneName,
+            self::KEY_STATION_NAME => $station->getName()
         );
     }
 

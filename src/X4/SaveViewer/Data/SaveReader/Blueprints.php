@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
-use Mistralys\X4\Database\Blueprints\BlueprintCategory;
+use Mistralys\X4\Database\Blueprints\Categories\BlueprintCategoryInterface;
 use Mistralys\X4\Database\Blueprints\BlueprintDef;
 use Mistralys\X4\Database\Blueprints\BlueprintDefs;
 use Mistralys\X4\Database\Blueprints\BlueprintSelection;
-use Mistralys\X4\Database\Blueprints\Categories\UnknownCategory;
+use Mistralys\X4\Database\Blueprints\Categories\Types\UnknownCategory;
 use Mistralys\X4\Database\Blueprints\Types\UnknownBlueprint;
-use Mistralys\X4\Database\Races\RaceDefs;
 use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\BlueprintsPage;
 
@@ -22,7 +21,7 @@ class Blueprints extends Info
     private array $blueprints = array();
 
     /**
-     * @var array<string,BlueprintCategory>
+     * @var array<string,BlueprintCategoryInterface>
      */
     private array $categories = array();
     private BlueprintDefs $collection;
@@ -105,7 +104,12 @@ class Blueprints extends Info
         // come from installed Mods).
         if(!$this->collection->blueprintIDExists($blueprintID))
         {
-            $blueprint = $this->collection->registerUnknownBlueprint($blueprintID);
+            $blueprint = UnknownBlueprint::fromArray(array(
+                'id' => $blueprintID,
+                'label' => $blueprintID,
+                'category' => UnknownCategory::CATEGORY_ID,
+                'race' => 'unknown'
+            ));
         }
         else
         {

@@ -46,4 +46,27 @@ class KhaakStation extends ArrayDataCollection
 
         return t('Nest');
     }
+
+    /**
+     * Get the zone name where the station is located.
+     * Fallback to "Unknown" if zone information is not available.
+     */
+    public function getZoneName() : string
+    {
+        $zoneName = $this->getString(KhaakStationsList::KEY_ZONE_NAME);
+        return !empty($zoneName) ? $zoneName : t('Unknown');
+    }
+
+    /**
+     * Get the station name/label.
+     * Returns the type label (Hive/Nest) as stations don't have custom names.
+     */
+    public function getName() : string
+    {
+        $name = $this->getString(KhaakStationsList::KEY_STATION_NAME);
+        if(!empty($name)) {
+            return $name;
+        }
+        return $this->getTypeLabel();
+    }
 }

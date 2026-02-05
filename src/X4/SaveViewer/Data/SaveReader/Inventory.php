@@ -20,6 +20,12 @@ class Inventory extends Info
 
     protected function init(): void
     {
+        // Safety check: ensure inventory data exists and is an array
+        if(!isset($this->data[PlayerComponentTag::KEY_INVENTORY]) || !is_array($this->data[PlayerComponentTag::KEY_INVENTORY])) {
+            $this->wares = [];
+            return;
+        }
+
         foreach($this->data[PlayerComponentTag::KEY_INVENTORY] as $name => $amount) {
             $this->wares[] = new Ware($name, intval($amount));
         }

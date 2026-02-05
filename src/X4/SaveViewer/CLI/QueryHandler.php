@@ -326,7 +326,7 @@ class QueryHandler
 
     private function execute_ships(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->ships()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->ships()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_SHIPS, $data['data'], $data['pagination']);
@@ -334,7 +334,7 @@ class QueryHandler
 
     private function execute_stations(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->stations()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->stations()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_STATIONS, $data['data'], $data['pagination']);
@@ -342,7 +342,7 @@ class QueryHandler
 
     private function execute_people(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->people()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->people()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_PEOPLE, $data['data'], $data['pagination']);
@@ -350,7 +350,7 @@ class QueryHandler
 
     private function execute_sectors(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->sectors()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->sectors()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_SECTORS, $data['data'], $data['pagination']);
@@ -358,7 +358,7 @@ class QueryHandler
 
     private function execute_zones(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->zones()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->zones()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_ZONES, $data['data'], $data['pagination']);
@@ -366,7 +366,7 @@ class QueryHandler
 
     private function execute_regions(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->regions()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->regions()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_REGIONS, $data['data'], $data['pagination']);
@@ -374,7 +374,7 @@ class QueryHandler
 
     private function execute_clusters(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->clusters()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->clusters()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_CLUSTERS, $data['data'], $data['pagination']);
@@ -382,7 +382,7 @@ class QueryHandler
 
     private function execute_celestials(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->celestials()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->celestials()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_CELESTIALS, $data['data'], $data['pagination']);
@@ -390,7 +390,7 @@ class QueryHandler
 
     private function execute_eventLog(BaseSaveFile $save): void
     {
-        $data = $save->getDataReader()->getCollections()->eventLog()->toArray();
+        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->eventLog()->loadData());
 
         $data = $this->applyFilteringAndPagination($save, $data);
         $this->outputSuccess(self::COMMAND_EVENT_LOG, $data['data'], $data['pagination']);
@@ -543,6 +543,28 @@ class QueryHandler
     // endregion
 
     // region: Helper methods
+
+    /**
+     * Flatten a collection's nested array structure into a single flat array.
+     *
+     * Collections return arrays in the format: {"typeID": [items]}.
+     * This method merges all items from all type IDs into a single flat array.
+     *
+     * @param array $collectionData The nested collection data
+     * @return array Flattened array of all items
+     */
+    private function flattenCollectionArray(array $collectionData): array
+    {
+        $result = [];
+
+        foreach ($collectionData as $typeItems) {
+            if (is_array($typeItems)) {
+                $result = array_merge($result, array_values($typeItems));
+            }
+        }
+
+        return $result;
+    }
 
     /**
      * Apply filtering and pagination to data.
