@@ -1,0 +1,21 @@
+{
+    "zone": [
+        {
+            "connectionID": "zone004_cluster_409_sector001_connection",
+            "componentID": "[0x581f]",
+            "parentComponent": "sector:[0x581d]",
+            "code": "",
+            "stations": [
+                "station:[0x5986]",
+                "station:[0x59ba]"
+            ]
+        },
+        {
+            "connectionID": "zone001_cluster_43_sector001_connection",
+            "componentID": "[0x68da]",
+            "parentComponent": "sector:[0x68d7]",
+            "code": "",
+            "stations": []
+        }
+    ]
+}

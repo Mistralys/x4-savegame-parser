@@ -1,0 +1,14 @@
+{
+    "cluster": [
+        {
+            "connectionID": "cluster_409_connection",
+            "componentID": "[0x581a]",
+            "parentComponent": ""
+        },
+        {
+            "connectionID": "cluster_43_connection",
+            "componentID": "[0x68d2]",
+            "parentComponent": ""
+        }
+    ]
+}

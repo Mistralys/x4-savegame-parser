@@ -1,18 +1,26 @@
 {
-  "sector": [
-    {
-      "connectionID": "cluster_01_sector001",
-      "componentID": "sector_001",
-      "name": "Test Sector Alpha",
-      "owner": "argon",
-      "zones": []
-    },
-    {
-      "connectionID": "cluster_01_sector002",
-      "componentID": "sector_002",
-      "name": "Test Sector Beta",
-      "owner": "player",
-      "zones": []
-    }
-  ]
+    "sector": [
+        {
+            "connectionID": "cluster_409_sector001_connection",
+            "componentID": "[0x581d]",
+            "parentComponent": "cluster:[0x581a]",
+            "name": "Test Sector Alpha",
+            "owner": "argon",
+            "zones": [
+                "zone:[0x581f]",
+                "zone:[0x5a4a]"
+            ]
+        },
+        {
+            "connectionID": "cluster_43_sector001_connection",
+            "componentID": "[0x68d7]",
+            "parentComponent": "cluster:[0x68d2]",
+            "name": "Test Sector Beta",
+            "owner": "teladi",
+            "zones": [
+                "zone:[0x68da]",
+                "zone:[0x6a18]"
+            ]
+        }
+    ]
 }

@@ -1,0 +1,14 @@
+{
+    "region": [
+        {
+            "connectionID": "region_argon_connection",
+            "componentID": "[0x2001]",
+            "parentComponent": ""
+        },
+        {
+            "connectionID": "region_teladi_connection",
+            "componentID": "[0x2002]",
+            "parentComponent": ""
+        }
+    ]
+}

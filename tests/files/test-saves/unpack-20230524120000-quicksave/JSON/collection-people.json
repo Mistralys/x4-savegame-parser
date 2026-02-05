@@ -1,16 +1,34 @@
 {
-  "npc": [
-    {
-      "connectionID": "connection_00010",
-      "componentID": "npc_001",
-      "name": "Test Pilot Alpha",
-      "owner": "player"
-    },
-    {
-      "connectionID": "connection_00011",
-      "componentID": "npc_002",
-      "name": "Test Pilot Beta",
-      "owner": "player"
-    }
-  ]
+    "person": [
+        {
+            "connectionID": "person",
+            "componentID": "P1",
+            "parentComponent": "ship:[0x5a730]",
+            "code": "PLT-001",
+            "name": "Test Pilot Alpha",
+            "race": "argon",
+            "gender": "male",
+            "owner": "player",
+            "cover": "",
+            "role": "captain",
+            "macro": "character_arg_male_01_macro",
+            "seed": "1234567",
+            "anonymous": false
+        },
+        {
+            "connectionID": "person",
+            "componentID": "P2",
+            "parentComponent": "ship:[0x5a730]",
+            "code": "",
+            "name": "",
+            "race": "argon",
+            "gender": "female",
+            "owner": "player",
+            "cover": "",
+            "role": "service",
+            "macro": "character_arg_female_01_macro",
+            "seed": "7654321",
+            "anonymous": true
+        }
+    ]
 }
