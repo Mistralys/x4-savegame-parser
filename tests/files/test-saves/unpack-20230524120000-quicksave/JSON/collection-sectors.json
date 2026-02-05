@@ -1,0 +1,18 @@
+{
+  "sector": [
+    {
+      "connectionID": "cluster_01_sector001",
+      "componentID": "sector_001",
+      "name": "Test Sector Alpha",
+      "owner": "argon",
+      "zones": []
+    },
+    {
+      "connectionID": "cluster_01_sector002",
+      "componentID": "sector_002",
+      "name": "Test Sector Beta",
+      "owner": "player",
+      "zones": []
+    }
+  ]
+}

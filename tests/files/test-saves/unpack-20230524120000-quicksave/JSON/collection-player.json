@@ -1,0 +1,18 @@
+{
+  "player": [
+    {
+      "connectionID": "connection_player",
+      "componentID": "player_001",
+      "name": "Test Player",
+      "code": "TST-PLR",
+      "blueprints": [
+        "ship_arg_s_fighter_01_a",
+        "ship_arg_m_frigate_01_a"
+      ],
+      "inventory": {
+        "energycells": 100,
+        "foodrations": 50
+      }
+    }
+  ]
+}

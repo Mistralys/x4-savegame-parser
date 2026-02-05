@@ -1,0 +1,16 @@
+{
+  "npc": [
+    {
+      "connectionID": "connection_00010",
+      "componentID": "npc_001",
+      "name": "Test Pilot Alpha",
+      "owner": "player"
+    },
+    {
+      "connectionID": "connection_00011",
+      "componentID": "npc_002",
+      "name": "Test Pilot Beta",
+      "owner": "player"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "ship": [
+    {
+      "connectionID": "connection_00001",
+      "componentID": "ship_player_01",
+      "macro": "ship_arg_s_fighter_01_a",
+      "owner": "player",
+      "code": "TST-001",
+      "name": "Test Fighter",
+      "class": "fighter"
+    },
+    {
+      "connectionID": "connection_00002",
+      "componentID": "ship_player_02",
+      "macro": "ship_arg_m_frigate_01_a",
+      "owner": "player",
+      "code": "TST-002",
+      "name": "Test Frigate",
+      "class": "frigate"
+    }
+  ]
+}

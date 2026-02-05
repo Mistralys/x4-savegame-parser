@@ -2,6 +2,8 @@ composer.phar
 /vendor/
 .phpunit.result.cache
 /tests/files/unpack*
+!/tests/files/test-saves/
+!/tests/files/test-saves/**
 /archived-saves/unpack*
 bin/X4 SaveGame Parser UI.lnk
 bin/X4 SaveGame Monitor.lnk

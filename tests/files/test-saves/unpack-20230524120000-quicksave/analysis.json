@@ -3,7 +3,7 @@
     "save-name": "quicksave",
     "save-date": "2023-05-24 12:00:00",
     "save-id": "63466219",
-    "log-cache-written": "2023-05-26 10:32:11.260950",
+    "log-cache-written": "2026-01-29 17:44:17.223216",
     "log-category-ids": [
         "misc",
         "emergency",
@@ -20,7 +20,8 @@
         "war",
         "trade",
         "reputation",
-        "tips",
-        "missions"
+        "missions",
+        "alert",
+        "tips"
     ]
 }

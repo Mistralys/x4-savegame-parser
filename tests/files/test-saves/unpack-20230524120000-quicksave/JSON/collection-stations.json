@@ -1,0 +1,24 @@
+{
+  "station": [
+    {
+      "connectionID": "connection_00003",
+      "componentID": "station_player_01",
+      "macro": "module_arg_prod_foodrations_01",
+      "owner": "player",
+      "code": "STN-001",
+      "name": "Test Station Alpha",
+      "class": "station",
+      "state": "normal"
+    },
+    {
+      "connectionID": "connection_00004",
+      "componentID": "station_player_02",
+      "macro": "module_arg_prod_wheat_01",
+      "owner": "player",
+      "code": "STN-002",
+      "name": "Test Station Beta",
+      "class": "station",
+      "state": "normal"
+    }
+  ]
+}
