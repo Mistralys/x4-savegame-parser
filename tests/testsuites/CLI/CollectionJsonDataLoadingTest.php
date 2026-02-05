@@ -426,9 +426,9 @@ class CollectionJsonDataLoadingTest extends TestCase
 
         $this->assertIsArray($data, 'Celestials collection should return an array');
         $this->assertNotEmpty($data, 'Celestials collection should not be empty');
-        $this->assertArrayHasKey('celestial', $data, 'Celestials data should have "celestial" type key');
+        $this->assertArrayHasKey('celestial-body', $data, 'Celestials data should have "celestial-body" type key');
 
-        $celestials = $data['celestial'] ?? [];
+        $celestials = $data['celestial-body'] ?? [];
         $this->assertCount(2, $celestials, 'Test data should contain exactly 2 celestial bodies');
     }
 
