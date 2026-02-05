@@ -148,8 +148,9 @@ class Config
             return FolderInfo::factory($path);
         }
 
-        // Default: create archived-saves folder in game directory
-        return FolderInfo::factory(self::getGameFolder()->getPath() . DIRECTORY_SEPARATOR . 'archived-saves');
+        // Default: create archived-saves folder in the same directory as the saves folder
+        // This places it alongside the user's savegame files, not in the game installation
+        return FolderInfo::factory(self::getSavesFolder() . DIRECTORY_SEPARATOR . 'archived-saves');
     }
 
     public static function getViewerHost() : string
