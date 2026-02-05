@@ -287,6 +287,45 @@ Core application code organized by responsibility:
 ### `/tests/`
 PHPUnit test suite with fixtures and test base classes. Includes PHPStan static analysis configuration.
 
+**Structure**:
+```
+tests/
+├── bootstrap.php                           # Test suite bootstrap
+├── classes/                                # Test base classes
+│   ├── X4LogCategoriesTestCase.php
+│   └── X4ParserTestCase.php
+├── files/                                  # Test data files
+│   ├── save-files/                         # Sample save files
+│   └── test-saves/                         # Synthetic test data (git tracked)
+│       └── unpack-20230524120000-quicksave/
+│           ├── analysis.json
+│           └── JSON/                       # 10 collection JSON files
+│               ├── collection-ships.json
+│               ├── collection-stations.json
+│               ├── collection-sectors.json
+│               ├── collection-people.json
+│               ├── collection-zones.json
+│               ├── collection-regions.json
+│               ├── collection-clusters.json
+│               ├── collection-celestial-bodies.json
+│               ├── collection-player.json
+│               └── collection-event-log.json
+├── testsuites/                             # Test suites by component
+│   ├── CLI/                                # CLI API tests (32 tests)
+│   │   ├── JsonResponseBuilderTest.php
+│   │   ├── QueryHandlerCollectionsTest.php
+│   │   └── CommandExecutionTest.php
+│   ├── Parser/                             # Parser tests
+│   └── Reader/                             # Data reader tests
+└── phpstan/                                # Static analysis
+    ├── config.neon
+    └── run-analysis
+```
+
+**Test Data**: Synthetic test save with minimal JSON data committed to git. Tests run without requiring game installation or save extraction.
+
+**Coverage**: ~40% for CLI components, includes collection loading, filtering, pagination, caching, and error handling.
+
 ### `/docs/agents/project-manifest/`
 AI agent "Source of Truth" documentation (this directory).
 
@@ -300,14 +339,33 @@ Composer-managed third-party dependencies. Key dependency is `mistralys/x4-core`
 
 These directories are created at runtime and typically gitignored:
 
+### Extracted Savegame Data
+
+**Location**: `{savesFolder}/unpack-{datetime}-{name}/`
+
+**Important**: Extracted saves are stored in the **game's saves folder** (configured in `config.json`), NOT in the project directory.
+
+**Example** (based on typical config):
 ```
-storage/                          # Parsed savegame data (user-configurable)
-  └── unpack-{datetime}-{name}/
-      ├── analysis.json
-      ├── backup.gz
-      ├── JSON/                   # Parsed data files
-      └── XML/                    # Temporary fragments (optional)
+C:\Users\{username}\Documents\Egosoft\X4\{playerID}\save\
+  └── unpack-20260112062240-quicksave/
+      ├── analysis.json          # Save metadata
+      ├── backup.gz              # Original save backup
+      ├── JSON/                  # Parsed data files
+      │   ├── collection-ships.json
+      │   ├── collection-stations.json
+      │   ├── data-blueprints.json
+      │   └── ...
+      └── XML/                   # Temporary fragments (optional, deleted after parse)
 ```
+
+**Note**: Test saves in `tests/files/test-saves/` use the same structure but are synthetic data committed to git.
+
+### Archived Saves
+
+**Location**: `{gameFolder}/archived-saves/` (user-configurable)
+
+Stores older extracted save versions when saves are re-extracted.
 
 ## Configuration Files
 

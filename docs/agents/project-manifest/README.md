@@ -235,6 +235,27 @@ This manifest was created on **2026-01-29** as a comprehensive "Source of Truth"
   - Included in Monitor NDJSON `SAVE_PARSING_COMPLETE` event payload
   - Returns `null` for saves extracted before this feature
   - Documented in NDJSON Interface and CLI API Reference
+- 2026-02-05: CLI API bug fixes and comprehensive test implementation
+  - **Bug Fixes** (4 critical issues resolved):
+    - Fixed empty universe collections (ships, stations, sectors, people) - changed from `toArray()` to `loadData()` with data flattening
+    - Fixed missing `registerUnknownBlueprint()` method - now creates `UnknownBlueprint` instances directly for mod support
+    - Added missing `getZoneName()` and `getName()` methods to `KhaakStation` class
+    - Added inventory data structure safety checks to prevent array key warnings
+  - **Test Coverage** (32 new tests added):
+    - Created `QueryHandlerCollectionsTest.php` (14 tests) - collection data loading, flattening, blueprints, khaak stations, inventory
+    - Created `CommandExecutionTest.php` (18 tests) - command execution, error handling, filtering, pagination, caching
+    - Test coverage improved from ~5% to ~40% for CLI components
+  - **Test Data Infrastructure**:
+    - Created synthetic test save data in `tests/files/test-saves/unpack-20230524120000-quicksave/`
+    - 10 collection JSON files with minimal synthetic data (ships, stations, sectors, people, zones, regions, clusters, celestials, player, event-log)
+    - Updated `.gitignore` to explicitly include test-saves directory
+    - Tests run without requiring full game installation or save extraction
+  - **Documentation**:
+    - `BUG_FIXES_SUMMARY.md` - Complete bug fix documentation
+    - `TESTS_IMPLEMENTATION_SUMMARY.md` - Test infrastructure details
+    - `EXTRACTED_SAVE_LOCATION.md` - Confirmed storage location: `{savesFolder}/unpack-{datetime}-{savename}/`
+    - `GIT_TEST_SAVE_INTEGRATION.md` - Git tracking configuration
+  - **x4-core Package Issue**: Identified missing cache directory issue (requires investigation in vendor package)
 
 ---
 

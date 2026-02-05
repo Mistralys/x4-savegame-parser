@@ -47,6 +47,33 @@
 - **phpunit/phpunit** (>=9.6.7) - Unit testing framework
 - **phpstan/phpstan** (>=1.10) - Static analysis
 
+## Testing Strategy
+
+### Test Framework
+- **PHPUnit** for unit and integration tests
+- **PHPStan** for static analysis (level 8)
+
+### Test Data Approach
+- **Synthetic Test Data**: Minimal JSON files committed to git
+- **Location**: `tests/files/test-saves/unpack-20230524120000-quicksave/`
+- **Collections**: 10 complete collection JSON files with 2 items each
+- **Benefit**: Tests run without game installation or save extraction
+
+### Test Coverage
+- **CLI API Tests**: 32 tests covering QueryHandler, collections, filtering, pagination, caching
+- **Current Coverage**: ~40% for CLI components
+- **Test Suites**:
+  - `tests/testsuites/CLI/` - CLI API functionality
+  - `tests/testsuites/Parser/` - Parser components
+  - `tests/testsuites/Reader/` - Data readers
+
+### Running Tests
+```bash
+vendor/bin/phpunit                              # Run all tests
+vendor/bin/phpunit tests/testsuites/CLI/        # Run CLI tests only
+vendor/bin/phpunit --testdox                    # Run with documentation
+```
+
 ## Architectural Patterns
 
 ### 1. Collections Pattern
