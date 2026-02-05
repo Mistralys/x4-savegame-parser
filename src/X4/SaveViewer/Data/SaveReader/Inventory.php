@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Data\SaveReader;
 
-use Mistralys\X4\SaveViewer\Parser\Tags\Tag\PlayerComponentTag;
+use Mistralys\X4\SaveViewer\Parser\Types\PlayerType;
 
 class Inventory extends Info
 {
@@ -13,20 +13,18 @@ class Inventory extends Info
      */
     private array $wares = array();
 
-    protected function getAutoDataName(): string
-    {
-        return PlayerComponentTag::SAVE_NAME;
-    }
-
     protected function init(): void
     {
-        // Safety check: ensure inventory data exists and is an array
-        if(!isset($this->data[PlayerComponentTag::KEY_INVENTORY]) || !is_array($this->data[PlayerComponentTag::KEY_INVENTORY])) {
+        // Load player data from collection
+        $data = $this->collections->player()->loadData();
+
+        // Safety check: ensure wares data exists and is an array
+        if(!isset($data[PlayerType::KEY_WARES]) || !is_array($data[PlayerType::KEY_WARES])) {
             $this->wares = [];
             return;
         }
 
-        foreach($this->data[PlayerComponentTag::KEY_INVENTORY] as $name => $amount) {
+        foreach($data[PlayerType::KEY_WARES] as $name => $amount) {
             $this->wares[] = new Ware($name, intval($amount));
         }
 
