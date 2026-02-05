@@ -12,3 +12,4 @@ bin/X4 SaveGame Monitor.lnk
 .idea/copilot.data.migration.edit.xml
 tests/phpstan/result.txt
 config.json
+/tests/files/reference-savegame
