@@ -141,7 +141,15 @@ class Config
 
     public static function getStorageFolder() : FolderInfo
     {
-        return FolderInfo::factory(self::getGameFolder()->getPath().PATH_SEPARATOR.'/archived-saves');
+        // Check if storageFolder is explicitly set in config
+        $path = self::getString(self::KEY_STORAGE_FOLDER);
+
+        if(!empty($path)) {
+            return FolderInfo::factory($path);
+        }
+
+        // Default: create archived-saves folder in game directory
+        return FolderInfo::factory(self::getGameFolder()->getPath() . DIRECTORY_SEPARATOR . 'archived-saves');
     }
 
     public static function getViewerHost() : string
