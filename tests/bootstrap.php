@@ -11,7 +11,7 @@ Config::setForTests(array());
 
 Config::setGameFolder(__DIR__.'/files');
 Config::setSavesFolder(__DIR__.'/files');
-Config::setStorageFolder(__DIR__.'/files');
+Config::setStorageFolder(__DIR__.'/files/test-saves');
 Config::setTestSuiteEnabled(true);
 
 // For the AppUtils library test suite
