@@ -48,6 +48,7 @@ class QueryHandler
     public const string COMMAND_CLEAR_CACHE = 'clear-cache';
     public const string COMMAND_LIST_SAVES = 'list-saves';
     public const string COMMAND_QUEUE_EXTRACTION = 'queue-extraction';
+    public const string COMMAND_LIST_PATHS = 'list-paths';
 
     private SaveManager $manager;
     private QueryCache $cache;
@@ -191,6 +192,11 @@ class QueryHandler
 
         if ($command === self::COMMAND_QUEUE_EXTRACTION) {
             $this->execute_queueExtraction();
+            return;
+        }
+
+        if ($command === self::COMMAND_LIST_PATHS) {
+            $this->execute_listPaths();
             return;
         }
 
@@ -538,6 +544,29 @@ class QueryHandler
         }
 
         $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, $result);
+    }
+
+    private function execute_listPaths(): void
+    {
+        $savesFolder = $this->manager->getSavesFolder();
+        $storageFolder = $this->manager->getStorageFolder();
+
+        $result = [
+            'savesFolder' => [
+                'path' => $savesFolder->getPath(),
+                'exists' => $savesFolder->exists(),
+                'description' => 'X4 savegame folder (where .gz files are stored)'
+            ],
+            'storageFolder' => [
+                'path' => $storageFolder->getPath(),
+                'exists' => $storageFolder->exists(),
+                'description' => 'Extraction storage folder (where unpacked saves are stored)'
+            ],
+            'extractionPattern' => 'unpack-{datetime}-{savename}',
+            'message' => 'Current path configuration'
+        ];
+
+        $this->outputSuccess(self::COMMAND_LIST_PATHS, $result);
     }
 
     // endregion
