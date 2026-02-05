@@ -137,6 +137,22 @@ audit.
 
 ---
 
+### 8. [Extracted Save Location](./08-extracted-save-location.md)
+**Purpose**: Comprehensive guide to where extracted savegame data is stored.
+
+**Contents**:
+- Default storage location: `{gameFolder}/archived-saves/`
+- Custom storage configuration via `storageFolder` config key
+- Folder naming conventions: `unpack-{datetime}-{savename}`
+- Directory structure details (JSON/, XML/, .cache/, analysis.json, backup.gz)
+- Methods for finding extracted data
+- Common issues and troubleshooting
+- Configuration reference for storage-related settings
+
+**When to read**: When setting up the project, troubleshooting extraction issues, or customizing storage locations.
+
+---
+
 ## Document Relationships
 
 ```
@@ -153,7 +169,8 @@ Start Here
 [05-constraints-and-rules.md] ← "Why" are things done this way
     ↓
     ├─→ [ndjson-interface.md] ← Specialized: Monitor protocol
-    └─→ [07-cli-api-reference.md] ← Specialized: CLI Query API
+    ├─→ [07-cli-api-reference.md] ← Specialized: CLI Query API
+    └─→ [08-extracted-save-location.md] ← Specialized: Storage configuration
 ```
 
 ---
@@ -169,6 +186,7 @@ Start Here
 5. **Specialized Features**: 
    - Refer to document 6 (NDJSON) for monitor integration
    - Refer to document 7 (CLI API) for query interface integration
+   - Refer to document 8 (Storage) for extraction and storage configuration
 
 ### For Human Developers
 
@@ -179,6 +197,7 @@ Start Here
 5. **Integration**: 
    - Read document 6 (NDJSON) when building monitor consumers
    - Read document 7 (CLI API) when building query-based applications
+   - Read document 8 (Storage) when setting up or troubleshooting extraction
 
 ### For Documentation Updates
 
@@ -253,9 +272,15 @@ This manifest was created on **2026-01-29** as a comprehensive "Source of Truth"
   - **Documentation**:
     - `BUG_FIXES_SUMMARY.md` - Complete bug fix documentation
     - `TESTS_IMPLEMENTATION_SUMMARY.md` - Test infrastructure details
-    - `EXTRACTED_SAVE_LOCATION.md` - Confirmed storage location: `{savesFolder}/unpack-{datetime}-{savename}/`
+    - `08-extracted-save-location.md` - Confirmed storage location: `{savesFolder}/unpack-{datetime}-{savename}/`
     - `GIT_TEST_SAVE_INTEGRATION.md` - Git tracking configuration
   - **x4-core Package Issue**: Identified missing cache directory issue (requires investigation in vendor package)
+- 2026-02-05: Fixed critical storage folder bug
+  - **Bug**: `Config::getStorageFolder()` used `PATH_SEPARATOR` (`;` on Windows) instead of `DIRECTORY_SEPARATOR` (`\`)
+  - **Impact**: Created malformed paths preventing savegame extraction from working
+  - **Fix**: Now checks if `storageFolder` is explicitly set in config.json first, then uses `DIRECTORY_SEPARATOR` for default path
+  - **Default storage**: `{gameFolder}/archived-saves/unpack-{datetime}-{savename}/`
+  - **Documentation**: Created comprehensive document 8: `08-extracted-save-location.md` guide as integral part of project manifest
 
 ---
 

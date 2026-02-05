@@ -368,6 +368,8 @@ command line. This is mainly used for debugging purposes when developing.
 
 ## Navigating savegame data
 
+> **📖 For comprehensive details**, see the [Extracted Save Location](./docs/agents/project-manifest/08-extracted-save-location.md) documentation.
+
 ### Archive folders
 
 The extraction process creates a folder for each savegame
