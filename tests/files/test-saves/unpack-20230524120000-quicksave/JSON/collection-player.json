@@ -10,20 +10,12 @@
                 "energycells": 100,
                 "foodrations": 50
             },
-            "blueprints": {
-                "ship": [
-                    "ship_arg_s_fighter_01_a",
-                    "ship_arg_m_frigate_01_a"
-                ],
-                "engine": [
-                    "engine_arg_s_allround_01_mk1"
-                ],
-                "weapon": [
-                    "weapon_arg_laser_01_mk1"
-                ]
-            },
-            "knownspaces": [],
-            "trackedmenu": []
+            "blueprints": [
+                "ship_arg_s_fighter_01_a",
+                "ship_arg_m_frigate_01_a",
+                "engine_arg_s_allround_01_mk1",
+                "weapon_arg_laser_01_mk1"
+            ]
         }
     ]
 }

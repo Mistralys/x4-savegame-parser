@@ -3,12 +3,33 @@
         {
             "connectionID": "cluster_409_connection",
             "componentID": "[0x581a]",
-            "parentComponent": ""
+            "parentComponent": "",
+            "code": "CMN-669",
+            "name": "",
+            "sectors": [
+                "sector:[0x581d]"
+            ],
+            "regions": [
+                "region:[0x2001]"
+            ],
+            "celestials": [
+                "celestial-body:[0x1001]",
+                "celestial-body:[0x1002]"
+            ]
         },
         {
             "connectionID": "cluster_43_connection",
             "componentID": "[0x68d2]",
-            "parentComponent": ""
+            "parentComponent": "",
+            "code": "ROM-434",
+            "name": "",
+            "sectors": [
+                "sector:[0x68d7]"
+            ],
+            "regions": [
+                "region:[0x2002]"
+            ],
+            "celestials": []
         }
     ]
 }

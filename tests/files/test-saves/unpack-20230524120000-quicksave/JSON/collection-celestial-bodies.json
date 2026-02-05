@@ -1,20 +1,14 @@
 {
-    "celestial": [
+    "celestial-body": [
         {
             "connectionID": "cluster_01_sector001_planet01_connection",
             "componentID": "[0x1001]",
-            "parentComponent": "sector:[0x581d]",
-            "name": "Test Planet Alpha",
-            "class": "planet",
-            "owner": "argon"
+            "parentComponent": "sector:[0x581d]"
         },
         {
             "connectionID": "cluster_01_sector001_sun_connection",
             "componentID": "[0x1002]",
-            "parentComponent": "sector:[0x581d]",
-            "name": "",
-            "class": "sun",
-            "owner": ""
+            "parentComponent": "sector:[0x581d]"
         }
     ]
 }

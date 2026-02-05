@@ -8,6 +8,10 @@
             "stations": [
                 "station:[0x5986]",
                 "station:[0x59ba]"
+            ],
+            "ships": [
+                "ship:[0x5a730]",
+                "ship:[0x244b3]"
             ]
         },
         {
@@ -15,7 +19,8 @@
             "componentID": "[0x68da]",
             "parentComponent": "sector:[0x68d7]",
             "code": "",
-            "stations": []
+            "stations": [],
+            "ships": []
         }
     ]
 }
