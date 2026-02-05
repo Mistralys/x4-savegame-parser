@@ -212,6 +212,7 @@ This is the recommended way to integrate with external applications.
 
 **Special Commands**:
 - `list-saves` - List all available saves (main and archived)
+- `list-paths` - Display configured paths (savesFolder, storageFolder)
 - `queue-extraction` - Queue saves for automatic extraction by monitor
 - `clear-cache` - Remove all cached query results
 

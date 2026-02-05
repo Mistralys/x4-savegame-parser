@@ -11,23 +11,27 @@ When you extract a savegame using `./bin/extract`, the parsed data is stored in 
 By default, extracted savegames are stored in:
 
 ```
-{gameFolder}/archived-saves/unpack-{datetime}-{savename}/
+{savesFolder}/../archived-saves/unpack-{datetime}-{savename}/
 ```
+
+This places the extracted data alongside your save files in the user's X4 folder, **not** in the game installation directory.
 
 **Example** (based on typical Windows installation):
 ```
-C:\Steam\steamapps\common\X4 Foundations\archived-saves\
-  └── unpack-20260112062240-quicksave/
-      ├── analysis.json          # Save metadata
-      ├── backup.gz              # Original save backup (if enabled)
-      ├── .cache/                # Query result cache (hidden)
-      │   └── query-{key}.json
-      ├── JSON/                  # Parsed data files
-      │   ├── collection-ships.json
-      │   ├── collection-stations.json
-      │   ├── collection-sectors.json
-      │   ├── collection-people.json
-      │   ├── data-blueprints.json
+C:\Users\{username}\Documents\Egosoft\X4\{player-id}\
+  ├── save/                      # Your .gz savegame files
+  └── archived-saves/            # Extracted savegame data
+      └── unpack-20260112062240-quicksave/
+          ├── analysis.json          # Save metadata
+          ├── backup.gz              # Original save backup (if enabled)
+          ├── .cache/                # Query result cache (hidden)
+          │   └── query-{key}.json
+          ├── JSON/                  # Parsed data files
+          │   ├── collection-ships.json
+          │   ├── collection-stations.json
+          │   ├── collection-sectors.json
+          │   ├── collection-people.json
+          │   ├── data-blueprints.json
       │   ├── data-event-log.json
       │   ├── data-factions.json
       │   ├── data-statistics.json
@@ -95,11 +99,14 @@ This is particularly useful when used with the **Monitor** feature, which automa
 ### Method 1: Check Configuration
 
 1. Open your `config.json` file
-2. Look for the `gameFolder` value (e.g., `C:\\Steam\\steamapps\\common\\X4 Foundations`)
-3. Check if `storageFolder` is set:
+2. Check if `storageFolder` is set:
    - **If set**: Use that path directly
-   - **If not set**: Append `\archived-saves` to the `gameFolder` path
-4. Look for folders starting with `unpack-` in that location
+   - **If not set**: Look for the `savesFolder` value, then use its parent directory + `\archived-saves`
+     - Example: If `savesFolder` is `C:\Users\{username}\Documents\Egosoft\X4\{player-id}\save`
+     - Then storage is: `C:\Users\{username}\Documents\Egosoft\X4\{player-id}\archived-saves`
+3. Look for folders starting with `unpack-` in that location
+
+**Note**: The default behavior places extracted data in your user's X4 folder, **not** the game installation directory.
 
 ### Method 2: Run Extraction with Output
 

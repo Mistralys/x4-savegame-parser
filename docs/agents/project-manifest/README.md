@@ -281,6 +281,19 @@ This manifest was created on **2026-01-29** as a comprehensive "Source of Truth"
   - **Fix**: Now checks if `storageFolder` is explicitly set in config.json first, then uses `DIRECTORY_SEPARATOR` for default path
   - **Default storage**: `{gameFolder}/archived-saves/unpack-{datetime}-{savename}/`
   - **Documentation**: Created comprehensive document 8: `08-extracted-save-location.md` guide as integral part of project manifest
+- 2026-02-05: Added `list-paths` CLI command
+  - New query command to display all configured paths (savesFolder, storageFolder)
+  - Shows path existence status and extraction pattern
+  - Useful for troubleshooting configuration and verifying setup
+  - Does not require `--save` parameter
+  - Documented in CLI API Reference (document 7)
+- 2026-02-05: Changed default storageFolder behavior
+  - **Previous behavior**: Defaulted to `{gameFolder}/archived-saves` (game installation directory)
+  - **New behavior**: Defaults to `{savesFolder}/../archived-saves` (user's X4 folder, alongside save files)
+  - **Rationale**: Keeps user data separate from game installation, better for permissions and upgrades
+  - **Example**: If saves are in `C:\Users\{user}\Documents\Egosoft\X4\{id}\save`, extracted data goes to `C:\Users\{user}\Documents\Egosoft\X4\{id}\archived-saves`
+  - Can still be overridden by explicitly setting `storageFolder` in config.json
+  - Updated document 8 to reflect new default behavior
 
 ---
 

@@ -697,15 +697,23 @@ $port = Config::getViewerPort();
 
 ### Derived Paths
 
-**Rule**: `savesFolder` and `storageFolder` are **derived** from `gameFolder` unless explicitly set
+**Rule**: `savesFolder` and `storageFolder` are **derived** unless explicitly set
 
 **Calculation**:
-- `savesFolder` = `{gameFolder}/save/`
-- `storageFolder` = Application decides (typically in project root or user-specified)
+- `savesFolder` = `{gameFolder}/save/` (if not explicitly set)
+- `storageFolder` = `{savesFolder}/../archived-saves/` (if not explicitly set)
+  - This places extracted data alongside the user's save files, not in the game installation
 
 **Impact**:
 - User only needs to set `gameFolder` in most cases
+- Extracted saves go to user's X4 folder by default (better for permissions and upgrades)
 - Can override `savesFolder` and `storageFolder` if needed
+
+**Example**:
+- If `gameFolder` = `C:\Steam\steamapps\common\X4 Foundations`
+- And `savesFolder` is not set, it becomes: `C:\Steam\steamapps\common\X4 Foundations\save`
+- But if `savesFolder` = `C:\Users\{user}\Documents\Egosoft\X4\{id}\save`
+- Then `storageFolder` defaults to: `C:\Users\{user}\Documents\Egosoft\X4\{id}\archived-saves`
 
 ---
 

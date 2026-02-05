@@ -597,6 +597,43 @@ bin/query clear-cache
 
 ---
 
+#### `list-paths`
+Lists all configured paths used by the system, including the savegame folder and extraction storage folder.
+
+```bash
+bin/query list-paths
+```
+
+**No `--save` flag required**.
+
+**Response**:
+```json
+{
+  "success": true,
+  "version": "0.1.0",
+  "command": "list-paths",
+  "timestamp": "2026-02-05T19:20:59+00:00",
+  "data": {
+    "savesFolder": {
+      "path": "C:/Users/username/Documents/Egosoft/X4/12345678/save",
+      "exists": true,
+      "description": "X4 savegame folder (where .gz files are stored)"
+    },
+    "storageFolder": {
+      "path": "C:/Games/X4/archived-saves",
+      "exists": true,
+      "description": "Extraction storage folder (where unpacked saves are stored)"
+    },
+    "extractionPattern": "unpack-{datetime}-{savename}",
+    "message": "Current path configuration"
+  }
+}
+```
+
+**Use Case**: Useful for verifying configuration, troubleshooting extraction issues, or displaying paths in a launcher UI.
+
+---
+
 ## JMESPath Query Language
 
 The CLI API uses [JMESPath](https://jmespath.org/) for filtering and transforming data. This section documents the supported subset.
