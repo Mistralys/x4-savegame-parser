@@ -26,9 +26,9 @@
     ]
   },
   "require": {
-    "mistralys/x4-core": ">=1.2.0",
-    "mistralys/version-parser": ">=1.0.0",
-    "mistralys/application-localization": ">=1.4.1",
+    "mistralys/x4-core": ">=1.2.1",
+    "mistralys/version-parser": ">=2.1.1",
+    "mistralys/application-localization": ">=2.1.2",
     "react/http": ">=v1.9.0",
     "react/async": ">=v3.0.0",
     "league/climate": "^3.8.2",
@@ -38,8 +38,8 @@
     "ext-dom": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": ">=9.6.7",
-    "phpstan/phpstan": ">=1.10",
+    "phpunit/phpunit": ">=12.5",
+    "phpstan/phpstan": ">=2.1",
     "roave/security-advisories": "dev-latest",
     "ext-zlib": "*"
   }
