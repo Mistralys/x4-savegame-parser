@@ -262,6 +262,39 @@ The `--filter` flag accepts [JMESPath](https://jmespath.org/) expressions for po
 ./bin/query ships --save=quicksave --filter="[?faction=='argon'].{name: name, sector: sector}"
 ```
 
+#### Case-Insensitive Searching
+
+Use case-insensitive functions for flexible text matching:
+
+```bash
+# Find ships by name (case-insensitive)
+./bin/query ships --save=quicksave --filter="[?contains_i(name, 'scout')]"
+
+# Combine with other filters
+./bin/query ships --save=quicksave --filter="[?faction=='argon' && contains_i(name, 'scout')]"
+
+# Using to_lower() with standard contains()
+./bin/query ships --save=quicksave --filter="[?contains(to_lower(name), 'ares')]"
+
+# Find stations containing 'trading' (any case)
+./bin/query stations --save=quicksave --filter="[?contains_i(name, 'trading')]"
+```
+
+**Performance tip:** For large datasets, filter by exact matches first:
+
+```bash
+# Optimal - filter faction first, then case-insensitive search
+./bin/query ships --save=quicksave --filter="[?faction=='argon'] | [?contains_i(name, 'scout')]"
+```
+
+**Available case-insensitive functions:**
+- `to_lower(string)` - Convert to lowercase
+- `to_upper(string)` - Convert to uppercase
+- `trim(string)` - Remove whitespace
+- `contains_i(haystack, needle)` - Case-insensitive contains
+- `starts_with_i(string, prefix)` - Case-insensitive starts with
+- `ends_with_i(string, suffix)` - Case-insensitive ends with
+
 #### Pagination
 
 Use `--limit` and `--offset` for pagination, with `--cache-key` for performance:
