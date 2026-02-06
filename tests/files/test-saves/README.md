@@ -5,7 +5,7 @@ This directory contains minimal test save data for automated testing of the CLI 
 ## Structure
 
 ```
-unpack-20230524120000-quicksave/
+unpack-20260206211435-quicksave/
 ├── analysis.json          # Save metadata
 └── JSON/
     ├── collection-ships.json
@@ -24,7 +24,9 @@ These files provide minimal test data that allows the test suite to run without 
 
 ## Test Save Details
 
-- **Save Name**: `unpack-20230524120000-quicksave`
+- **Folder Name**: `unpack-20260206211435-quicksave`
+- **Save Name**: `quicksave`
+- **Save ID**: `63466219`
 - **Format**: Standard X4 Savegame Parser JSON output
 - **Contents**:
   - 2 test ships
@@ -37,10 +39,10 @@ These files provide minimal test data that allows the test suite to run without 
 
 ## Usage in Tests
 
-Tests use the `TEST_SAVE_NAME` constant to reference this save:
+Tests use the `TEST_SAVE_NAME` constant to reference this save by its save name (not the folder name):
 
 ```php
-private const TEST_SAVE_NAME = 'unpack-20230524120000-quicksave';
+private const TEST_SAVE_NAME = 'quicksave';
 ```
 
 Tests automatically skip if this save is not available, but with these files committed to git, all tests should run successfully.
@@ -49,7 +51,7 @@ Tests automatically skip if this save is not available, but with these files com
 
 If additional test data is needed:
 
-1. Extract a real save: `bin/extract -e quicksave`
+1. Extract a real save: ` php  .\tests\extract-test-save.php`
 2. Copy needed JSON files from the extraction
 3. Minimize the data (keep only essential records)
 4. Add to this directory
