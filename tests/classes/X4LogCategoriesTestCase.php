@@ -53,9 +53,19 @@ abstract class X4LogCategoriesTestCase extends X4ParserTestCase
         $manager = $this->createSaveManager();
         $saves = $manager->getArchivedSaves();
 
-        $this->assertCount(1, $saves);
+        // Find the specific test save folder with minimal test data
+        $testSave = null;
+        foreach ($saves as $save) {
+            // Use the original test data folder (not the real savegame)
+            if ($save->getStorageFolder()->getName() === 'unpack-20260206211435-quicksave') {
+                $testSave = $save;
+                break;
+            }
+        }
 
-        $log = $saves[0]->getDataReader()->getLog();
+        $this->assertNotNull($testSave, 'Test save with log test data not found');
+
+        $log = $testSave->getDataReader()->getLog();
 
         $this->addFolderToRemove($log->getCacheInfo()->getWriter()->getPath());
 

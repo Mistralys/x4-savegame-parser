@@ -27,6 +27,8 @@ abstract class X4ParserTestCase extends TestCase implements DebuggableInterface
     {
         parent::setUp();
 
+        Config::setTestSuiteEnabled(true);
+
         $this->filesFolder = __DIR__.'/../files';
         $this->saveGameFile = __DIR__.'/../files/quicksave.xml';
         $this->foldersCleanup = array();

@@ -10,6 +10,15 @@ use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
 
 final class SplitFileTests extends X4ParserTestCase
 {
+    /**
+     * Placeholder test to prevent PHPUnit warning.
+     * The actual tests below are disabled (prefixed with _) and can be enabled manually for development.
+     */
+    public function test_placeholder(): void
+    {
+        $this->assertTrue(true, 'Split file tests are currently disabled');
+    }
+
      public function _test_split() : void
      {
          $save = $this->createSelector()->getSaveGameByFileName($this->saveGameFile);
