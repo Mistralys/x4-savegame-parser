@@ -522,4 +522,266 @@ class CommandExecutionTest extends TestCase
         $this->assertTrue($json['success'] ?? false, 'clear-cache should succeed');
         $this->assertArrayHasKey('cleared', $json['data'] ?? [], 'Response should include cleared count');
     }
+
+    // =========================================================================
+    // Test: Custom JMESPath Functions - Case-Insensitive Search
+    // =========================================================================
+
+    public function test_queryCommand_withContainsICaseInsensitive(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Search for ships with 'scout' in name (case-insensitive)
+            $this->simulateCLIArguments([
+                'ships',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?contains_i(name, \'scout\')]',
+                '--limit=5'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify all results contain 'scout' (case-insensitive)
+        foreach ($json['data'] as $ship) {
+            $this->assertIsArray($ship);
+            $this->assertArrayHasKey('name', $ship);
+            $name = strtolower($ship['name']);
+            $this->assertStringContainsString('scout', $name,
+                "Ship name '{$ship['name']}' should contain 'scout' (case-insensitive)");
+        }
+    }
+
+    public function test_queryCommand_withStartsWithICaseInsensitive(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Search for ships starting with 'argon' (case-insensitive)
+            $this->simulateCLIArguments([
+                'ships',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?starts_with_i(name, \'argon\')]',
+                '--limit=5'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify all results start with 'argon' (case-insensitive)
+        foreach ($json['data'] as $ship) {
+            $this->assertIsArray($ship);
+            $this->assertArrayHasKey('name', $ship);
+            $name = strtolower($ship['name']);
+            $this->assertStringStartsWith('argon', $name,
+                "Ship name '{$ship['name']}' should start with 'argon' (case-insensitive)");
+        }
+    }
+
+    public function test_queryCommand_withEndsWithICaseInsensitive(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Search for ships ending with 'mk2' (case-insensitive)
+            $this->simulateCLIArguments([
+                'ships',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?ends_with_i(name, \'mk2\')]',
+                '--limit=5'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify all results end with 'mk2' (case-insensitive)
+        foreach ($json['data'] as $ship) {
+            $this->assertIsArray($ship);
+            $this->assertArrayHasKey('name', $ship);
+            $name = strtolower($ship['name']);
+            $this->assertStringEndsWith('mk2', $name,
+                "Ship name '{$ship['name']}' should end with 'mk2' (case-insensitive)");
+        }
+    }
+
+    public function test_queryCommand_withToLowerAndContains(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Use to_lower() with standard contains() for case-insensitive search
+            $this->simulateCLIArguments([
+                'ships',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?contains(to_lower(name), \'fighter\')]',
+                '--limit=5'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify all results contain 'fighter'
+        foreach ($json['data'] as $ship) {
+            $this->assertIsArray($ship);
+            $this->assertArrayHasKey('name', $ship);
+            $name = strtolower($ship['name']);
+            $this->assertStringContainsString('fighter', $name,
+                "Ship name '{$ship['name']}' should contain 'fighter'");
+        }
+    }
+
+    public function test_queryCommand_withChainedFiltersPerformancePattern(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Performance pattern: filter by faction first, then case-insensitive search
+            $this->simulateCLIArguments([
+                'ships',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?faction==\'argon\'] | [?contains_i(name, \'scout\')]',
+                '--limit=10'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify all results are Argon ships with 'scout' in name
+        foreach ($json['data'] as $ship) {
+            $this->assertIsArray($ship);
+            $this->assertArrayHasKey('name', $ship);
+            $this->assertArrayHasKey('faction', $ship);
+            $this->assertSame('argon', $ship['faction'],
+                "Ship should be from Argon faction");
+            $name = strtolower($ship['name']);
+            $this->assertStringContainsString('scout', $name,
+                "Ship name '{$ship['name']}' should contain 'scout'");
+        }
+    }
+
+    public function test_queryCommand_withMultipleCaseInsensitiveConditions(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Multiple case-insensitive conditions combined
+            $this->simulateCLIArguments([
+                'ships',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?starts_with_i(name, \'argon\') && contains_i(name, \'scout\')]',
+                '--limit=5'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify all results start with 'argon' AND contain 'scout'
+        foreach ($json['data'] as $ship) {
+            $this->assertIsArray($ship);
+            $this->assertArrayHasKey('name', $ship);
+            $name = strtolower($ship['name']);
+            $this->assertStringStartsWith('argon', $name,
+                "Ship name '{$ship['name']}' should start with 'argon'");
+            $this->assertStringContainsString('scout', $name,
+                "Ship name '{$ship['name']}' should contain 'scout'");
+        }
+    }
+
+    public function test_queryCommand_withStationsCommand(): void
+    {
+        $save = $this->getTestSave();
+
+        ob_start();
+
+        try {
+            // Test case-insensitive search with stations command
+            $this->simulateCLIArguments([
+                'stations',
+                '--save=' . self::TEST_SAVE_NAME,
+                '--filter=[?contains_i(name, \'trading\')]',
+                '--limit=5'
+            ]);
+            $this->handler->handle();
+            $output = ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        $json = json_decode($output, true);
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false);
+        $this->assertIsArray($json['data'] ?? null);
+
+        // Verify results contain 'trading' (case-insensitive)
+        foreach ($json['data'] as $station) {
+            $this->assertIsArray($station);
+            $this->assertArrayHasKey('name', $station);
+            $name = strtolower($station['name']);
+            $this->assertStringContainsString('trading', $name,
+                "Station name '{$station['name']}' should contain 'trading'");
+        }
+    }
 }
+

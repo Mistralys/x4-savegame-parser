@@ -9,8 +9,10 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\CLI;
 
+use JmesPath\AstRuntime;
 use JmesPath\Env as JmesPath;
 use League\CLImate\CLImate;
+use Mistralys\X4\SaveViewer\CLI\JMESPath\CustomFnDispatcher;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 
@@ -638,7 +640,10 @@ class QueryHandler
     }
 
     /**
-     * Apply a JMESPath filter to data.
+     * Apply a JMESPath filter to data using custom function dispatcher.
+     *
+     * Uses a custom AstRuntime with extended functions for case-insensitive
+     * searching (to_lower, to_upper, contains_i, starts_with_i, ends_with_i).
      *
      * Note: JmesPath\SyntaxErrorException is allowed to bubble up
      * and will be caught by the global exception handler.
@@ -649,7 +654,8 @@ class QueryHandler
      */
     private function applyFilter(array $data, string $filter): array
     {
-        $result = JmesPath::search($filter, $data);
+        $runtime = new AstRuntime(null, new CustomFnDispatcher());
+        $result = $runtime($filter, $data);
 
         // Ensure we always return an array
         if (!is_array($result)) {
