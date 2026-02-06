@@ -151,8 +151,6 @@ audit.
 
 **When to read**: When setting up the project, troubleshooting extraction issues, or customizing storage locations.
 
----
-
 ## Document Relationships
 
 ```
@@ -187,17 +185,6 @@ Start Here
    - Refer to document 6 (NDJSON) for monitor integration
    - Refer to document 7 (CLI API) for query interface integration
    - Refer to document 8 (Storage) for extraction and storage configuration
-
-### For Human Developers
-
-1. **Onboarding**: Read documents in order (1 → 2 → 3 → 4 → 5)
-2. **Quick Reference**: Bookmark document 3 for daily API lookups
-3. **Debugging**: Use document 4 to understand data transformations
-4. **Architecture Decisions**: Consult document 5 before major changes
-5. **Integration**: 
-   - Read document 6 (NDJSON) when building monitor consumers
-   - Read document 7 (CLI API) when building query-based applications
-   - Read document 8 (Storage) when setting up or troubleshooting extraction
 
 ### For Documentation Updates
 
