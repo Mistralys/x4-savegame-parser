@@ -12,6 +12,10 @@ namespace Mistralys\X4\SaveViewer;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper_Exception;
+use Mistralys\X4\SaveViewer\CLI\QueryCache;
+use Mistralys\X4\SaveViewer\Data\ArchivedSave;
+use Mistralys\X4\SaveViewer\Data\SaveManager;
+use Mistralys\X4\SaveViewer\Data\SaveReader;
 use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\FileAnalysis;
 use Mistralys\X4\SaveViewer\Parser\Fragment\ClusterConnectionFragment;
@@ -104,6 +108,93 @@ class SaveParser extends BaseXMLParser
     public function getCollections() : Collections
     {
         return $this->collections;
+    }
+
+    /**
+     * Override to add log analysis cache generation after data processing.
+     *
+     * @param bool $force
+     * @return $this
+     * @throws FileHelper_Exception
+     * @throws SaveViewerException
+     */
+    public function postProcessFragments(bool $force=false) : BaseXMLParser
+    {
+        // Call parent implementation
+        parent::postProcessFragments($force);
+
+        // Generate log analysis cache automatically (WP1: Logbook Performance Optimization)
+        $this->generateLogAnalysisCache();
+
+        return $this;
+    }
+
+    /**
+     * Generate log analysis cache automatically during extraction.
+     * This pre-categorizes log entries for fast CLI API queries.
+     *
+     * @return void
+     */
+    private function generateLogAnalysisCache() : void
+    {
+        // Only generate for main savegame extractions with a save file
+        if ($this->saveFile === null) {
+            return;
+        }
+
+        try {
+            // Create a temporary SaveManager and ArchivedSave to access SaveReader
+            $manager = SaveManager::createFromConfig();
+            $archivedSave = new ArchivedSave($manager, $this->analysis);
+            $reader = new SaveReader($archivedSave);
+            $log = $reader->getLog();
+
+            // Only generate if not already present
+            if (!$log->isCacheValid()) {
+                $this->log('Generating log analysis cache...');
+                $log->generateAnalysisCache();
+                $this->log('Log analysis cache generated successfully.');
+            }
+
+            // Warm query cache for fast pagination (WP4: Logbook Performance Optimization)
+            $this->warmLogQueryCache($archivedSave, $reader);
+
+        } catch (\Exception $e) {
+            // Log error but don't fail extraction
+            $this->log('Warning: Failed to generate log analysis cache: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Warm the log query cache for fast pagination.
+     * Pre-loads all log entries into the query cache so first unfiltered
+     * pagination request is fast.
+     *
+     * @param ArchivedSave $save The save file instance
+     * @param SaveReader $reader The save reader instance
+     * @return void
+     */
+    private function warmLogQueryCache(ArchivedSave $save, SaveReader $reader) : void
+    {
+        try {
+            $this->log('Warming log query cache...');
+
+            // Get the auto-cache key (same format as WP3)
+            $cacheKey = '_log_unfiltered_' . $save->getSaveID();
+
+            // Get all log entries (already optimized by WP2)
+            $data = $reader->getLog()->toArrayForAPI();
+
+            // Store in query cache
+            $cache = new QueryCache($save->getManager());
+            $cache->store($save, $cacheKey, $data);
+
+            $this->log('Log query cache warmed successfully (' . count($data) . ' entries).');
+
+        } catch (\Exception $e) {
+            // Log error but don't fail extraction
+            $this->log('Warning: Failed to warm log query cache: ' . $e->getMessage());
+        }
     }
 
     /**

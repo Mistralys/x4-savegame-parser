@@ -144,6 +144,93 @@ class QueryCache
     }
 
     /**
+     * Remove cache directories for saves that no longer exist.
+     *
+     * Scans the storage folder for extracted save directories and removes
+     * `.cache` directories for saves that have been deleted.
+     *
+     * @return int Number of cache directories removed
+     */
+    public function cleanupObsoleteCaches(): int
+    {
+        $storageFolder = $this->manager->getStorageFolder();
+
+        if (!$storageFolder->exists()) {
+            return 0;
+        }
+
+        // Get all current save IDs from both main and archived saves
+        $currentSaveIDs = [];
+
+        foreach ($this->manager->getSaves() as $save) {
+            $currentSaveIDs[] = $save->getSaveID();
+        }
+
+        foreach ($this->manager->getArchivedSaves() as $save) {
+            $currentSaveIDs[] = $save->getSaveID();
+        }
+
+        // Scan storage folder for save directories
+        $removed = 0;
+        $saveDirs = glob($storageFolder->getPath() . '/unpack-*', GLOB_ONLYDIR);
+
+        if ($saveDirs === false) {
+            return 0;
+        }
+
+        foreach ($saveDirs as $saveDir) {
+            $saveDirName = basename($saveDir);
+
+            // Check if this save still exists
+            $saveExists = false;
+            foreach ($currentSaveIDs as $saveID) {
+                if (strpos($saveDirName, $saveID) !== false) {
+                    $saveExists = true;
+                    break;
+                }
+            }
+
+            // Remove cache directory if save no longer exists
+            if (!$saveExists) {
+                $cacheDir = $saveDir . '/.cache';
+                if (is_dir($cacheDir)) {
+                    $this->removeCacheDirectory($cacheDir);
+                    $removed++;
+                }
+            }
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Recursively remove a directory and its contents.
+     *
+     * @param string $dir Directory path to remove
+     * @return void
+     */
+    private function removeCacheDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = array_diff(scandir($dir), ['.', '..']);
+
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+
+            if (is_dir($path)) {
+                $this->removeCacheDirectory($path);
+            } else {
+                unlink($path);
+            }
+        }
+
+        rmdir($dir);
+    }
+
+    /**
      * Get the full path to a cache file.
      *
      * @param BaseSaveFile $save The save file

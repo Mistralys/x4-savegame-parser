@@ -44,6 +44,11 @@ abstract class BaseSaveFile
         return $this->analysis;
     }
 
+    public function getManager() : SaveManager
+    {
+        return $this->manager;
+    }
+
     public function getSaveID() : string
     {
         return $this->analysis->getSaveID();

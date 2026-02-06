@@ -310,7 +310,17 @@ class QueryHandler
         $reader = $save->getDataReader();
         $data = $reader->getLog()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data);
+        // Auto-cache for unfiltered queries (WP3: Logbook Performance Optimization)
+        $filter = $this->cli->arguments->get('filter');
+        $cacheKey = $this->cli->arguments->get('cache-key');
+
+        // Use auto-cache key if no filter and no manual cache key
+        $effectiveCacheKey = $cacheKey;
+        if (empty($filter) && empty($cacheKey)) {
+            $effectiveCacheKey = '_log_unfiltered_' . $save->getSaveID();
+        }
+
+        $data = $this->applyFilteringAndPagination($save, $data, $effectiveCacheKey);
         $this->outputSuccess(self::COMMAND_LOG, $data['data'], $data['pagination']);
     }
 
@@ -602,14 +612,17 @@ class QueryHandler
      *
      * @param BaseSaveFile $save The save file (for caching)
      * @param array $data The data to process
+     * @param string|null $overrideCacheKey Override cache key (for auto-cache, WP3)
      * @return array{data: array, pagination: array|null} Processed data and pagination metadata
      */
-    private function applyFilteringAndPagination(BaseSaveFile $save, array $data): array
+    private function applyFilteringAndPagination(BaseSaveFile $save, array $data, ?string $overrideCacheKey = null): array
     {
         $filter = $this->cli->arguments->get('filter');
         $limit = $this->cli->arguments->get('limit');
         $offset = $this->cli->arguments->get('offset');
-        $cacheKey = $this->cli->arguments->get('cache-key');
+
+        // Use override cache key if provided, otherwise use CLI argument
+        $cacheKey = $overrideCacheKey ?? $this->cli->arguments->get('cache-key');
 
         // Try to use cache if cache key provided
         if (!empty($cacheKey) && $this->cache->isValid($save, $cacheKey)) {
@@ -620,8 +633,8 @@ class QueryHandler
                 $data = $this->applyFilter($data, $filter);
             }
 
-            // Store in cache if cache key provided
-            if (!empty($cacheKey) && !empty($filter)) {
+            // Store in cache if cache key provided (WP3: Cache both filtered and unfiltered data)
+            if (!empty($cacheKey)) {
                 $this->cache->store($save, $cacheKey, $data);
             }
         }

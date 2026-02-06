@@ -27,6 +27,7 @@ class X4Monitor extends BaseMonitor
     private bool $optionAutoBackup = true;
     private bool $optionLogging = false;
     private ?string $lastDetectedSavePath = null;
+    private int $cleanupCounter = 0;
 
     public function optionLogging(bool $enabled) : self
     {
@@ -71,6 +72,13 @@ class X4Monitor extends BaseMonitor
 
         // Fall back to current behavior (most recent save)
         $this->processCurrentSave();
+
+        // Periodic cache cleanup every 60 ticks (~5 minutes) - WP5
+        $this->cleanupCounter++;
+        if ($this->cleanupCounter >= 60) {
+            $this->cleanupCounter = 0;
+            $this->performCacheCleanup();
+        }
     }
 
     private function processQueuedSave(ExtractionQueue $queue): void
@@ -215,5 +223,28 @@ class X4Monitor extends BaseMonitor
                 $reject($e);
             }
         }));
+    }
+
+    /**
+     * Perform periodic cache cleanup to remove obsolete cache files.
+     * Removes cache directories for saves that no longer exist.
+     *
+     * @return void
+     */
+    private function performCacheCleanup() : void
+    {
+        try {
+            $cache = new \Mistralys\X4\SaveViewer\CLI\QueryCache($this->manager);
+            $removed = $cache->cleanupObsoleteCaches();
+
+            if ($removed > 0) {
+                $this->log('Cache cleanup: Removed %d obsolete cache director%s',
+                    $removed,
+                    $removed === 1 ? 'y' : 'ies'
+                );
+            }
+        } catch (\Throwable $e) {
+            $this->log('Warning: Cache cleanup failed: %s', $e->getMessage());
+        }
     }
 }

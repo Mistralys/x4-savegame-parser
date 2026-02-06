@@ -168,19 +168,43 @@ class Log extends Info
 
     /**
      * Convert Log to array suitable for CLI API output.
-     * Returns raw event log collection data.
+     * Returns categorized entries from analysis cache, sorted newest-first.
      *
      * @return array<int,array<string,mixed>> JSON-serializable array of log entries
      */
     public function toArrayForAPI(): array
     {
-        // Return the raw event log collection data
-        $data = $this->collections->eventLog()->loadData();
-
-        if (!isset($data[LogEntryType::TYPE_ID])) {
-            return [];
+        // Generate cache if missing (for legacy saves)
+        if (!$this->isCacheValid()) {
+            // Output to stderr for transparency while keeping JSON clean
+            file_put_contents('php://stderr', "Generating log analysis cache...\n");
+            $this->generateAnalysisCache();
+            file_put_contents('php://stderr', "Log analysis cache generated.\n");
         }
 
-        return $data[LogEntryType::TYPE_ID];
+        // Load categorized entries
+        $categories = $this->loadAnalysisCache();
+        $entries = $categories->getEntries();
+
+        // Sort in descending time order (newest first)
+        usort($entries, static function(LogEntry $a, LogEntry $b) : float {
+            return $b->getTime()->getDuration() - $a->getTime()->getDuration();
+        });
+
+        // Convert to API format
+        $result = [];
+        foreach ($entries as $entry) {
+            $result[] = [
+                'time' => $entry->getTime()->getValue(),
+                'timeFormatted' => $entry->getTime()->getIntervalStr(),
+                'title' => $entry->getTitle(),
+                'text' => $entry->getText(),
+                'categoryID' => $entry->getCategoryID(),
+                'categoryLabel' => $entry->getCategory()->getLabel(),
+                'money' => $entry->getMoney()
+            ];
+        }
+
+        return $result;
     }
 }
