@@ -165,10 +165,13 @@ class ClusterConnectionFragment extends BaseDOMFragment
                 {
                     $this->parseStationDockArea($station, $connection);
                 }
+
+                if($connection->componentClass === 'production')
+                {
+                    $this->parseStationProductionModule($station, $connection);
+                }
             }
         }
-
-        // TODO: Add productions
     }
 
     private function parseStationDockArea(StationType $station, ConnectionComponent $component) : void
@@ -213,12 +216,51 @@ class ClusterConnectionFragment extends BaseDOMFragment
         {
             if($connection->componentClass === 'dockingbay')
             {
-                $this->parseStationDockingBay($station, $connection);
+                $this->parseStationDockingBay($station, $component);
             }
 
             if($connection->componentClass === 'room')
             {
                 $this->parseStationDockingRoom($station, $connection);
+            }
+        }
+    }
+
+    private function parseStationProductionModule(StationType $station, ConnectionComponent $component) : void
+    {
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            if($connection->componentClass === 'navcontext')
+            {
+                $this->parseStationNavContext($station, $connection);
+            }
+        }
+    }
+
+    private function parseStationNavContext(StationType $station, ConnectionComponent $component) : void
+    {
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            if($connection->connectionID === 'rooms' && $connection->componentClass === 'room')
+            {
+                $this->parseStationRoom($station, $connection);
+            }
+        }
+    }
+
+    private function parseStationRoom(StationType $station, ConnectionComponent $component) : void
+    {
+        $connections = $this->findConnectionComponents($component);
+
+        foreach($connections as $connection)
+        {
+            if($connection->connectionID === 'player' && $connection->componentClass === 'player')
+            {
+                $this->parsePlayer($connection, $station);
             }
         }
     }
@@ -447,12 +489,13 @@ class ClusterConnectionFragment extends BaseDOMFragment
 
         $parent->registerPlayer($player);
 
-        // TODO: Find out all the locations a player can be stored
-        // - In space (spacesuit)
-        // - In a ship room (brig, etc)
-        // - In a special ship room (court of curbs)
-        // - In a station room (HQ laboratory, etc)
-        // - ...?
+        // Player can be found in various locations:
+        // - In a ship cockpit (supported)
+        // - In a ship docking bay (supported)
+        // - In a station docking bay/room (supported)
+        // - In a station production module room (supported - e.g., HQ laboratory)
+        // - In space (spacesuit) - TODO
+        // - In special ship rooms (e.g., court of curbs, brig) - TODO
 
         $inventoryNode = $this->getFirstChildByName($entry->componentNode, 'inventory');
         if($inventoryNode !== null) {

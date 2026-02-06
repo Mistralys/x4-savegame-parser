@@ -15,3 +15,5 @@ config.json
 /tests/files/reference-savegame
 .idea/copilot.data.migration.ask.xml
 tests/files/quicksave.xml
+tests/files/test-saves/unpack-*
+
