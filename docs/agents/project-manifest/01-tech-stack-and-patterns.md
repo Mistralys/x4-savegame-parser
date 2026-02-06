@@ -161,6 +161,7 @@ QueryHandler (orchestrator)
 **Key components**:
 - **Standard Response Envelope**: Consistent JSON structure (`success`, `version`, `data`, `pagination`)
 - **JMESPath Filtering**: Powerful query language for filtering arrays/objects
+- **Custom JMESPath Functions**: Extended via `AstRuntime` + `CustomFnDispatcher` for case-insensitive string operations (to_lower, to_upper, trim, contains_i, starts_with_i, ends_with_i)
 - **Query Caching**: Per-save cache isolation for efficient pagination
 - **Validation Layer**: Pre-execution validation with actionable error messages
 - **Data Serializers**: `toArrayForAPI()` methods on all readers for JSON output

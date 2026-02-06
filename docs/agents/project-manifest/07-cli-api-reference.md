@@ -763,6 +763,127 @@ Extract object keys or values:
 --filter="values(@)"
 ```
 
+### String Transformation & Case-Insensitive Functions
+
+Custom functions for case-insensitive searching and string manipulation.
+
+#### `to_lower(string)`
+Convert a string to lowercase (UTF-8 aware):
+
+```bash
+# Convert faction name for comparison
+--filter="[?to_lower(faction) == 'argon']"
+
+# Use with standard contains() for case-insensitive search
+./bin/query ships --save=quicksave --filter="[?contains(to_lower(name), 'scout')]"
+```
+
+#### `to_upper(string)`
+Convert a string to uppercase (UTF-8 aware):
+
+```bash
+# Normalize to uppercase
+--filter="[?to_upper(faction) == 'ARGON']"
+```
+
+#### `trim(string)`
+Remove leading and trailing whitespace:
+
+```bash
+# Filter out entries with empty/whitespace-only names
+--filter="[?trim(name) != '']"
+```
+
+#### `contains_i(haystack, needle)`
+Case-insensitive string contains check:
+
+```bash
+# Find ships with 'scout' in name (any case: Scout, SCOUT, scout)
+./bin/query ships --save=quicksave --filter="[?contains_i(name, 'scout')]"
+
+# Find Argon ships with 'frigate' in name
+./bin/query ships --save=quicksave --filter="[?faction=='argon' && contains_i(name, 'frigate')]"
+
+# Find stations containing 'trading'
+./bin/query stations --save=quicksave --filter="[?contains_i(name, 'trading')]"
+```
+
+#### `starts_with_i(string, prefix)`
+Case-insensitive starts with check:
+
+```bash
+# Find ships starting with 'argon' (any case)
+./bin/query ships --save=quicksave --filter="[?starts_with_i(name, 'argon')]"
+
+# Find ships starting with 'xenon' and containing 'fighter'
+./bin/query ships --save=quicksave --filter="[?starts_with_i(name, 'xenon') && contains_i(name, 'fighter')]"
+```
+
+#### `ends_with_i(string, suffix)`
+Case-insensitive ends with check:
+
+```bash
+# Find ships ending with 'mk2' or 'MK2'
+./bin/query ships --save=quicksave --filter="[?ends_with_i(name, 'mk2')]"
+
+# Find ships ending with 'vanguard'
+./bin/query ships --save=quicksave --filter="[?ends_with_i(name, 'vanguard')]"
+```
+
+### Complex Examples with Case-Insensitive Functions
+
+#### Simple case-insensitive search
+```bash
+# Find all ships with 'ares' in name (any case)
+./bin/query ships --save=quicksave --filter="[?contains_i(name, 'ares')]"
+```
+
+#### Chained filters for optimal performance
+```bash
+# Filter by faction first (fast exact match), then case-insensitive search
+./bin/query ships --save=quicksave --filter="[?faction=='argon'] | [?contains_i(name, 'scout')]"
+```
+
+**Why chaining matters:**
+- Exact field matches (`faction=='argon'`) are fast
+- Case-insensitive operations are slower (convert each string)
+- Filtering first reduces the dataset for case-insensitive operations
+- Result: Better performance, especially with 1000+ items
+
+#### Full pipeline example
+```bash
+# Filter → search → sort → paginate
+./bin/query ships --save=quicksave \
+  --filter="[?faction=='argon'] | [?contains_i(name, 'scout')] | sort_by(@, &name) | [0:10]"
+```
+
+#### Multiple case-insensitive conditions
+```bash
+# Ships starting with 'argon' and containing 'frigate'
+./bin/query ships --save=quicksave \
+  --filter="[?starts_with_i(name, 'argon') && contains_i(name, 'frigate')]"
+```
+
+#### Combining custom and standard functions
+```bash
+# Use to_lower() with standard contains()
+./bin/query ships --save=quicksave --filter="[?contains(to_lower(name), 'ares')]"
+
+# Use trim() before case-insensitive check
+./bin/query ships --save=quicksave --filter="[?contains_i(trim(name), 'scout')]"
+```
+
+> **Performance Tip:** For optimal performance on large datasets (ships, stations, event logs), apply selective filters first to reduce the dataset before case-insensitive operations:
+> 
+> - ✅ **Optimal**: `[?faction=='argon'] | [?contains_i(name, 'scout')]`  
+>   Filter by faction first (fast exact match), then case-insensitive search on reduced dataset
+> 
+> - ❌ **Slower**: `[?contains_i(name, 'scout')]`  
+>   Scans all items with case-insensitive operation
+> 
+> - ✅ **Best Practice**: `[?faction=='argon'] | [?contains_i(name, 'scout')] | sort_by(@, &name)`  
+>   Chain operations: filter → search → sort for optimal performance
+
 ### Complex Examples
 
 #### Paginate filtered results
