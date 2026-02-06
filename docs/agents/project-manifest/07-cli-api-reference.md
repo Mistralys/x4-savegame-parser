@@ -461,12 +461,12 @@ bin/query list-saves
     ],
     "archived": [
       {
-        "id": "unpack-20230524120000-quicksave",
+        "id": "unpack-20260206211435-quicksave",
         "name": "quicksave",
-        "dateModified": "2023-05-24T12:00:00+00:00",
+        "dateModified": "2026-02-06T21:14:35+00:00",
         "isUnpacked": true,
         "hasBackup": true,
-        "storageFolder": "unpack-20230524120000-quicksave"
+        "storageFolder": "unpack-20260206211435-quicksave"
       }
     ]
   }

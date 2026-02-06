@@ -297,7 +297,7 @@ tests/
 ├── files/                                  # Test data files
 │   ├── save-files/                         # Sample save files
 │   └── test-saves/                         # Synthetic test data (git tracked)
-│       └── unpack-20230524120000-quicksave/
+│       └── unpack-20260206211435-quicksave/
 │           ├── analysis.json
 │           └── JSON/                       # 10 collection JSON files
 │               ├── collection-ships.json

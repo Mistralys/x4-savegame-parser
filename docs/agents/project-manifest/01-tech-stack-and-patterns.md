@@ -55,7 +55,7 @@
 
 ### Test Data Approach
 - **Synthetic Test Data**: Minimal JSON files committed to git
-- **Location**: `tests/files/test-saves/unpack-20230524120000-quicksave/`
+- **Location**: `tests/files/test-saves/unpack-20260206211435-quicksave/`
 - **Collections**: 10 complete collection JSON files with 2 items each
 - **Benefit**: Tests run without game installation or save extraction
 
