@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Mistralys\X4\SaveViewer\CLI;
 
 use JmesPath\AstRuntime;
-use JmesPath\Env as JmesPath;
 use League\CLImate\CLImate;
 use Mistralys\X4\SaveViewer\CLI\JMESPath\CustomFnDispatcher;
+use Mistralys\X4\SaveViewer\Config\Config;
 use Mistralys\X4\SaveViewer\Data\BaseSaveFile;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 
@@ -91,7 +91,11 @@ class QueryHandler
             $this->executeCommand($command);
         } catch (QueryValidationException $e) {
             echo JsonResponseBuilder::error($e, $command, $this->isPretty());
-            exit(1);
+
+            // Don't call exit() during test suite execution to avoid killing PHPUnit
+            if (!Config::isTestSuiteEnabled()) {
+                exit(1);
+            }
         }
     }
 
