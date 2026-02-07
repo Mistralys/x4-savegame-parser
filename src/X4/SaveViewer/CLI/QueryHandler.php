@@ -88,15 +88,95 @@ class QueryHandler
         }
 
         try {
-            $this->executeCommand($command);
+            $params = QueryParameters::fromCLImate($this->cli);
+            $output = $this->executeCommand($command, $params);
+            echo $output;
         } catch (QueryValidationException $e) {
-            echo JsonResponseBuilder::error($e, $command, $this->isPretty());
+            $params = QueryParameters::fromCLImate($this->cli);
+            echo JsonResponseBuilder::error($e, $command, $params->isPretty);
 
             // Don't call exit() during test suite execution to avoid killing PHPUnit
             if (!Config::isTestSuiteEnabled()) {
                 exit(1);
             }
         }
+    }
+
+    /**
+     * Execute a command with the given parameters and return JSON output.
+     *
+     * This method contains all business logic (validation, execution, filtering,
+     * pagination, caching) and returns JSON string instead of echoing it.
+     * Designed to be testable without CLI argument parsing.
+     *
+     * @param string $command The command to execute
+     * @param QueryParameters $params The query parameters
+     * @return string JSON output
+     * @throws QueryValidationException If validation fails
+     */
+    public function executeCommand(string $command, QueryParameters $params): string
+    {
+        // Special commands that don't require a save
+        if ($command === self::COMMAND_CLEAR_CACHE) {
+            return $this->execute_clearCache($params);
+        }
+
+        if ($command === self::COMMAND_LIST_SAVES) {
+            return $this->execute_listSaves($params);
+        }
+
+        if ($command === self::COMMAND_QUEUE_EXTRACTION) {
+            return $this->execute_queueExtraction($params);
+        }
+
+        if ($command === self::COMMAND_LIST_PATHS) {
+            return $this->execute_listPaths($params);
+        }
+
+        // All other commands require a save
+        $saveIdentifier = $params->saveIdentifier;
+
+        if (empty($saveIdentifier)) {
+            throw new QueryValidationException(
+                'The --save parameter is required',
+                0,
+                ['Example: bin/query ' . $command . ' --save=quicksave']
+            );
+        }
+
+        // Validate the save
+        $save = $this->validator->validateSave($saveIdentifier);
+
+        // Validate other parameters
+        $this->validator->validatePagination($params->limit > 0 ? $params->limit : null, $params->offset > 0 ? $params->offset : null);
+        $this->validator->validateCacheKey($params->cacheKey);
+
+        // Execute the appropriate command
+        return match ($command) {
+            self::COMMAND_SAVE_INFO => $this->execute_saveInfo($save, $params),
+            self::COMMAND_PLAYER => $this->execute_player($save, $params),
+            self::COMMAND_STATS => $this->execute_stats($save, $params),
+            self::COMMAND_FACTIONS => $this->execute_factions($save, $params),
+            self::COMMAND_BLUEPRINTS => $this->execute_blueprints($save, $params),
+            self::COMMAND_INVENTORY => $this->execute_inventory($save, $params),
+            self::COMMAND_LOG => $this->execute_log($save, $params),
+            self::COMMAND_KHAAK_STATIONS => $this->execute_khaakStations($save, $params),
+            self::COMMAND_SHIP_LOSSES => $this->execute_shipLosses($save, $params),
+            self::COMMAND_SHIPS => $this->execute_ships($save, $params),
+            self::COMMAND_STATIONS => $this->execute_stations($save, $params),
+            self::COMMAND_PEOPLE => $this->execute_people($save, $params),
+            self::COMMAND_SECTORS => $this->execute_sectors($save, $params),
+            self::COMMAND_ZONES => $this->execute_zones($save, $params),
+            self::COMMAND_REGIONS => $this->execute_regions($save, $params),
+            self::COMMAND_CLUSTERS => $this->execute_clusters($save, $params),
+            self::COMMAND_CELESTIALS => $this->execute_celestials($save, $params),
+            self::COMMAND_EVENT_LOG => $this->execute_eventLog($save, $params),
+            default => throw new QueryValidationException(
+                sprintf('Unknown command: %s', $command),
+                0,
+                ['Run: bin/query --help']
+            )
+        };
     }
 
     /**
@@ -180,143 +260,69 @@ class QueryHandler
         return null;
     }
 
-    /**
-     * Execute a specific command.
-     */
-    private function executeCommand(string $command): void
-    {
-        // Special commands that don't require a save
-        if ($command === self::COMMAND_CLEAR_CACHE) {
-            $this->execute_clearCache();
-            return;
-        }
 
-        if ($command === self::COMMAND_LIST_SAVES) {
-            $this->execute_listSaves();
-            return;
-        }
-
-        if ($command === self::COMMAND_QUEUE_EXTRACTION) {
-            $this->execute_queueExtraction();
-            return;
-        }
-
-        if ($command === self::COMMAND_LIST_PATHS) {
-            $this->execute_listPaths();
-            return;
-        }
-
-        // All other commands require a save
-        $saveIdentifier = $this->cli->arguments->get('save');
-
-        if (empty($saveIdentifier)) {
-            throw new QueryValidationException(
-                'The --save parameter is required',
-                0,
-                ['Example: bin/query ' . $command . ' --save=quicksave']
-            );
-        }
-
-        // Validate the save
-        $save = $this->validator->validateSave($saveIdentifier);
-
-        // Validate other parameters
-        $limit = $this->cli->arguments->get('limit');
-        $offset = $this->cli->arguments->get('offset');
-        $cacheKey = $this->cli->arguments->get('cache-key');
-
-        $this->validator->validatePagination($limit > 0 ? $limit : null, $offset > 0 ? $offset : null);
-        $this->validator->validateCacheKey($cacheKey);
-
-        // Execute the appropriate command
-        match ($command) {
-            self::COMMAND_SAVE_INFO => $this->execute_saveInfo($save),
-            self::COMMAND_PLAYER => $this->execute_player($save),
-            self::COMMAND_STATS => $this->execute_stats($save),
-            self::COMMAND_FACTIONS => $this->execute_factions($save),
-            self::COMMAND_BLUEPRINTS => $this->execute_blueprints($save),
-            self::COMMAND_INVENTORY => $this->execute_inventory($save),
-            self::COMMAND_LOG => $this->execute_log($save),
-            self::COMMAND_KHAAK_STATIONS => $this->execute_khaakStations($save),
-            self::COMMAND_SHIP_LOSSES => $this->execute_shipLosses($save),
-            self::COMMAND_SHIPS => $this->execute_ships($save),
-            self::COMMAND_STATIONS => $this->execute_stations($save),
-            self::COMMAND_PEOPLE => $this->execute_people($save),
-            self::COMMAND_SECTORS => $this->execute_sectors($save),
-            self::COMMAND_ZONES => $this->execute_zones($save),
-            self::COMMAND_REGIONS => $this->execute_regions($save),
-            self::COMMAND_CLUSTERS => $this->execute_clusters($save),
-            self::COMMAND_CELESTIALS => $this->execute_celestials($save),
-            self::COMMAND_EVENT_LOG => $this->execute_eventLog($save),
-            default => throw new QueryValidationException(
-                sprintf('Unknown command: %s', $command),
-                0,
-                ['Run: bin/query --help']
-            )
-        };
-    }
 
     // region: Command implementations
 
-    private function execute_saveInfo(BaseSaveFile $save): void
+    private function execute_saveInfo(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getSaveInfo()->toArrayForAPI();
 
-        $this->outputSuccess(self::COMMAND_SAVE_INFO, $data);
+        return $this->outputSuccess(self::COMMAND_SAVE_INFO, $data, null, $params);
     }
 
-    private function execute_player(BaseSaveFile $save): void
+    private function execute_player(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getPlayer()->toArrayForAPI();
 
-        $this->outputSuccess(self::COMMAND_PLAYER, $data);
+        return $this->outputSuccess(self::COMMAND_PLAYER, $data, null, $params);
     }
 
-    private function execute_stats(BaseSaveFile $save): void
+    private function execute_stats(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getStatistics()->toArrayForAPI();
 
-        $this->outputSuccess(self::COMMAND_STATS, $data);
+        return $this->outputSuccess(self::COMMAND_STATS, $data, null, $params);
     }
 
-    private function execute_factions(BaseSaveFile $save): void
+    private function execute_factions(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getFactions()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_FACTIONS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_FACTIONS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_blueprints(BaseSaveFile $save): void
+    private function execute_blueprints(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getBlueprints()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_BLUEPRINTS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_BLUEPRINTS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_inventory(BaseSaveFile $save): void
+    private function execute_inventory(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getInventory()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_INVENTORY, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_INVENTORY, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_log(BaseSaveFile $save): void
+    private function execute_log(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getLog()->toArrayForAPI();
 
         // Auto-cache for unfiltered queries (WP3: Logbook Performance Optimization)
-        $filter = $this->cli->arguments->get('filter');
-        $cacheKey = $this->cli->arguments->get('cache-key');
+        $filter = $params->filter;
+        $cacheKey = $params->cacheKey;
 
         // Use auto-cache key if no filter and no manual cache key
         $effectiveCacheKey = $cacheKey;
@@ -324,111 +330,111 @@ class QueryHandler
             $effectiveCacheKey = '_log_unfiltered_' . $save->getSaveID();
         }
 
-        $data = $this->applyFilteringAndPagination($save, $data, $effectiveCacheKey);
-        $this->outputSuccess(self::COMMAND_LOG, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params, $effectiveCacheKey);
+        return $this->outputSuccess(self::COMMAND_LOG, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_khaakStations(BaseSaveFile $save): void
+    private function execute_khaakStations(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getKhaakStations()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_KHAAK_STATIONS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_KHAAK_STATIONS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_shipLosses(BaseSaveFile $save): void
+    private function execute_shipLosses(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
         $data = $reader->getShipLosses()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_SHIP_LOSSES, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_SHIP_LOSSES, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_ships(BaseSaveFile $save): void
+    private function execute_ships(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->ships()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_SHIPS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_SHIPS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_stations(BaseSaveFile $save): void
+    private function execute_stations(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->stations()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_STATIONS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_STATIONS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_people(BaseSaveFile $save): void
+    private function execute_people(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->people()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_PEOPLE, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_PEOPLE, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_sectors(BaseSaveFile $save): void
+    private function execute_sectors(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->sectors()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_SECTORS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_SECTORS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_zones(BaseSaveFile $save): void
+    private function execute_zones(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->zones()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_ZONES, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_ZONES, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_regions(BaseSaveFile $save): void
+    private function execute_regions(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->regions()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_REGIONS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_REGIONS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_clusters(BaseSaveFile $save): void
+    private function execute_clusters(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->clusters()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_CLUSTERS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_CLUSTERS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_celestials(BaseSaveFile $save): void
+    private function execute_celestials(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->celestials()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_CELESTIALS, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_CELESTIALS, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_eventLog(BaseSaveFile $save): void
+    private function execute_eventLog(BaseSaveFile $save, QueryParameters $params): string
     {
         $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->eventLog()->loadData());
 
-        $data = $this->applyFilteringAndPagination($save, $data);
-        $this->outputSuccess(self::COMMAND_EVENT_LOG, $data['data'], $data['pagination']);
+        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        return $this->outputSuccess(self::COMMAND_EVENT_LOG, $data['data'], $data['pagination'], $params);
     }
 
-    private function execute_clearCache(): void
+    private function execute_clearCache(QueryParameters $params): string
     {
         $count = $this->cache->clearAll();
 
-        $this->outputSuccess(self::COMMAND_CLEAR_CACHE, [
+        return $this->outputSuccess(self::COMMAND_CLEAR_CACHE, [
             'cleared' => $count,
             'message' => sprintf('Cleared %d cache director%s', $count, $count === 1 ? 'y' : 'ies')
-        ]);
+        ], null, $params);
     }
 
-    private function execute_listSaves(): void
+    private function execute_listSaves(QueryParameters $params): string
     {
         $saves = $this->manager->getSaves();
         $archivedSaves = $this->manager->getArchivedSaves();
@@ -461,37 +467,35 @@ class QueryHandler
             ];
         }
 
-        $this->outputSuccess(self::COMMAND_LIST_SAVES, $result);
+        return $this->outputSuccess(self::COMMAND_LIST_SAVES, $result, null, $params);
     }
 
-    private function execute_queueExtraction(): void
+    private function execute_queueExtraction(QueryParameters $params): string
     {
         $queue = new ExtractionQueue($this->manager);
 
         // Check for --list flag
-        if ($this->cli->arguments->defined('list')) {
+        if ($params->listFlag) {
             $items = $queue->getAll();
-            $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, [
+            return $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, [
                 'queue' => $items,
                 'count' => count($items)
-            ]);
-            return;
+            ], null, $params);
         }
 
         // Check for --clear flag
-        if ($this->cli->arguments->defined('clear')) {
+        if ($params->clearFlag) {
             $count = $queue->count();
             $queue->clear();
-            $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, [
+            return $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, [
                 'cleared' => $count,
                 'message' => sprintf('Cleared %d item%s from queue', $count, $count === 1 ? '' : 's')
-            ]);
-            return;
+            ], null, $params);
         }
 
         // Get saves to queue
-        $savesList = $this->cli->arguments->get('saves');
-        $singleSave = $this->cli->arguments->get('save');
+        $savesList = $params->saves;
+        $singleSave = $params->saveIdentifier;
 
         $toQueue = [];
 
@@ -559,10 +563,10 @@ class QueryHandler
             $result['warning'] = sprintf('%d save%s not found and skipped', count($errors), count($errors) === 1 ? '' : 's');
         }
 
-        $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, $result);
+        return $this->outputSuccess(self::COMMAND_QUEUE_EXTRACTION, $result, null, $params);
     }
 
-    private function execute_listPaths(): void
+    private function execute_listPaths(QueryParameters $params): string
     {
         $savesFolder = $this->manager->getSavesFolder();
         $storageFolder = $this->manager->getStorageFolder();
@@ -582,7 +586,7 @@ class QueryHandler
             'message' => 'Current path configuration'
         ];
 
-        $this->outputSuccess(self::COMMAND_LIST_PATHS, $result);
+        return $this->outputSuccess(self::COMMAND_LIST_PATHS, $result, null, $params);
     }
 
     // endregion
@@ -616,17 +620,18 @@ class QueryHandler
      *
      * @param BaseSaveFile $save The save file (for caching)
      * @param array $data The data to process
+     * @param QueryParameters $params The query parameters
      * @param string|null $overrideCacheKey Override cache key (for auto-cache, WP3)
      * @return array{data: array, pagination: array|null} Processed data and pagination metadata
      */
-    private function applyFilteringAndPagination(BaseSaveFile $save, array $data, ?string $overrideCacheKey = null): array
+    private function applyFilteringAndPagination(BaseSaveFile $save, array $data, QueryParameters $params, ?string $overrideCacheKey = null): array
     {
-        $filter = $this->cli->arguments->get('filter');
-        $limit = $this->cli->arguments->get('limit');
-        $offset = $this->cli->arguments->get('offset');
+        $filter = $params->filter;
+        $limit = $params->limit;
+        $offset = $params->offset;
 
         // Use override cache key if provided, otherwise use CLI argument
-        $cacheKey = $overrideCacheKey ?? $this->cli->arguments->get('cache-key');
+        $cacheKey = $overrideCacheKey ?? $params->cacheKey;
 
         // Try to use cache if cache key provided
         if (!empty($cacheKey) && $this->cache->isValid($save, $cacheKey)) {
@@ -696,19 +701,11 @@ class QueryHandler
     }
 
     /**
-     * Check if pretty printing is enabled.
-     */
-    private function isPretty(): bool
-    {
-        return $this->cli->arguments->defined('pretty');
-    }
-
-    /**
      * Output a success response.
      */
-    private function outputSuccess(string $command, mixed $data, ?array $pagination = null): void
+    private function outputSuccess(string $command, mixed $data, ?array $pagination, QueryParameters $params): string
     {
-        echo JsonResponseBuilder::success($command, $data, $pagination, $this->isPretty());
+        return JsonResponseBuilder::success($command, $data, $pagination, $params->isPretty);
     }
 
     // endregion

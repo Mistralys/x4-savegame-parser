@@ -17,3 +17,4 @@ config.json
 tests/files/quicksave.xml
 tests/files/test-saves/unpack-*
 
+docs/X4-Savegame-Parser-Manifest.md

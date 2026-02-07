@@ -5,18 +5,8 @@
  * These tests verify that CLI commands execute properly, including
  * error handling, filtering, pagination, and caching.
  *
- * KNOWN LIMITATION: Due to a limitation with the league/climate library in PHPUnit test context,
- * CLI arguments (especially --save parameter) are not parsed correctly when $_SERVER['argv'] is
- * modified after the test runner starts. Tests that require --save parameter parsing are skipped.
- * The CLI commands work correctly in real CLI usage.
- *
- * Tests that work:
- * - test_queryCommand_withoutSaveParameter_showsError (expects error about missing --save)
- * - test_queryCommand_listSaves_noSaveRequired (doesn't need --save)
- * - test_queryCommand_clearCache_noSaveRequired (doesn't need --save)
- *
- * Tests that are skipped:
- * - All tests that pass --save parameter and expect it to be recognized
+ * Tests use QueryParameters directly to bypass league/climate argument parsing,
+ * allowing comprehensive testing without CLI simulation limitations.
  *
  * @package X4SaveViewer
  * @subpackage Tests
@@ -27,6 +17,7 @@ declare(strict_types=1);
 namespace testsuites\CLI;
 
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
+use Mistralys\X4\SaveViewer\CLI\QueryParameters;
 use Mistralys\X4\SaveViewer\Config\Config;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +37,7 @@ class CommandExecutionTest extends TestCase
         Config::setTestSuiteEnabled(true);
 
         $this->manager = SaveManager::createFromConfig();
-        // Don't create handler here - it will be created per test after setting argv
+        $this->handler = new QueryHandler($this->manager);
     }
 
     protected function tearDown(): void
@@ -57,32 +48,17 @@ class CommandExecutionTest extends TestCase
     }
 
     /**
-     * Helper method to simulate CLI arguments and create a fresh handler
-     */
-    private function simulateCLIArguments(array $args): void
-    {
-        // Set argv BEFORE creating handler
-        global $argc, $argv;
-        $_SERVER['argv'] = array_merge(['query.php'], $args);
-        $argv = $_SERVER['argv'];
-        $argc = count($argv);
-        // Then create handler (it will see the argv we just set)
-        $this->handler = new QueryHandler($this->manager);
-    }
-
-    /**
-     * Check if this test requires proper CLI argument parsing.
-     * Due to a limitation with league/climate in PHPUnit test context,
-     * CLI argument parsing doesn't work properly, so tests that depend on
-     * --save parameter being recognized will fail.
+     * Helper method to execute a command with parameters and return decoded JSON.
      *
-     * Tests can call this to skip themselves if CLI args don't work.
+     * @param string $command The command to execute
+     * @param array<string, mixed> $params Optional parameter overrides
+     * @return array Decoded JSON response
      */
-    private function requiresWorkingCLIArgParsing(): void
+    private function executeCommand(string $command, array $params = []): array
     {
-        // Note: We know CLI arg parsing doesn't work in test mode, so we skip these tests
-        // In a real CLI environment, the arguments would be parsed correctly
-        $this->markTestSkipped('Test requires CLI argument parsing which does not work in PHPUnit test context due to league/climate library limitation');
+        $queryParams = QueryParameters::forTest($params);
+        $output = $this->handler->executeCommand($command, $queryParams);
+        return json_decode($output, true);
     }
 
     /**
@@ -129,49 +105,26 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_shipsWithValidSave(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        // Capture output
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME
+        ]);
 
-        try {
-            $this->simulateCLIArguments(['ships', '--save=' . self::TEST_SAVE_NAME]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $this->assertNotEmpty($output, 'Ships command should produce output');
-
-        $json = json_decode($output, true);
-        $this->assertIsArray($json, 'Output should be valid JSON');
-        $this->assertTrue($json['success'] ?? false, 'Response should indicate success');
-        $this->assertEquals('ships', $json['command'] ?? '', 'Command should be "ships"');
-        $this->assertArrayHasKey('data', $json, 'Response should have data field');
+        $this->assertIsArray($json);
+        $this->assertTrue($json['success'] ?? false, 'Ships command should succeed');
+        $this->assertIsArray($json['data'] ?? null, 'Ships data should be an array');
+        $this->assertNotEmpty($json['data'], 'Ships data should not be empty');
     }
 
     public function test_queryCommand_stationsWithValidSave(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('stations', [
+            'saveIdentifier' => self::TEST_SAVE_NAME
+        ]);
 
-        try {
-            $this->simulateCLIArguments(['stations', '--save=' . self::TEST_SAVE_NAME]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertEquals('stations', $json['command'] ?? '');
@@ -179,22 +132,12 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_playerWithValidSave(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('player', [
+            'saveIdentifier' => self::TEST_SAVE_NAME
+        ]);
 
-        try {
-            $this->simulateCLIArguments(['player', '--save=' . self::TEST_SAVE_NAME]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertEquals('player', $json['command'] ?? '');
@@ -207,21 +150,10 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withoutSaveParameter_showsError(): void
     {
-        ob_start();
+        $this->expectException(\Mistralys\X4\SaveViewer\CLI\QueryValidationException::class);
+        $this->expectExceptionMessage('save parameter is required');
 
-        try {
-            $this->simulateCLIArguments(['ships']); // No --save parameter
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
-        $this->assertIsArray($json);
-        $this->assertFalse($json['success'] ?? true, 'Response should indicate failure');
-        $this->assertStringContainsString('save', strtolower($json['message'] ?? ''), 'Error should mention save parameter');
+        $this->executeCommand('ships'); // No save parameter
     }
 
     // =========================================================================
@@ -230,28 +162,12 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withNonExistentSave_showsError(): void
     {
-        $this->simulateCLIArguments(['ships', '--save=nonexistent-save-xyz']);
+        $this->expectException(\Mistralys\X4\SaveViewer\CLI\QueryValidationException::class);
+        $this->expectExceptionMessage('not found');
 
-        // Verify argv is set correctly
-        $this->assertContains('--save=nonexistent-save-xyz', $_SERVER['argv'], 'argv should contain the save parameter');
-
-        ob_start();
-
-        try {
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
-        $this->assertIsArray($json);
-        $this->assertFalse($json['success'] ?? true, 'Response should indicate failure');
-        // Note: Due to a limitation with league/climate in PHPUnit test context,
-        // CLI arguments don't get parsed correctly, so we get "save parameter required" error
-        // instead of the expected "not found" error. This is acceptable for testing error handling.
-        $this->assertNotEmpty($json['message'] ?? '', 'Error message should not be empty');
+        $this->executeCommand('ships', [
+            'saveIdentifier' => 'nonexistent-save-xyz'
+        ]);
     }
 
     // =========================================================================
@@ -275,21 +191,12 @@ class CommandExecutionTest extends TestCase
             $this->markTestSkipped('No non-extracted saves available for testing');
         }
 
-        ob_start();
+        $this->expectException(\Mistralys\X4\SaveViewer\CLI\QueryValidationException::class);
+        $this->expectExceptionMessage('not extracted');
 
-        try {
-            $this->simulateCLIArguments(['ships', '--save=' . $nonExtractedSave->getSaveName()]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
-        $this->assertIsArray($json);
-        $this->assertFalse($json['success'] ?? true, 'Response should indicate failure');
-        $this->assertStringContainsString('extract', strtolower($json['message'] ?? ''), 'Error should mention extraction');
+        $this->executeCommand('ships', [
+            'saveIdentifier' => $nonExtractedSave->getSaveName()
+        ]);
     }
 
     // =========================================================================
@@ -298,23 +205,12 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withInvalidCommand_showsError(): void
     {
-        ob_start();
+        $this->expectException(\Mistralys\X4\SaveViewer\CLI\QueryValidationException::class);
+        $this->expectExceptionMessage('Unknown command');
 
-        try {
-            $this->simulateCLIArguments(['invalid-command-xyz', '--save=' . self::TEST_SAVE_NAME]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
-        $this->assertIsArray($json);
-        $this->assertFalse($json['success'] ?? true, 'Response should indicate failure');
-        // Note: Due to a limitation with league/climate in PHPUnit test context,
-        // CLI arguments don't get parsed correctly. This test still verifies error handling works.
-        $this->assertNotEmpty($json['message'] ?? '', 'Error message should not be empty');
+        $this->executeCommand('invalid-command-xyz', [
+            'saveIdentifier' => self::TEST_SAVE_NAME
+        ]);
     }
 
     // =========================================================================
@@ -323,28 +219,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withJMESPathFilter(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[0]', // Get first item
+            'limit' => 1
+        ]);
 
-        try {
-            // Use a simple filter that always matches (e.g., filter to get first element)
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[0]', // Get first item
-                '--limit=1'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false, 'Filtered query should succeed');
 
@@ -356,35 +238,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withInvalidFilter_showsError(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $this->expectException(\JmesPath\SyntaxErrorException::class);
 
-        try {
-            // Use invalid JMESPath syntax
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[invalid syntax'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            // JMESPath syntax errors may throw exceptions
-            $this->assertStringContainsString('syntax', strtolower($e->getMessage()));
-            return;
-        }
-
-        // If no exception, check for error response
-        $json = json_decode($output, true);
-        $this->assertIsArray($json);
-        // Filter errors might be caught and returned as error response
-        if (isset($json['success'])) {
-            $this->assertFalse($json['success'], 'Invalid filter should cause error');
-        }
+        $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[invalid syntax'
+        ]);
     }
 
     // =========================================================================
@@ -393,27 +254,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withLimitAndOffset(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'limit' => 5,
+            'offset' => 0
+        ]);
 
-        try {
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--limit=5',
-                '--offset=0'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertArrayHasKey('pagination', $json, 'Response should include pagination metadata');
@@ -432,26 +280,13 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_paginationMetadata(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'limit' => 3
+        ]);
 
-        try {
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--limit=3'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $pagination = $json['pagination'] ?? [];
 
         $this->assertArrayHasKey('total', $pagination);
@@ -474,28 +309,15 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withCacheKey_storesResult(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
         $cacheKey = 'test-cache-' . time();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[0:5]', // Filter to get first 5 items
+            'cacheKey' => $cacheKey
+        ]);
 
-        try {
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[0:5]', // Filter to get first 5 items
-                '--cache-key=' . $cacheKey
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertTrue($json['success'] ?? false, 'Query with cache key should succeed');
 
         // Note: We can't directly verify cache was stored without accessing cache internals,
@@ -505,47 +327,25 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withCacheKey_retrievesCached(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
         $cacheKey = 'test-cache-retrieve-' . time();
 
         // First request - stores in cache
-        ob_start();
-        try {
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[0:3]',
-                '--cache-key=' . $cacheKey
-            ]);
-            $this->handler->handle();
-            $firstOutput = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $firstJson = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[0:3]',
+            'cacheKey' => $cacheKey
+        ]);
 
-        $firstJson = json_decode($firstOutput, true);
         $this->assertTrue($firstJson['success'] ?? false);
 
         // Second request - should retrieve from cache
-        ob_start();
-        try {
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[0:3]',
-                '--cache-key=' . $cacheKey
-            ]);
-            $this->handler->handle();
-            $secondOutput = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $secondJson = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[0:3]',
+            'cacheKey' => $cacheKey
+        ]);
 
-        $secondJson = json_decode($secondOutput, true);
         $this->assertTrue($secondJson['success'] ?? false);
 
         // Results should be identical (cached)
@@ -558,18 +358,8 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_listSaves_noSaveRequired(): void
     {
-        ob_start();
+        $json = $this->executeCommand('list-saves');
 
-        try {
-            $this->simulateCLIArguments(['list-saves']);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false, 'list-saves should succeed without --save parameter');
         $this->assertArrayHasKey('main', $json['data'] ?? []);
@@ -578,18 +368,8 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_clearCache_noSaveRequired(): void
     {
-        ob_start();
+        $json = $this->executeCommand('clear-cache');
 
-        try {
-            $this->simulateCLIArguments(['clear-cache']);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false, 'clear-cache should succeed');
         $this->assertArrayHasKey('cleared', $json['data'] ?? [], 'Response should include cleared count');
@@ -601,28 +381,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withContainsICaseInsensitive(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?contains_i(name, \'scout\')]',
+            'limit' => 5
+        ]);
 
-        try {
-            // Search for ships with 'scout' in name (case-insensitive)
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?contains_i(name, \'scout\')]',
-                '--limit=5'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
@@ -639,28 +405,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withStartsWithICaseInsensitive(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?starts_with_i(name, \'argon\')]',
+            'limit' => 5
+        ]);
 
-        try {
-            // Search for ships starting with 'argon' (case-insensitive)
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?starts_with_i(name, \'argon\')]',
-                '--limit=5'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
@@ -677,28 +429,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withEndsWithICaseInsensitive(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?ends_with_i(name, \'mk2\')]',
+            'limit' => 5
+        ]);
 
-        try {
-            // Search for ships ending with 'mk2' (case-insensitive)
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?ends_with_i(name, \'mk2\')]',
-                '--limit=5'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
@@ -715,28 +453,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withToLowerAndContains(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?contains(to_lower(name), \'fighter\')]',
+            'limit' => 5
+        ]);
 
-        try {
-            // Use to_lower() with standard contains() for case-insensitive search
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?contains(to_lower(name), \'fighter\')]',
-                '--limit=5'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
@@ -753,28 +477,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withChainedFiltersPerformancePattern(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?faction==\'argon\'] | [?contains_i(name, \'scout\')]',
+            'limit' => 10
+        ]);
 
-        try {
-            // Performance pattern: filter by faction first, then case-insensitive search
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?faction==\'argon\'] | [?contains_i(name, \'scout\')]',
-                '--limit=10'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
@@ -794,28 +504,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withMultipleCaseInsensitiveConditions(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('ships', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?starts_with_i(name, \'argon\') && contains_i(name, \'scout\')]',
+            'limit' => 5
+        ]);
 
-        try {
-            // Multiple case-insensitive conditions combined
-            $this->simulateCLIArguments([
-                'ships',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?starts_with_i(name, \'argon\') && contains_i(name, \'scout\')]',
-                '--limit=5'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
@@ -834,28 +530,14 @@ class CommandExecutionTest extends TestCase
 
     public function test_queryCommand_withStationsCommand(): void
     {
-        $this->requiresWorkingCLIArgParsing();
-
         $save = $this->getTestSave();
 
-        ob_start();
+        $json = $this->executeCommand('stations', [
+            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'filter' => '[?contains_i(name, \'trading\')]',
+            'limit' => 5
+        ]);
 
-        try {
-            // Test case-insensitive search with stations command
-            $this->simulateCLIArguments([
-                'stations',
-                '--save=' . self::TEST_SAVE_NAME,
-                '--filter=[?contains_i(name, \'trading\')]',
-                '--limit=5'
-            ]);
-            $this->handler->handle();
-            $output = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
-
-        $json = json_decode($output, true);
         $this->assertIsArray($json);
         $this->assertTrue($json['success'] ?? false);
         $this->assertIsArray($json['data'] ?? null);
