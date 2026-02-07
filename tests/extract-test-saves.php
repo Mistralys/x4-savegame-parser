@@ -6,6 +6,10 @@
  * unpack and extract them for the tests to access the
  * extracted data.
  *
+ * This will delete any existing extracted files in the
+ * storage folder before extracting the test saves,
+ * to ensure a clean state for the tests.
+ *
  * > NOTE: This is done to keep the file size to a minimum
  * > in the repository.
  */
@@ -35,18 +39,16 @@ if($storageFolder->exists()) {
     $storageFolder->create();
 }
 
-$names = $savesFolder->createFileFinder()
-    ->includeExtension('gz')
-    ->makeRecursive()
-    ->setPathmodeStrip()
-    ->getMatches();
+// These saves are provided by the mistralys/x4-savegame package.
+$testSaveNames = array(
+    'advanced-creative-v8',
+    'start-scientist-v8'
+);
 
 $manager = SaveManager::createFromConfig();
 
-foreach($names as $saveName)
+foreach($testSaveNames as $saveName)
 {
-    $saveName = str_replace('.xml.gz', '', $saveName);
-
     $extractedXML = FileInfo::factory($savesFolder.'/'.$saveName.'.xml');
 
     // Clean up any existing extracted XML files for this save
