@@ -27,7 +27,6 @@
   },
   "require": {
     "mistralys/x4-core": ">=1.2.1",
-    "mistralys/x4-savegame": "dev-main",
     "mistralys/version-parser": ">=2.1.1",
     "mistralys/application-localization": ">=2.1.2",
     "react/http": ">=v1.9.0",
@@ -42,6 +41,7 @@
     "phpunit/phpunit": ">=12.5",
     "phpstan/phpstan": ">=2.1",
     "roave/security-advisories": "dev-latest",
+    "mistralys/x4-savegame": "dev-main",
     "ext-zlib": "*"
   }
 }

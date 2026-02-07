@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3250747d9278554b07c1c4559a0dda64",
+    "content-hash": "3968828530420949baf6020effbbf096",
     "packages": [
         {
             "name": "components/jquery",
@@ -1039,40 +1039,6 @@
                 "source": "https://github.com/Mistralys/x4-data-extractor/tree/2.0.0"
             },
             "time": "2026-01-25T16:10:38+00:00"
-        },
-        {
-            "name": "mistralys/x4-savegame",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Mistralys/x4-savegame.git",
-                "reference": "1e1ac6bc6458583817712730be52222dffc5fdf4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/x4-savegame/zipball/1e1ac6bc6458583817712730be52222dffc5fdf4",
-                "reference": "1e1ac6bc6458583817712730be52222dffc5fdf4",
-                "shasum": ""
-            },
-            "default-branch": true,
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Sebastian Mordziol",
-                    "email": "s.mordziol@mistralys.eu",
-                    "homepage": "https://mistralys.eu"
-                }
-            ],
-            "description": "X4 savegame documentation and data files for XML structure reference",
-            "support": {
-                "issues": "https://github.com/Mistralys/x4-savegame/issues",
-                "source": "https://github.com/Mistralys/x4-savegame/tree/main"
-            },
-            "time": "2026-02-07T11:27:09+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
@@ -2355,6 +2321,50 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "mistralys/x4-savegame",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mistralys/x4-savegame.git",
+                "reference": "8a1212eaf4020025df236186f094792ce0ff81da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mistralys/x4-savegame/zipball/8a1212eaf4020025df236186f094792ce0ff81da",
+                "reference": "8a1212eaf4020025df236186f094792ce0ff81da",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "phpunit/phpunit": ">=12.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Command\\": "src/Command/",
+                    "X4\\Savegame\\": "src/X4/Savegame/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Mordziol",
+                    "email": "s.mordziol@mistralys.eu",
+                    "homepage": "https://mistralys.eu"
+                }
+            ],
+            "description": "X4 savegame documentation and data files for XML structure reference",
+            "support": {
+                "issues": "https://github.com/Mistralys/x4-savegame/issues",
+                "source": "https://github.com/Mistralys/x4-savegame/tree/main"
+            },
+            "time": "2026-02-07T15:19:30+00:00"
+        },
         {
             "name": "myclabs/deep-copy",
             "version": "1.13.4",
