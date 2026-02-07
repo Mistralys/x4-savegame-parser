@@ -10,16 +10,16 @@ audit.
 
 ## Quick Navigation
 
-- **New to the project?** Start with [Tech Stack & Patterns](./01-tech-stack-and-patterns.md)
-- **Need API reference?** See [Public API Reference](./03-public-api-reference.md)
-- **Understanding data flow?** Read [Data Flows](./04-data-flows.md)
-- **Working with constraints?** Check [Constraints & Rules](./05-constraints-and-rules.md)
+- **New to the project?** Start with [Tech Stack & Patterns](./tech-stack-and-patterns.md)
+- **Need API reference?** See [Public API Reference](./public-api-reference.md)
+- **Understanding data flow?** Read [Data Flows](./data-flows.md)
+- **Working with constraints?** Check [Constraints & Rules](./constraints-and-rules.md)
 
 ---
 
 ## Core Documents
 
-### 1. [Tech Stack & Patterns](./01-tech-stack-and-patterns.md)
+### [Tech Stack & Patterns](./tech-stack-and-patterns.md)
 **Purpose**: Overview of runtime environment, dependencies, and architectural patterns.
 
 **Contents**:
@@ -34,7 +34,7 @@ audit.
 
 ---
 
-### 2. [File Tree](./02-file-tree.md)
+### [File Tree](./file-tree.md)
 **Purpose**: Visual directory structure of the entire project.
 
 **Contents**:
@@ -50,7 +50,7 @@ audit.
 
 ---
 
-### 3. [Public API Reference](./03-public-api-reference.md)
+### [Public API Reference](./public-api-reference.md)
 **Purpose**: Comprehensive signature-only reference for all public classes and methods.
 
 **Contents**:
@@ -69,7 +69,7 @@ audit.
 
 ---
 
-### 4. [Data Flows](./04-data-flows.md)
+### [Data Flows](./data-flows.md)
 **Purpose**: Detailed description of how data moves through the system.
 
 **Contents**:
@@ -87,7 +87,7 @@ audit.
 
 ---
 
-### 5. [Constraints & Rules](./05-constraints-and-rules.md)
+### [Constraints & Rules](./constraints-and-rules.md)
 **Purpose**: Established architectural constraints, conventions, and rules.
 
 **Contents**:
@@ -109,7 +109,7 @@ audit.
 
 ## Specialized Documents
 
-### 6. [NDJSON Interface](./ndjson-interface.md)
+### [NDJSON Interface](./ndjson-interface.md)
 **Purpose**: Technical specification for the Monitor's machine-readable output protocol.
 
 **Contents**:
@@ -122,7 +122,7 @@ audit.
 
 ---
 
-### 7. [CLI API Reference](./07-cli-api-reference.md)
+### [CLI API Reference](./cli-api-reference.md)
 **Purpose**: Complete reference for the CLI query API and JMESPath filtering.
 
 **Contents**:
@@ -137,7 +137,7 @@ audit.
 
 ---
 
-### 8. [Extracted Save Location](./08-extracted-save-location.md)
+### [Extracted Save Location](./extracted-save-location.md)
 **Purpose**: Comprehensive guide to where extracted savegame data is stored.
 
 **Contents**:
@@ -156,19 +156,19 @@ audit.
 ```
 Start Here
     ↓
-[01-tech-stack-and-patterns.md] ← Overview of "what" and "why"
+[tech-stack-and-patterns.md] ← Overview of "what" and "why"
     ↓
-[02-file-tree.md] ← "Where" is everything located
+[file-tree.md] ← "Where" is everything located
     ↓
-[03-public-api-reference.md] ← "What" methods are available
+[public-api-reference.md] ← "What" methods are available
     ↓
-[04-data-flows.md] ← "How" does data move through the system
+[data-flows.md] ← "How" does data move through the system
     ↓
-[05-constraints-and-rules.md] ← "Why" are things done this way
+[constraints-and-rules.md] ← "Why" are things done this way
     ↓
     ├─→ [ndjson-interface.md] ← Specialized: Monitor protocol
-    ├─→ [07-cli-api-reference.md] ← Specialized: CLI Query API
-    └─→ [08-extracted-save-location.md] ← Specialized: Storage configuration
+    ├─→ [cli-api-reference.md] ← Specialized: CLI Query API
+    └─→ [extracted-save-location.md] ← Specialized: Storage configuration
 ```
 
 ---
@@ -177,24 +177,24 @@ Start Here
 
 ### For AI Agents
 
-1. **Initial Context Gathering**: Read documents 1-2 for project overview
-2. **Implementation Tasks**: Reference document 3 for API signatures
-3. **Understanding Flows**: Use document 4 to trace data paths
-4. **Constraint Validation**: Check document 5 before making changes
+1. **Initial Context Gathering**: Read Tech Stack & Patterns and File Tree for project overview
+2. **Implementation Tasks**: Reference Public API Reference for API signatures
+3. **Understanding Flows**: Use Data Flows to trace data paths
+4. **Constraint Validation**: Check Constraints & Rules before making changes
 5. **Specialized Features**: 
-   - Refer to document 6 (NDJSON) for monitor integration
-   - Refer to document 7 (CLI API) for query interface integration
-   - Refer to document 8 (Storage) for extraction and storage configuration
+   - Refer to NDJSON Interface for monitor integration
+   - Refer to CLI API Reference for query interface integration
+   - Refer to Extracted Save Location for extraction and storage configuration
 
 ### For Documentation Updates
 
 When code changes affect the manifest:
 
-1. **New Classes**: Update document 3 (API Reference)
-2. **New Features**: Update document 4 (Data Flows) if data processing changes
-3. **Architectural Changes**: Update document 5 (Constraints) and explain rationale
-4. **Directory Changes**: Update document 2 (File Tree)
-5. **Dependency Changes**: Update document 1 (Tech Stack)
+1. **New Classes**: Update Public API Reference
+2. **New Features**: Update Data Flows if data processing changes
+3. **Architectural Changes**: Update Constraints & Rules and explain rationale
+4. **Directory Changes**: Update File Tree
+5. **Dependency Changes**: Update Tech Stack
 
 ---
 
@@ -209,7 +209,7 @@ When code changes affect the manifest:
 
 ### Signature-Only Rule
 
-- Document 3 (API Reference) must remain **signatures only**
+- Public API Reference must remain **signatures only**
 - No implementation details or code logic
 - Focus on "what" methods do, not "how" they do it
 - Use PHPDoc for parameter/return type details
@@ -217,9 +217,37 @@ When code changes affect the manifest:
 ### Clarity Over Brevity
 
 - Err on the side of more explanation
-- Use examples liberally in documents 4 and 5
+- Use examples liberally in Data Flows and Constraints & Rules
 - Maintain clear section hierarchy
 - Keep navigation links updated
+
+---
+
+## Single-File Version (NotebookLM)
+
+For tools like NotebookLM that work better with single files, a merged version of all manifest documents is available:
+
+**File**: `X4-Savegame-Parser-Manifest.md` (in the docs directory)
+
+**To regenerate**:
+```bash
+# Windows
+bin\merge-manifest.bat
+
+# Unix/Linux/Mac
+bin/merge-manifest
+```
+
+**How it works**:
+- Automatically discovers all `.md` files in the project-manifest directory
+- README.md is always placed first
+- Other documents follow in alphabetical order
+- No manual maintenance needed when adding or renaming files
+
+**Transformations applied**:
+- All headers increased by one level (add one `#`)
+- File links converted to anchor links (e.g., `[doc](./file.md)` → `[doc](#file)`)
+- Each document gets an anchor ID for navigation
 
 ---
 

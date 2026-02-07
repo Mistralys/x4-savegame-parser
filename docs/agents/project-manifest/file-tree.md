@@ -212,12 +212,14 @@ x4-savegame-parser/
 │   │   ├── plans/
 │   │   └── project-manifest/     # THIS DIRECTORY
 │   │       ├── README.md
+│   │       ├── cli-api-reference.md
+│   │       ├── constraints-and-rules.md
+│   │       ├── data-flows.md
+│   │       ├── extracted-save-location.md
+│   │       ├── file-tree.md
 │   │       ├── ndjson-interface.md
-│   │       ├── 01-tech-stack-and-patterns.md
-│   │       ├── 02-file-tree.md
-│   │       ├── 03-public-api-reference.md
-│   │       ├── 04-data-flows.md
-│   │       └── 05-constraints-and-rules.md
+│   │       ├── public-api-reference.md
+│   │       └── tech-stack-and-patterns.md
 │   └── screenshots/              # UI screenshots
 │       ├── screen-archived-saves.png
 │       ├── screen-event-log.png

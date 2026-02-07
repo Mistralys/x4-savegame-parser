@@ -240,6 +240,6 @@ If you only set `gameFolder` and `savesFolder`, the system will automatically us
 
 ## See Also
 
-- [CLI API Reference](./agents/project-manifest/07-cli-api-reference.md) - Query extracted savegame data
-- [Data Flows](./agents/project-manifest/04-data-flows.md) - How extraction works internally
-- [File Tree](./agents/project-manifest/02-file-tree.md) - Project structure overview
+- [CLI API Reference](./cli-api-reference.md) - Query extracted savegame data
+- [Data Flows](./data-flows.md) - How extraction works internally
+- [File Tree](./file-tree.md) - Project structure overview

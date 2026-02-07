@@ -310,7 +310,7 @@ Use `--limit` and `--offset` for pagination, with `--cache-key` for performance:
 
 #### Complete Documentation
 
-See [CLI API Reference](docs/agents/project-manifest/07-cli-api-reference.md) for:
+See [CLI API Reference](docs/agents/project-manifest/cli-api-reference.md) for:
 - Complete command reference with schemas
 - JMESPath filtering guide
 - Pagination and caching workflows
@@ -402,7 +402,7 @@ command line. This is mainly used for debugging purposes when developing.
 
 ## Navigating savegame data
 
-> **📖 For comprehensive details**, see the [Extracted Save Location](./docs/agents/project-manifest/08-extracted-save-location.md) documentation.
+> **📖 For comprehensive details**, see the [Extracted Save Location](./docs/agents/project-manifest/extracted-save-location.md) documentation.
 
 ### Archive folders
 
