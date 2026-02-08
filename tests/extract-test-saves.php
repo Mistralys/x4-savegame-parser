@@ -24,6 +24,7 @@ use AppUtils\FileHelper\FolderInfo;
 use Mistralys\X4\SaveViewer\Config\Config;
 use Mistralys\X4\SaveViewer\Data\SaveManager;
 use Mistralys\X4\SaveViewer\SaveParser;
+use X4\SaveGameParserTests\TestClasses\TestSaveNames;
 
 $savesFolder = FolderInfo::factory(__DIR__.'/../vendor/mistralys/x4-savegame/saves');
 $storageFolder = FolderInfo::factory(__DIR__.'/files/test-saves');
@@ -40,10 +41,7 @@ if($storageFolder->exists()) {
 }
 
 // These saves are provided by the mistralys/x4-savegame package.
-$testSaveNames = array(
-    'advanced-creative-v8',
-    'start-scientist-v8'
-);
+$testSaveNames = TestSaveNames::getAllSaveNames();
 
 $manager = SaveManager::createFromConfig();
 
