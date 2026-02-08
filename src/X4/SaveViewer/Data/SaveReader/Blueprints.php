@@ -174,12 +174,12 @@ class Blueprints extends Info
         foreach ($all as $blueprint) {
             $result[] = [
                 'id' => $blueprint->getID(),
-                'name' => $blueprint->getName(),
+                'name' => $blueprint->getLabel(),
                 'owned' => $this->isOwned($blueprint),
                 'category' => $blueprint->getCategory()->getID(),
                 'categoryLabel' => $blueprint->getCategory()->getLabel(),
-                'race' => $blueprint->getRace()->getID(),
-                'raceLabel' => $blueprint->getRace()->getLabel()
+                'race' => $blueprint->getRace()?->getID(),
+                'raceLabel' => $blueprint->getRace()?->getLabel()
             ];
         }
 
