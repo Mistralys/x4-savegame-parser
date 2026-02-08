@@ -998,6 +998,10 @@ bin/query ships --save=quicksave \
 3. Save modified: Cache automatically invalidated
 4. New request: Re-filter and create new cache
 
+**Log Command Optimization**:
+- A pre-sorted full log cache may be stored as `query-_log_full_<saveID>.json`
+- Unfiltered log queries also auto-cache to `query-_log_unfiltered_<saveID>.json`
+
 ### Cache Management
 
 ```bash

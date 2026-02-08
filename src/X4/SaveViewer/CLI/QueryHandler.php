@@ -291,35 +291,35 @@ class QueryHandler
     private function execute_factions(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
-        $data = $reader->getFactions()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($reader) : array {
+            return $reader->getFactions()->toArrayForAPI();
+        });
         return $this->outputSuccess(self::COMMAND_FACTIONS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_blueprints(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
-        $data = $reader->getBlueprints()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($reader) : array {
+            return $reader->getBlueprints()->toArrayForAPI();
+        });
         return $this->outputSuccess(self::COMMAND_BLUEPRINTS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_inventory(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
-        $data = $reader->getInventory()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($reader) : array {
+            return $reader->getInventory()->toArrayForAPI();
+        });
         return $this->outputSuccess(self::COMMAND_INVENTORY, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_log(BaseSaveFile $save, QueryParameters $params): string
     {
-        $reader = $save->getDataReader();
-        $data = $reader->getLog()->toArrayForAPI();
-
         // Auto-cache for unfiltered queries (WP3: Logbook Performance Optimization)
         $filter = $params->filter;
         $cacheKey = $params->cacheKey;
@@ -330,97 +330,114 @@ class QueryHandler
             $effectiveCacheKey = '_log_unfiltered_' . $save->getSaveID();
         }
 
-        $data = $this->applyFilteringAndPagination($save, $data, $params, $effectiveCacheKey);
+        $fullLogCacheKey = $this->getFullLogCacheKey($save);
+
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, $effectiveCacheKey, function() use ($save, $fullLogCacheKey) : array {
+            if ($this->cache->isValid($save, $fullLogCacheKey)) {
+                $cached = $this->cache->retrieve($save, $fullLogCacheKey);
+
+                if (is_array($cached)) {
+                    return $cached;
+                }
+            }
+
+            $data = $save->getDataReader()->getLog()->toArrayForAPI();
+            $this->cache->store($save, $fullLogCacheKey, $data);
+
+            return $data;
+        });
         return $this->outputSuccess(self::COMMAND_LOG, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_khaakStations(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
-        $data = $reader->getKhaakStations()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($reader) : array {
+            return $reader->getKhaakStations()->toArrayForAPI();
+        });
         return $this->outputSuccess(self::COMMAND_KHAAK_STATIONS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_shipLosses(BaseSaveFile $save, QueryParameters $params): string
     {
         $reader = $save->getDataReader();
-        $data = $reader->getShipLosses()->toArrayForAPI();
 
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($reader) : array {
+            return $reader->getShipLosses()->toArrayForAPI();
+        });
         return $this->outputSuccess(self::COMMAND_SHIP_LOSSES, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_ships(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->ships()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->ships()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_SHIPS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_stations(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->stations()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->stations()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_STATIONS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_people(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->people()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->people()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_PEOPLE, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_sectors(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->sectors()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->sectors()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_SECTORS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_zones(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->zones()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->zones()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_ZONES, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_regions(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->regions()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->regions()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_REGIONS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_clusters(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->clusters()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->clusters()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_CLUSTERS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_celestials(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->celestials()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->celestials()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_CELESTIALS, $data['data'], $data['pagination'], $params);
     }
 
     private function execute_eventLog(BaseSaveFile $save, QueryParameters $params): string
     {
-        $data = $this->flattenCollectionArray($save->getDataReader()->getCollections()->eventLog()->loadData());
-
-        $data = $this->applyFilteringAndPagination($save, $data, $params);
+        $data = $this->applyFilteringAndPaginationLazy($save, $params, null, function() use ($save) : array {
+            return $this->flattenCollectionArray($save->getDataReader()->getCollections()->eventLog()->loadData());
+        });
         return $this->outputSuccess(self::COMMAND_EVENT_LOG, $data['data'], $data['pagination'], $params);
     }
 
@@ -624,7 +641,16 @@ class QueryHandler
      * @param string|null $overrideCacheKey Override cache key (for auto-cache, WP3)
      * @return array{data: array, pagination: array|null} Processed data and pagination metadata
      */
-    private function applyFilteringAndPagination(BaseSaveFile $save, array $data, QueryParameters $params, ?string $overrideCacheKey = null): array
+    /**
+     * Apply filtering and pagination to data, with lazy data generation.
+     *
+     * @param BaseSaveFile $save The save file (for caching)
+     * @param QueryParameters $params The query parameters
+     * @param string|null $overrideCacheKey Override cache key (for auto-cache, WP3)
+     * @param callable(): array $dataProvider Lazy data provider
+     * @return array{data: array, pagination: array|null} Processed data and pagination metadata
+     */
+    private function applyFilteringAndPaginationLazy(BaseSaveFile $save, QueryParameters $params, ?string $overrideCacheKey, callable $dataProvider): array
     {
         $filter = $params->filter;
         $limit = $params->limit;
@@ -633,16 +659,21 @@ class QueryHandler
         // Use override cache key if provided, otherwise use CLI argument
         $cacheKey = $overrideCacheKey ?? $params->cacheKey;
 
-        // Try to use cache if cache key provided
+        $data = null;
+        $cacheHit = false;
+
         if (!empty($cacheKey) && $this->cache->isValid($save, $cacheKey)) {
-            $data = $this->cache->retrieve($save, $cacheKey) ?? $data;
-        } else {
-            // Apply filter if provided
+            $data = $this->cache->retrieve($save, $cacheKey);
+            $cacheHit = is_array($data);
+        }
+
+        if (!$cacheHit) {
+            $data = $dataProvider();
+
             if (!empty($filter)) {
                 $data = $this->applyFilter($data, $filter);
             }
 
-            // Store in cache if cache key provided (WP3: Cache both filtered and unfiltered data)
             if (!empty($cacheKey)) {
                 $this->cache->store($save, $cacheKey, $data);
             }
@@ -659,6 +690,11 @@ class QueryHandler
             'data' => $data,
             'pagination' => $pagination
         ];
+    }
+
+    private function getFullLogCacheKey(BaseSaveFile $save): string
+    {
+        return '_log_full_' . $save->getSaveID();
     }
 
     /**

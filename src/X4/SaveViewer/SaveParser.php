@@ -181,12 +181,14 @@ class SaveParser extends BaseXMLParser
 
             // Get the auto-cache key (same format as WP3)
             $cacheKey = '_log_unfiltered_' . $save->getSaveID();
+            $fullCacheKey = '_log_full_' . $save->getSaveID();
 
             // Get all log entries (already optimized by WP2)
             $data = $reader->getLog()->toArrayForAPI();
 
             // Store in query cache
             $cache = new QueryCache($save->getManager());
+            $cache->store($save, $fullCacheKey, $data);
             $cache->store($save, $cacheKey, $data);
 
             $this->log('Log query cache warmed successfully (' . count($data) . ' entries).');

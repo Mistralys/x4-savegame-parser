@@ -30,6 +30,11 @@ class Log extends Info
     private array $entries = array();
     private LogCategories $categories;
     private LogAnalysisCache $analysisCache;
+    /**
+     * @var array<int,array<string,mixed>>|null
+     */
+    private ?array $cachedApiEntries = null;
+    private ?string $cachedApiEntriesCacheDate = null;
 
     protected function init() : void
     {
@@ -98,6 +103,9 @@ class Log extends Info
 
         $this->analysisCache->getWriter()
             ->writeFiles($categories);
+
+        $this->cachedApiEntries = null;
+        $this->cachedApiEntriesCacheDate = null;
 
         return $categories;
     }
@@ -174,12 +182,21 @@ class Log extends Info
      */
     public function toArrayForAPI(): array
     {
+        $cacheDate = $this->analysisCache->getCacheDate();
+        $cacheDateString = $cacheDate ? $cacheDate->getISODate() : null;
+
+        if ($this->cachedApiEntries !== null && $this->isCacheValid() && $this->cachedApiEntriesCacheDate === $cacheDateString) {
+            return $this->cachedApiEntries;
+        }
+
         // Generate cache if missing (for legacy saves)
         if (!$this->isCacheValid()) {
             // Output to stderr for transparency while keeping JSON clean
             file_put_contents('php://stderr', "Generating log analysis cache...\n");
             $this->generateAnalysisCache();
             file_put_contents('php://stderr', "Log analysis cache generated.\n");
+            $cacheDate = $this->analysisCache->getCacheDate();
+            $cacheDateString = $cacheDate ? $cacheDate->getISODate() : null;
         }
 
         // Load categorized entries
@@ -188,7 +205,7 @@ class Log extends Info
 
         // Sort in descending time order (newest first)
         usort($entries, static function(LogEntry $a, LogEntry $b) : float {
-            return $b->getTime()->getDuration() - $a->getTime()->getDuration();
+            return $b->getTime()->getValue() - $a->getTime()->getValue();
         });
 
         // Convert to API format
@@ -204,6 +221,9 @@ class Log extends Info
                 'money' => $entry->getMoney()
             ];
         }
+
+        $this->cachedApiEntries = $result;
+        $this->cachedApiEntriesCacheDate = $cacheDateString;
 
         return $result;
     }

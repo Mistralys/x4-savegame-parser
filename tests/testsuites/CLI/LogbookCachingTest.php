@@ -106,8 +106,10 @@ final class LogbookCachingTest extends X4ParserTestCase
         // Verify analysis cache exists
         $eventLogDir = $save->getStorageFolder()->getPath() . '/JSON/event-log';
 
+        // Generate cache if it doesn't exist
         if (!is_dir($eventLogDir)) {
-            $this->markTestSkipped('Event log cache not generated for this test save. Run extraction with log caching enabled to generate it.');
+            $log = $save->getDataReader()->getLog();
+            $log->generateAnalysisCache();
         }
 
         $this->assertDirectoryExists(
@@ -132,8 +134,11 @@ final class LogbookCachingTest extends X4ParserTestCase
         // Get first category file
         $categoryFiles = glob($eventLogDir . '/*.json');
 
+        // Generate cache if it doesn't exist
         if (empty($categoryFiles)) {
-            $this->markTestSkipped('No category cache files found. Run extraction with log caching enabled.');
+            $log = $save->getDataReader()->getLog();
+            $log->generateAnalysisCache();
+            $categoryFiles = glob($eventLogDir . '/*.json');
         }
 
         $this->assertNotEmpty($categoryFiles, 'Should have at least one category file');
@@ -363,21 +368,26 @@ final class LogbookCachingTest extends X4ParserTestCase
         // Check if cache was warmed during extraction
         $cacheFiles = glob($autoCachePattern) ?: [];
 
-        // Note: This test assumes the test save was extracted with WP4 enabled
-        // If test save is from before WP4, this assertion would fail
-        if (count($cacheFiles) > 0) {
-            $this->assertNotEmpty(
-                $cacheFiles,
-                'WP4: Query cache should be warmed after extraction'
-            );
-
-            // Verify cache content
-            $cacheData = json_decode(file_get_contents($cacheFiles[0]), true);
-            $this->assertIsArray($cacheData, 'Warmed cache should contain valid data');
-            $this->assertGreaterThan(0, count($cacheData), 'Warmed cache should not be empty');
-        } else {
-            $this->markTestSkipped('Test save was not extracted with WP4 cache warming');
+        // Generate cache if it doesn't exist (e.g., if previous tests cleared it)
+        if (count($cacheFiles) === 0) {
+            $handler = new QueryHandler($this->getSaveManager());
+            $params = QueryParameters::forTest([
+                'saveIdentifier' => $save->getSaveID(),
+                'limit' => 10
+            ]);
+            $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
+            $cacheFiles = glob($autoCachePattern) ?: [];
         }
+
+        $this->assertNotEmpty(
+            $cacheFiles,
+            'WP4: Query cache should be warmed after extraction'
+        );
+
+        // Verify cache content
+        $cacheData = json_decode(file_get_contents($cacheFiles[0]), true);
+        $this->assertIsArray($cacheData, 'Warmed cache should contain valid data');
+        $this->assertGreaterThan(0, count($cacheData), 'Warmed cache should not be empty');
     }
 
     // =========================================================================
@@ -457,18 +467,18 @@ final class LogbookCachingTest extends X4ParserTestCase
     {
         // This is more of a documentation test showing the full workflow
         $save = $this->getTestSave();
+        $log = $save->getDataReader()->getLog();
+
+        if (!$log->isCacheValid()) {
+            $log->generateAnalysisCache();
+        }
 
         // 1. WP1: Analysis cache exists
         $eventLogDir = $save->getStorageFolder()->getPath() . '/JSON/event-log';
 
-        if (!is_dir($eventLogDir)) {
-            $this->markTestSkipped('Event log cache not generated for this test save. Run extraction with log caching enabled.');
-        }
-
         $this->assertDirectoryExists($eventLogDir, 'Step 1: Analysis cache should exist');
 
         // 2. WP2: API returns new format
-        $log = $save->getDataReader()->getLog();
         $data = $log->toArrayForAPI();
         if (count($data) > 0) {
             $this->assertArrayHasKey('categoryID', $data[0], 'Step 2: New format should be used');
@@ -487,10 +497,6 @@ final class LogbookCachingTest extends X4ParserTestCase
         $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
         $cacheFiles = glob($autoCachePattern) ?: [];
-
-        if (empty($cacheFiles)) {
-            $this->markTestSkipped('Auto-cache was not created.');
-        }
 
         $this->assertNotEmpty($cacheFiles, 'Step 3: Auto-cache should be created');
 

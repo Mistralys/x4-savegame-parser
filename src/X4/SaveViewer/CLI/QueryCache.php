@@ -159,15 +159,11 @@ class QueryCache
             return 0;
         }
 
-        // Get all current save IDs from both main and archived saves
-        $currentSaveIDs = [];
-
-        foreach ($this->manager->getSaves() as $save) {
-            $currentSaveIDs[] = $save->getSaveID();
-        }
-
+        // Build a map of known extracted save folders
+        $knownStoragePaths = [];
         foreach ($this->manager->getArchivedSaves() as $save) {
-            $currentSaveIDs[] = $save->getSaveID();
+            $path = FileHelper::normalizePath($save->getStorageFolder()->getPath());
+            $knownStoragePaths[$path] = true;
         }
 
         // Scan storage folder for save directories
@@ -179,19 +175,9 @@ class QueryCache
         }
 
         foreach ($saveDirs as $saveDir) {
-            $saveDirName = basename($saveDir);
+            $saveDirPath = FileHelper::normalizePath($saveDir);
 
-            // Check if this save still exists
-            $saveExists = false;
-            foreach ($currentSaveIDs as $saveID) {
-                if (strpos($saveDirName, $saveID) !== false) {
-                    $saveExists = true;
-                    break;
-                }
-            }
-
-            // Remove cache directory if save no longer exists
-            if (!$saveExists) {
+            if (!isset($knownStoragePaths[$saveDirPath])) {
                 $cacheDir = $saveDir . '/cache';
                 if (is_dir($cacheDir)) {
                     $this->removeCacheDirectory($cacheDir);
