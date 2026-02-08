@@ -110,8 +110,9 @@ abstract class LogCategories
             $result += $category->getEntries();
         }
 
+        // Sort in descending time order (newest first) - matches API expectations
         usort($result, static function(LogEntry $a, LogEntry $b) : float {
-            return $a->getTime()->getDuration() - $b->getTime()->getDuration();
+            return $b->getTime()->getDuration() - $a->getTime()->getDuration();
         });
 
         $this->cachedEntries = $result;
