@@ -983,14 +983,14 @@ bin/query ships --save=quicksave \
 
 ### Cache Behavior
 
-**Storage Location**: `<save-storage-folder>/.cache/query-<cache-key>.json`
+**Storage Location**: `<save-storage-folder>/cache/query-<cache-key>.json`
 
 **Validation**: Cache is automatically invalidated if:
 - Save file is modified (timestamp check)
 - Save file is overwritten with newer version
 - User runs `clear-cache` command
 
-**Isolation**: Each save has its own `.cache` directory - no cross-save contamination
+**Isolation**: Each save has its own `cache` directory - no cross-save contamination
 
 **Lifecycle**:
 1. First request with `--cache-key`: Filter applied, results cached

@@ -15,8 +15,10 @@ declare(strict_types=1);
 namespace X4\SaveGameParserTests\Tests\CLI;
 
 use AppUtils\FileHelper;
+use JmesPath\AstRuntime;
 use Mistralys\X4\SaveViewer\CLI\QueryCache;
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
+use Mistralys\X4\SaveViewer\CLI\JMESPath\CustomFnDispatcher;
 use Mistralys\X4\SaveViewer\CLI\QueryParameters;
 use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
 use X4\SaveGameParserTests\TestClasses\TestSaveNames;
@@ -37,6 +39,60 @@ final class LogbookCachingTest extends X4ParserTestCase
     private function getTestSave()
     {
         return $this->requireSaveByName(TestSaveNames::SAVE_ADVANCED_CREATIVE);
+    }
+
+    private function getCacheDirPath($save): string
+    {
+        return $save->getStorageFolder()->getPath() . '/cache';
+    }
+
+    private function clearAutoCache($save): void
+    {
+        $cacheDir = $this->getCacheDirPath($save);
+        $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
+        $matches = glob($autoCachePattern) ?: [];
+
+        foreach ($matches as $file) {
+            unlink($file);
+        }
+    }
+
+    /**
+     * @param callable(): void $callback
+     * @return array<int,float>
+     */
+    private function measureExecutionTimes(callable $callback, int $iterations): array
+    {
+        $times = [];
+
+        for ($i = 0; $i < $iterations; $i++) {
+            $start = microtime(true);
+            $callback();
+            $times[] = (microtime(true) - $start) * 1000;
+        }
+
+        return $times;
+    }
+
+    /**
+     * @param array<int,float> $values
+     */
+    private function calculateMedian(array $values): float
+    {
+        $count = count($values);
+
+        if ($count === 0) {
+            return 0.0;
+        }
+
+        sort($values);
+        $middle = (int)floor(($count - 1) / 2);
+
+        if ($count % 2 === 1) {
+            return $values[$middle];
+        }
+
+        return ($values[$middle] + $values[$middle + 1]) / 2;
     }
 
     // =========================================================================
@@ -204,13 +260,9 @@ final class LogbookCachingTest extends X4ParserTestCase
     public function test_unfiltered_query_creates_auto_cache(): void
     {
         $save = $this->getTestSave();
-        $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
-
-        // Clean existing auto-cache
+        $cacheDir = $this->getCacheDirPath($save);
+        $this->clearAutoCache($save);
         $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
-        foreach (glob($autoCachePattern) as $file) {
-            unlink($file);
-        }
 
         // Execute unfiltered log query using the testable API
         $handler = new QueryHandler($this->getSaveManager());
@@ -222,7 +274,7 @@ final class LogbookCachingTest extends X4ParserTestCase
         $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
         // Check auto-cache was created
-        $cacheFiles = glob($autoCachePattern);
+        $cacheFiles = glob($autoCachePattern) ?: [];
         $this->assertNotEmpty(
             $cacheFiles,
             'WP3: Unfiltered query should create auto-cache file'
@@ -239,13 +291,7 @@ final class LogbookCachingTest extends X4ParserTestCase
     public function test_auto_cache_speeds_up_pagination(): void
     {
         $save = $this->getTestSave();
-
-        // Clean existing cache
-        $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
-        $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
-        foreach (glob($autoCachePattern) as $file) {
-            unlink($file);
-        }
+        $this->clearAutoCache($save);
 
         $handler = new QueryHandler($this->getSaveManager());
 
@@ -281,11 +327,10 @@ final class LogbookCachingTest extends X4ParserTestCase
     public function test_filtered_query_does_not_create_auto_cache(): void
     {
         $save = $this->getTestSave();
-        $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
-
-        // Clean existing auto-cache
+        $cacheDir = $this->getCacheDirPath($save);
+        $this->clearAutoCache($save);
         $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
-        $beforeCount = count(glob($autoCachePattern));
+        $beforeCount = count(glob($autoCachePattern) ?: []);
 
         // Execute filtered log query
         $handler = new QueryHandler($this->getSaveManager());
@@ -296,7 +341,7 @@ final class LogbookCachingTest extends X4ParserTestCase
         ]);
         $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
-        $afterCount = count(glob($autoCachePattern));
+        $afterCount = count(glob($autoCachePattern) ?: []);
         $this->assertEquals(
             $beforeCount,
             $afterCount,
@@ -312,11 +357,11 @@ final class LogbookCachingTest extends X4ParserTestCase
     {
 
         $save = $this->getTestSave();
-        $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
+        $cacheDir = $this->getCacheDirPath($save);
         $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
 
         // Check if cache was warmed during extraction
-        $cacheFiles = glob($autoCachePattern);
+        $cacheFiles = glob($autoCachePattern) ?: [];
 
         // Note: This test assumes the test save was extracted with WP4 enabled
         // If test save is from before WP4, this assertion would fail
@@ -344,7 +389,7 @@ final class LogbookCachingTest extends X4ParserTestCase
         // Create a fake orphaned cache directory
         $storageFolder = $this->getSaveManager()->getStorageFolder()->getPath();
         $fakeSaveDir = $storageFolder . '/unpack-19990101000000-test-orphan';
-        $fakeCacheDir = $fakeSaveDir . '/.cache';
+        $fakeCacheDir = $fakeSaveDir . '/cache';
 
         // Clean up first if exists
         if (is_dir($fakeSaveDir)) {
@@ -380,21 +425,21 @@ final class LogbookCachingTest extends X4ParserTestCase
     public function test_cleanup_preserves_valid_caches(): void
     {
         $save = $this->getTestSave();
-        $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
+        $cacheDir = $this->getCacheDirPath($save);
 
         // Ensure cache directory exists
         if (!is_dir($cacheDir)) {
             $this->markTestSkipped('No cache directory to test preservation');
         }
 
-        $filesBefore = glob($cacheDir . '/*');
+        $filesBefore = glob($cacheDir . '/*') ?: [];
         $countBefore = count($filesBefore);
 
         // Run cleanup
         $this->cache->cleanupObsoleteCaches();
 
         // Check cache still exists
-        $filesAfter = glob($cacheDir . '/*');
+        $filesAfter = glob($cacheDir . '/*') ?: [];
         $countAfter = count($filesAfter);
 
         $this->assertEquals(
@@ -430,7 +475,7 @@ final class LogbookCachingTest extends X4ParserTestCase
         }
 
         // 3. WP3: Query creates auto-cache
-        $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
+        $cacheDir = $this->getCacheDirPath($save);
         $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
 
         // Execute query to trigger auto-cache using testable API
@@ -441,7 +486,7 @@ final class LogbookCachingTest extends X4ParserTestCase
         ]);
         $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
-        $cacheFiles = glob($autoCachePattern);
+        $cacheFiles = glob($autoCachePattern) ?: [];
 
         if (empty($cacheFiles)) {
             $this->markTestSkipped('Auto-cache was not created.');
@@ -450,9 +495,9 @@ final class LogbookCachingTest extends X4ParserTestCase
         $this->assertNotEmpty($cacheFiles, 'Step 3: Auto-cache should be created');
 
         // 4. WP5: Cleanup doesn't remove valid cache
-        $beforeCleanup = count(glob($autoCachePattern));
+        $beforeCleanup = count(glob($autoCachePattern) ?: []);
         $this->cache->cleanupObsoleteCaches();
-        $afterCleanup = count(glob($autoCachePattern));
+        $afterCleanup = count(glob($autoCachePattern) ?: []);
 
         $this->assertEquals($beforeCleanup, $afterCleanup, 'Step 4: Valid cache preserved after cleanup');
     }
@@ -464,28 +509,47 @@ final class LogbookCachingTest extends X4ParserTestCase
     public function test_cached_query_performance(): void
     {
         $save = $this->getTestSave();
-        $log = $save->getDataReader()->getLog();
+        $data = $save->getDataReader()->getLog()->toArrayForAPI();
 
-        // Warm up
-        $log->toArrayForAPI();
-
-        // Measure cached performance
         $iterations = 5;
-        $totalTime = 0;
+        $filter = "[?categoryID=='combat']";
+        $runtime = new AstRuntime(null, new CustomFnDispatcher());
 
-        for ($i = 0; $i < $iterations; $i++) {
-            $start = microtime(true);
-            $data = $log->toArrayForAPI();
-            $totalTime += (microtime(true) - $start);
+        $filterTimes = $this->measureExecutionTimes(function() use ($runtime, $filter, $data) : void {
+            $result = $runtime($filter, $data);
+
+            if (!is_array($result)) {
+                $result = [$result];
+            }
+        }, $iterations);
+
+        $filteredData = $runtime($filter, $data);
+
+        if (!is_array($filteredData)) {
+            $filteredData = [$filteredData];
         }
 
-        $avgTime = ($totalTime / $iterations) * 1000; // Convert to ms
+        $cacheKey = 'perf-logbook-combat';
+        $cacheDir = $this->getCacheDirPath($save);
+        $cacheFile = $cacheDir . '/query-' . $cacheKey . '.json';
 
-        // Assert reasonable performance (< 100ms average)
+        if (file_exists($cacheFile)) {
+            unlink($cacheFile);
+        }
+
+        $this->cache->store($save, $cacheKey, $filteredData);
+
+        $cacheTimes = $this->measureExecutionTimes(function() use ($save, $cacheKey) : void {
+            $this->cache->retrieve($save, $cacheKey);
+        }, $iterations);
+
+        $filterMedian = $this->calculateMedian($filterTimes);
+        $cacheMedian = $this->calculateMedian($cacheTimes);
+
         $this->assertLessThan(
-            100,
-            $avgTime,
-            "Cached queries should be fast (< 100ms avg), got {$avgTime}ms"
+            $filterMedian * 0.85,
+            $cacheMedian,
+            "Cached results should be faster than filtering (median). Filter {$filterMedian}ms, cache {$cacheMedian}ms"
         );
     }
 }

@@ -170,9 +170,9 @@ Contains all parsed savegame data in JSON format:
 
 Temporary XML fragments created during parsing. These are deleted after extraction unless you set `"keepXMLFiles": true` in your config.
 
-### `/.cache/` Directory
+### `/cache/` Directory
 
-Hidden directory containing cached query results for the CLI API. Used for efficient pagination of large datasets.
+Directory containing cached query results for the CLI API. Used for efficient pagination of large datasets.
 
 ### `analysis.json`
 

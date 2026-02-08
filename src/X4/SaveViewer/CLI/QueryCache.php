@@ -18,7 +18,7 @@ use Mistralys\X4\SaveViewer\Data\SaveManager;
 /**
  * Manages result caching for CLI queries to enable efficient pagination.
  *
- * Caches are stored per-save in hidden `.cache` directories and are
+ * Caches are stored per-save in `cache` directories and are
  * automatically invalidated when the save file is modified.
  *
  * @package X4SaveViewer
@@ -111,7 +111,7 @@ class QueryCache
     /**
      * Clear all caches across all saves.
      *
-     * Removes all `.cache` directories found in the storage folder.
+    * Removes all `cache` directories found in the storage folder.
      *
      * @return int Number of cache directories removed
      * @throws FileHelper_Exception
@@ -132,7 +132,7 @@ class QueryCache
                 continue;
             }
 
-            $cacheDir = $item . '/.cache';
+            $cacheDir = $item . '/cache';
 
             if (file_exists($cacheDir) && is_dir($cacheDir)) {
                 FileHelper::deleteTree($cacheDir);
@@ -147,7 +147,7 @@ class QueryCache
      * Remove cache directories for saves that no longer exist.
      *
      * Scans the storage folder for extracted save directories and removes
-     * `.cache` directories for saves that have been deleted.
+    * `cache` directories for saves that have been deleted.
      *
      * @return int Number of cache directories removed
      */
@@ -192,7 +192,7 @@ class QueryCache
 
             // Remove cache directory if save no longer exists
             if (!$saveExists) {
-                $cacheDir = $saveDir . '/.cache';
+                $cacheDir = $saveDir . '/cache';
                 if (is_dir($cacheDir)) {
                     $this->removeCacheDirectory($cacheDir);
                     $removed++;
@@ -249,8 +249,8 @@ class QueryCache
     /**
      * Get the cache directory for a specific save.
      *
-     * Returns a FolderInfo instance for the `cache` directory within
-     * the save's storage folder.
+    * Returns a FolderInfo instance for the `cache` directory within
+    * the save's storage folder.
      *
      * @param BaseSaveFile $save The save file
      * @return FolderInfo The cache directory (may not exist yet)
