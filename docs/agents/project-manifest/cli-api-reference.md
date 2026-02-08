@@ -71,8 +71,36 @@ All commands (except `clear-cache`) support these flags:
 | `--offset` | integer | No | Number of results to skip (pagination) |
 | `--cache-key` | string | No | Cache identifier for reusing filtered results |
 | `--pretty` | flag | No | Enable pretty-printed JSON output |
+| `--json` | flag | No | Enable JSON event streaming mode (NDJSON progress + result wrapper) |
 
 *Not required for `list-saves` and `clear-cache` commands
+
+### JSON Event Streaming Mode
+
+When the `--json` flag is used, the CLI emits NDJSON progress events followed by the final result.
+
+**Standard Mode** (default):
+```bash
+bin/query log --save=mysave --limit=5
+```
+Output: Pretty-printed JSON to STDOUT
+
+**Event Streaming Mode**:
+```bash
+bin/query --json log --save=mysave --limit=5
+```
+Output: NDJSON events + result wrapper to STDOUT
+
+**Example Output**:
+```json
+{"type":"progress","name":"LOG_CACHE_BUILDING","status":"started","timestamp":"2026-02-08T10:30:00Z"}
+{"type":"progress","name":"LOG_CACHE_BUILDING","status":"complete","timestamp":"2026-02-08T10:30:15Z"}
+{"type":"result","data":{"success":true,"command":"log","data":[...],"pagination":{...}}}
+```
+
+**Use Case**: External tools (Tauri launcher) can parse events for real-time progress updates during long-running operations.
+
+See [NDJSON Interface](ndjson-interface.md#progress-events-cli-json-mode) for event details.
 
 ### Exit Codes
 

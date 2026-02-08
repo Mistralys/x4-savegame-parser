@@ -222,6 +222,12 @@ class QueryHandler
                 'description' => 'Pretty-print JSON output',
                 'noValue' => true
             ],
+            'json' => [
+                'prefix' => 'j',
+                'longPrefix' => 'json',
+                'description' => 'Enable JSON event streaming mode (NDJSON progress + result wrapper)',
+                'noValue' => true
+            ],
             'saves' => [
                 'longPrefix' => 'saves',
                 'description' => 'Space-separated list of save names/IDs (for queue-extraction)',
@@ -741,7 +747,19 @@ class QueryHandler
      */
     private function outputSuccess(string $command, mixed $data, ?array $pagination, QueryParameters $params): string
     {
-        return JsonResponseBuilder::success($command, $data, $pagination, $params->isPretty);
+        $response = JsonResponseBuilder::success($command, $data, $pagination, $params->isPretty);
+        
+        // In JSON event mode, wrap result to distinguish from progress events
+        if ($params->isJson) {
+            $decoded = json_decode($response, true);
+            $wrapped = [
+                'type' => 'result',
+                'data' => $decoded
+            ];
+            return json_encode($wrapped, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
+        }
+        
+        return $response;
     }
 
     // endregion

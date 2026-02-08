@@ -26,6 +26,7 @@ use Mistralys\X4\SaveViewer\Parser\Fragment\SaveInfoFragment;
 use Mistralys\X4\SaveViewer\Parser\SaveSelector\SaveGameFile;
 use Mistralys\X4\SaveViewer\SaveManager\SaveTypes\MainSave;
 use Mistralys\X4\SaveViewer\Config\Config;
+use Mistralys\X4\SaveViewer\Utilities\ProgressEmitter;
 use function AppLocalize\t;
 
 /**
@@ -151,9 +152,11 @@ class SaveParser extends BaseXMLParser
 
             // Only generate if not already present
             if (!$log->isCacheValid()) {
+                ProgressEmitter::emitStarted('LOG_CACHE_BUILDING');
                 $this->log('Generating log analysis cache...');
                 $log->generateAnalysisCache();
                 $this->log('Log analysis cache generated successfully.');
+                ProgressEmitter::emitComplete('LOG_CACHE_BUILDING');
             }
 
             // Warm query cache for fast pagination (WP4: Logbook Performance Optimization)

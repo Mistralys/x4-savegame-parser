@@ -11,6 +11,13 @@ declare(strict_types=1);
 
 namespace Mistralys\X4\SaveViewer\Bin;
 
+// Check for --json flag early (before classes load)
+$jsonMode = in_array('--json', $argv) || in_array('-j', $argv);
+
+if ($jsonMode) {
+    define('JSON_OUTPUT_MODE', true);
+}
+
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
 use Mistralys\X4\SaveViewer\CLI\JsonResponseBuilder;
 

@@ -18,6 +18,7 @@ use Mistralys\X4\SaveViewer\Parser\Collections\EventLogCollection;
 use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 use Mistralys\X4\SaveViewer\SaveViewerException;
 use Mistralys\X4\SaveViewer\UI\Pages\ViewSave\EventLogPage;
+use Mistralys\X4\SaveViewer\Utilities\ProgressEmitter;
 use Mistralys\X4\UI\Page\BasePage;
 
 class Log extends Info
@@ -191,9 +192,17 @@ class Log extends Info
 
         // Generate cache if missing (for legacy saves)
         if (!$this->isCacheValid()) {
+            // Emit structured progress event for external tools
+            ProgressEmitter::emitStarted('LOG_CACHE_BUILDING');
+            
             // Output to stderr for transparency while keeping JSON clean
             file_put_contents('php://stderr', "Generating log analysis cache...\n");
+            
             $this->generateAnalysisCache();
+            
+            // Emit completion event
+            ProgressEmitter::emitComplete('LOG_CACHE_BUILDING');
+            
             file_put_contents('php://stderr', "Log analysis cache generated.\n");
             $cacheDate = $this->analysisCache->getCacheDate();
             $cacheDateString = $cacheDate ? $cacheDate->getISODate() : null;

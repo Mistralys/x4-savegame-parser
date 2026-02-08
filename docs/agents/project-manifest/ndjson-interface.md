@@ -148,6 +148,69 @@ Emitted when the entire process is finished for the current save.
 - `extractionDuration` (float|null): Time in seconds the extraction took, or `null` for legacy saves
 - `extractionDurationFormatted` (string|null): Human-readable duration (e.g., "2m 15s"), or `null` for legacy saves
 
+## Progress Events (CLI JSON Mode)
+
+When the query CLI is invoked with the `--json` flag, it enables event streaming mode. In this mode, progress events are emitted to STDOUT as NDJSON, followed by the final result.
+
+### Event Structure
+
+Progress events use a distinct structure from monitor events:
+
+```json
+{
+  "type": "progress",
+  "name": "OPERATION_NAME",
+  "status": "started|progress|complete",
+  "payload": {},  // optional operation-specific data
+  "timestamp": "2026-02-08T10:30:00+00:00"
+}
+```
+
+### Result Wrapper
+
+The final query result is wrapped to distinguish it from progress events:
+
+```json
+{
+  "type": "result",
+  "data": {
+    "success": true,
+    "version": "0.0.1",
+    "command": "log",
+    "timestamp": "2026-02-08T10:30:15+00:00",
+    "data": [ /* actual query data */ ],
+    "pagination": { /* pagination info */ }
+  }
+}
+```
+
+### Available Progress Events
+
+| Event Name | Status Values | Payload | Description |
+|------------|---------------|---------|-------------|
+| `LOG_CACHE_BUILDING` | `started`, `complete` | None | Logbook analysis cache generation |
+
+### Example Flow
+
+```bash
+bin/query.bat --json log --save=test-save --limit=10
+```
+
+**Output**:
+```json
+{"type":"progress","name":"LOG_CACHE_BUILDING","status":"started","timestamp":"2026-02-08T10:30:00Z"}
+{"type":"progress","name":"LOG_CACHE_BUILDING","status":"complete","timestamp":"2026-02-08T10:30:15Z"}
+{"type":"result","data":{"success":true,"command":"log","data":[...],"pagination":{"total":1234,"limit":10,"offset":0}}}
+```
+
+### Usage Notes
+
+- Each line is a complete JSON object (NDJSON format)
+- Progress events may appear in any order during execution
+- Final result always has `type: "result"`
+- Without `--json` flag, behaves as standard CLI (no events, pretty JSON)
+- STDERR still contains human-readable messages for debugging
+
 ### 3. Logging (`log`)
 
 Detailed text logs. Only emitted if `loggingEnabled` configuration is enabled.
