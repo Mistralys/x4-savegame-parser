@@ -249,7 +249,7 @@ class QueryCache
     /**
      * Get the cache directory for a specific save.
      *
-     * Returns a FolderInfo instance for the `.cache` directory within
+     * Returns a FolderInfo instance for the `cache` directory within
      * the save's storage folder.
      *
      * @param BaseSaveFile $save The save file
@@ -258,7 +258,7 @@ class QueryCache
     private function getCacheDir(BaseSaveFile $save): FolderInfo
     {
         $storageFolder = $save->getStorageFolder();
-        return FolderInfo::factory($storageFolder->getPath() . '/.cache');
+        return FolderInfo::factory($storageFolder->getPath() . '/cache');
     }
 
     /**
