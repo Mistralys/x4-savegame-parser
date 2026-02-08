@@ -18,31 +18,23 @@ namespace testsuites\CLI;
 
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
 use Mistralys\X4\SaveViewer\CLI\QueryParameters;
-use Mistralys\X4\SaveViewer\Config\Config;
-use Mistralys\X4\SaveViewer\Data\SaveManager;
-use PHPUnit\Framework\TestCase;
+use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
+use X4\SaveGameParserTests\TestClasses\TestSaveNames;
 use ReflectionClass;
 
-class CommandExecutionTest extends TestCase
+class CommandExecutionTest extends X4ParserTestCase
 {
-    private const string TEST_SAVE_NAME = 'quicksave';
-
-    private ?SaveManager $manager = null;
     private ?QueryHandler $handler = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Config::setTestSuiteEnabled(true);
-
-        $this->manager = SaveManager::createFromConfig();
-        $this->handler = new QueryHandler($this->manager);
+        $this->handler = new QueryHandler($this->getSaveManager());
     }
 
     protected function tearDown(): void
     {
-        $this->manager = null;
         $this->handler = null;
         parent::tearDown();
     }
@@ -77,26 +69,16 @@ class CommandExecutionTest extends TestCase
      */
     private function getTestSave()
     {
-        // Try to find by name in main saves
-        if ($this->manager->nameExists(self::TEST_SAVE_NAME)) {
-            $save = $this->manager->getSaveByName(self::TEST_SAVE_NAME);
+        return $this->requireSaveByName(TestSaveNames::SAVE_ADVANCED_CREATIVE);
+    }
 
-            if (!$save->isUnpacked()) {
-                $this->markTestSkipped('Test save not unpacked. Run `/tests/extract-test-save.php first to prepare the test save.');
-            }
-
-            return $save;
-        }
-
-        // Check archived saves (already-extracted saves in storage folder)
-        $archivedSaves = $this->manager->getArchivedSaves();
-        foreach ($archivedSaves as $save) {
-            if ($save->getSaveName() === self::TEST_SAVE_NAME) {
-                return $save;
-            }
-        }
-
-        $this->markTestSkipped('Test save not found');
+    /**
+     * Helper to get test save identifier for use in commands.
+     * Returns save ID for archived saves (which CLI supports).
+     */
+    private function getTestSaveName(): string
+    {
+        return $this->getTestSave()->getSaveID();
     }
 
     // =========================================================================
@@ -108,7 +90,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME
+            'saveIdentifier' => $this->getTestSaveName()
         ]);
 
         $this->assertIsArray($json);
@@ -122,7 +104,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('stations', [
-            'saveIdentifier' => self::TEST_SAVE_NAME
+            'saveIdentifier' => $this->getTestSaveName()
         ]);
 
         $this->assertIsArray($json);
@@ -135,7 +117,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('player', [
-            'saveIdentifier' => self::TEST_SAVE_NAME
+            'saveIdentifier' => $this->getTestSaveName()
         ]);
 
         $this->assertIsArray($json);
@@ -177,7 +159,7 @@ class CommandExecutionTest extends TestCase
     public function test_queryCommand_withNonExtractedSave_showsError(): void
     {
         // Find a save that exists but is not extracted
-        $saves = $this->manager->getSaves();
+        $saves = $this->getSaveManager()->getSaves();
         $nonExtractedSave = null;
 
         foreach ($saves as $save) {
@@ -209,7 +191,7 @@ class CommandExecutionTest extends TestCase
         $this->expectExceptionMessage('Unknown command');
 
         $this->executeCommand('invalid-command-xyz', [
-            'saveIdentifier' => self::TEST_SAVE_NAME
+            'saveIdentifier' => $this->getTestSaveName()
         ]);
     }
 
@@ -222,7 +204,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[0]', // Get first item
             'limit' => 1
         ]);
@@ -243,7 +225,7 @@ class CommandExecutionTest extends TestCase
         $this->expectException(\JmesPath\SyntaxErrorException::class);
 
         $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[invalid syntax'
         ]);
     }
@@ -257,7 +239,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'limit' => 5,
             'offset' => 0
         ]);
@@ -283,7 +265,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'limit' => 3
         ]);
 
@@ -313,7 +295,7 @@ class CommandExecutionTest extends TestCase
         $cacheKey = 'test-cache-' . time();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[0:5]', // Filter to get first 5 items
             'cacheKey' => $cacheKey
         ]);
@@ -332,7 +314,7 @@ class CommandExecutionTest extends TestCase
 
         // First request - stores in cache
         $firstJson = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[0:3]',
             'cacheKey' => $cacheKey
         ]);
@@ -341,7 +323,7 @@ class CommandExecutionTest extends TestCase
 
         // Second request - should retrieve from cache
         $secondJson = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[0:3]',
             'cacheKey' => $cacheKey
         ]);
@@ -384,7 +366,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?contains_i(name, \'scout\')]',
             'limit' => 5
         ]);
@@ -408,7 +390,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?starts_with_i(name, \'argon\')]',
             'limit' => 5
         ]);
@@ -432,7 +414,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?ends_with_i(name, \'mk2\')]',
             'limit' => 5
         ]);
@@ -456,7 +438,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?contains(to_lower(name), \'fighter\')]',
             'limit' => 5
         ]);
@@ -480,7 +462,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?faction==\'argon\'] | [?contains_i(name, \'scout\')]',
             'limit' => 10
         ]);
@@ -507,7 +489,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('ships', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?starts_with_i(name, \'argon\') && contains_i(name, \'scout\')]',
             'limit' => 5
         ]);
@@ -533,7 +515,7 @@ class CommandExecutionTest extends TestCase
         $save = $this->getTestSave();
 
         $json = $this->executeCommand('stations', [
-            'saveIdentifier' => self::TEST_SAVE_NAME,
+            'saveIdentifier' => $this->getTestSaveName(),
             'filter' => '[?contains_i(name, \'trading\')]',
             'limit' => 5
         ]);

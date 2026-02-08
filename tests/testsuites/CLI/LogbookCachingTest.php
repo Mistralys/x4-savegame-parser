@@ -17,23 +17,18 @@ namespace X4\SaveGameParserTests\Tests\CLI;
 use AppUtils\FileHelper;
 use Mistralys\X4\SaveViewer\CLI\QueryCache;
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
-use Mistralys\X4\SaveViewer\Data\SaveManager;
-use Mistralys\X4\SaveViewer\Parser\SaveSelector;
-use Mistralys\X4\SaveViewer\SaveParser;
+use Mistralys\X4\SaveViewer\CLI\QueryParameters;
 use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
+use X4\SaveGameParserTests\TestClasses\TestSaveNames;
 
 final class LogbookCachingTest extends X4ParserTestCase
 {
-    private const string TEST_SAVE_NAME = 'quicksave';
-
-    private SaveManager $manager;
     private QueryCache $cache;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->manager = SaveManager::createFromConfig();
-        $this->cache = new QueryCache($this->manager);
+        $this->cache = new QueryCache($this->getSaveManager());
     }
 
     /**
@@ -41,17 +36,7 @@ final class LogbookCachingTest extends X4ParserTestCase
      */
     private function getTestSave()
     {
-        if (!$this->manager->nameExists(self::TEST_SAVE_NAME)) {
-            $this->markTestSkipped('Test save not found');
-        }
-
-        $save = $this->manager->getSaveByName(self::TEST_SAVE_NAME);
-
-        if (!$save->isUnpacked()) {
-            $this->markTestSkipped('Test save not unpacked');
-        }
-
-        return $save;
+        return $this->requireSaveByName(TestSaveNames::SAVE_ADVANCED_CREATIVE);
     }
 
     // =========================================================================
@@ -218,8 +203,6 @@ final class LogbookCachingTest extends X4ParserTestCase
 
     public function test_unfiltered_query_creates_auto_cache(): void
     {
-        $this->markTestSkipped('Test requires CLI argument parsing which does not work in PHPUnit test context due to league/climate library limitation');
-
         $save = $this->getTestSave();
         $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
 
@@ -229,23 +212,14 @@ final class LogbookCachingTest extends X4ParserTestCase
             unlink($file);
         }
 
-        // Execute unfiltered log query
-        $handler = new QueryHandler($this->manager);
+        // Execute unfiltered log query using the testable API
+        $handler = new QueryHandler($this->getSaveManager());
+        $params = QueryParameters::forTest([
+            'saveIdentifier' => $save->getSaveID(),
+            'limit' => 20
+        ]);
 
-        ob_start();
-        try {
-            $_SERVER['argv'] = [
-                'query.php',
-                'log',
-                '--save=' . $save->getSaveID(),
-                '--limit=20'
-            ];
-            $handler->handle();
-            ob_end_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
         // Check auto-cache was created
         $cacheFiles = glob($autoCachePattern);
@@ -273,44 +247,26 @@ final class LogbookCachingTest extends X4ParserTestCase
             unlink($file);
         }
 
-        $handler = new QueryHandler($this->manager);
+        $handler = new QueryHandler($this->getSaveManager());
 
         // First query (creates cache)
         $start1 = microtime(true);
-        ob_start();
-        try {
-            $_SERVER['argv'] = [
-                'query.php',
-                'log',
-                '--save=' . $save->getSaveID(),
-                '--limit=20',
-                '--offset=0'
-            ];
-            $handler->handle();
-            ob_end_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $params1 = QueryParameters::forTest([
+            'saveIdentifier' => $save->getSaveID(),
+            'limit' => 20,
+            'offset' => 0
+        ]);
+        $handler->executeCommand(QueryHandler::COMMAND_LOG, $params1);
         $duration1 = (microtime(true) - $start1) * 1000;
 
         // Second query (uses cache)
         $start2 = microtime(true);
-        ob_start();
-        try {
-            $_SERVER['argv'] = [
-                'query.php',
-                'log',
-                '--save=' . $save->getSaveID(),
-                '--limit=20',
-                '--offset=20'
-            ];
-            $handler->handle();
-            ob_end_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $params2 = QueryParameters::forTest([
+            'saveIdentifier' => $save->getSaveID(),
+            'limit' => 20,
+            'offset' => 20
+        ]);
+        $handler->executeCommand(QueryHandler::COMMAND_LOG, $params2);
         $duration2 = (microtime(true) - $start2) * 1000;
 
         // Second query should be faster (or at least not significantly slower)
@@ -332,23 +288,13 @@ final class LogbookCachingTest extends X4ParserTestCase
         $beforeCount = count(glob($autoCachePattern));
 
         // Execute filtered log query
-        $handler = new QueryHandler($this->manager);
-
-        ob_start();
-        try {
-            $_SERVER['argv'] = [
-                'query.php',
-                'log',
-                '--save=' . $save->getSaveID(),
-                '--filter=[0:5]',
-                '--limit=5'
-            ];
-            $handler->handle();
-            ob_end_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $handler = new QueryHandler($this->getSaveManager());
+        $params = QueryParameters::forTest([
+            'saveIdentifier' => $save->getSaveID(),
+            'filter' => '[0:5]',
+            'limit' => 5
+        ]);
+        $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
         $afterCount = count(glob($autoCachePattern));
         $this->assertEquals(
@@ -364,7 +310,6 @@ final class LogbookCachingTest extends X4ParserTestCase
 
     public function test_full_workflow_extraction_to_query2(): void
     {
-        $this->markTestSkipped('Test requires CLI argument parsing which does not work in PHPUnit test context due to league/climate library limitation');
 
         $save = $this->getTestSave();
         $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
@@ -397,7 +342,7 @@ final class LogbookCachingTest extends X4ParserTestCase
     public function test_cleanup_removes_orphaned_caches(): void
     {
         // Create a fake orphaned cache directory
-        $storageFolder = $this->manager->getStorageFolder()->getPath();
+        $storageFolder = $this->getSaveManager()->getStorageFolder()->getPath();
         $fakeSaveDir = $storageFolder . '/unpack-19990101000000-test-orphan';
         $fakeCacheDir = $fakeSaveDir . '/.cache';
 
@@ -488,26 +433,18 @@ final class LogbookCachingTest extends X4ParserTestCase
         $cacheDir = $save->getStorageFolder()->getPath() . '/.cache';
         $autoCachePattern = $cacheDir . '/query-_log_unfiltered_*.json';
 
-        // Execute query to trigger auto-cache
-        $handler = new QueryHandler($this->manager);
-        ob_start();
-        try {
-            $_SERVER['argv'] = [
-                'query.php',
-                'log',
-                '--save=' . $save->getSaveID(),
-                '--limit=10'
-            ];
-            $handler->handle();
-            ob_end_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
-        }
+        // Execute query to trigger auto-cache using testable API
+        $handler = new QueryHandler($this->getSaveManager());
+        $params = QueryParameters::forTest([
+            'saveIdentifier' => $save->getSaveID(),
+            'limit' => 10
+        ]);
+        $handler->executeCommand(QueryHandler::COMMAND_LOG, $params);
 
         $cacheFiles = glob($autoCachePattern);
 
         if (empty($cacheFiles)) {
-            $this->markTestSkipped('Auto-cache was not created. CLI argument parsing may not work in PHPUnit test context.');
+            $this->markTestSkipped('Auto-cache was not created.');
         }
 
         $this->assertNotEmpty($cacheFiles, 'Step 3: Auto-cache should be created');

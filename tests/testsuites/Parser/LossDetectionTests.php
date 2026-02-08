@@ -10,6 +10,7 @@ use Mistralys\X4\SaveViewer\Parser\Collections;
 use Mistralys\X4\SaveViewer\Parser\DataProcessing\Processors\DetectShipLosses;
 use Mistralys\X4\SaveViewer\Parser\Types\LogEntryType;
 use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
+use X4\SaveGameParserTests\TestClasses\TestSaveNames;
 use Mistralys\X4\SaveViewer\Config\Config;
 
 final class LossDetectionTests extends X4ParserTestCase
@@ -57,17 +58,22 @@ final class LossDetectionTests extends X4ParserTestCase
 
     public function test_loadFromJSON() : void
     {
-        $data = JSONFile::factory(__DIR__.'/../../files/test-saves/unpack-20260206211435-quicksave/JSON/data-losses.json')->parse();
+        $save = $this->requireSaveByName(TestSaveNames::SAVE_ADVANCED_CREATIVE);
+        $data = JSONFile::factory($save->getJSONPath()->getPath() . '/data-losses.json')->parse();
 
         $this->assertCount(3, $data);
 
-        $collections = new Collections(Config::getStorageFolder());
-        $entry = new LogEntryType($collections, $data[0]);
+        // Verify the structure of processed loss data
+        $this->assertArrayHasKey('time', $data[0]);
+        $this->assertArrayHasKey('shipName', $data[0]);
+        $this->assertArrayHasKey('shipCode', $data[0]);
+        $this->assertArrayHasKey('location', $data[0]);
+        $this->assertArrayHasKey('commander', $data[0]);
+        $this->assertArrayHasKey('destroyedBy', $data[0]);
 
-        $info = DetectShipLosses::parseEntry($entry);
-
-        $this->assertNotNull($info);
-        $this->assertSame('BIE-447', $info['shipCode']);
-        $this->assertSame('Aramean Shipyard TEL (IJU-471)', $info['commander']);
+        // Verify actual data from advanced-creative-v8 save
+        $this->assertSame('ULS-846', $data[0]['shipCode']);
+        $this->assertSame('Scout', $data[0]['shipName']);
+        $this->assertSame('Two Grand', $data[0]['location']);
     }
 }

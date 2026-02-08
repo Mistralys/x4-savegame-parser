@@ -17,27 +17,22 @@ declare(strict_types=1);
 namespace testsuites\CLI;
 
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
-use Mistralys\X4\SaveViewer\Data\SaveManager;
-use PHPUnit\Framework\TestCase;
+use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
+use X4\SaveGameParserTests\TestClasses\TestSaveNames;
 
-class CollectionJsonDataLoadingTest extends TestCase
+class CollectionJsonDataLoadingTest extends X4ParserTestCase
 {
-    private const TEST_SAVE_NAME = 'unpack-20260206211435-quicksave';
-
-    private ?SaveManager $manager = null;
     private ?QueryHandler $handler = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->manager = SaveManager::createFromConfig();
-        $this->handler = new QueryHandler($this->manager);
+        $this->handler = new QueryHandler($this->getSaveManager());
     }
 
     protected function tearDown(): void
     {
-        $this->manager = null;
         $this->handler = null;
         parent::tearDown();
     }
@@ -47,32 +42,7 @@ class CollectionJsonDataLoadingTest extends TestCase
      */
     private function getTestSave()
     {
-        // Test save is an archived save, not a main save
-        $archivedSaves = $this->manager->getArchivedSaves();
-
-        if (empty($archivedSaves)) {
-            $this->fail('No archived saves found. Ensure test data exists in tests/files/test-saves/');
-        }
-
-        // Get the test save (should be "quicksave" from analysis.json)
-        $save = null;
-        foreach ($archivedSaves as $archivedSave) {
-            if ($archivedSave->getSaveName() === 'quicksave') {
-                $save = $archivedSave;
-                break;
-            }
-        }
-
-        if ($save === null) {
-            $this->fail('Test save "quicksave" not found in archived saves. Found: ' .
-                implode(', ', array_map(fn($s) => $s->getSaveName(), $archivedSaves)));
-        }
-
-        if (!$save->isUnpacked()) {
-            $this->fail('Test save "quicksave" is not unpacked. Ensure JSON files exist.');
-        }
-
-        return $save;
+        return $this->requireSaveByName(TestSaveNames::SAVE_ADVANCED_CREATIVE);
     }
 
     // =========================================================================

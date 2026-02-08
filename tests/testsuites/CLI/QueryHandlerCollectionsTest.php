@@ -14,30 +14,25 @@ declare(strict_types=1);
 namespace testsuites\CLI;
 
 use Mistralys\X4\SaveViewer\CLI\QueryHandler;
-use Mistralys\X4\SaveViewer\Data\SaveManager;
-use PHPUnit\Framework\TestCase;
+use X4\SaveGameParserTests\TestClasses\X4ParserTestCase;
+use X4\SaveGameParserTests\TestClasses\TestSaveNames;
 use ReflectionClass;
 use ReflectionMethod;
 
-class QueryHandlerCollectionsTest extends TestCase
+class QueryHandlerCollectionsTest extends X4ParserTestCase
 {
-    private const TEST_SAVE_NAME = 'unpack-20260206211435-quicksave';
-
-    private ?SaveManager $manager = null;
     private ?QueryHandler $handler = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create SaveManager with test configuration
-        $this->manager = SaveManager::createFromConfig();
-        $this->handler = new QueryHandler($this->manager);
+        // Create QueryHandler with test configuration
+        $this->handler = new QueryHandler($this->getSaveManager());
     }
 
     protected function tearDown(): void
     {
-        $this->manager = null;
         $this->handler = null;
         parent::tearDown();
     }
@@ -58,17 +53,7 @@ class QueryHandlerCollectionsTest extends TestCase
      */
     private function getTestSave()
     {
-        if (!$this->manager->nameExists(self::TEST_SAVE_NAME)) {
-            $this->markTestSkipped('Test save "' . self::TEST_SAVE_NAME . '" not found. Run extraction first.');
-        }
-
-        $save = $this->manager->getSaveByName(self::TEST_SAVE_NAME);
-
-        if (!$save->isUnpacked()) {
-            $this->markTestSkipped('Test save "' . self::TEST_SAVE_NAME . '" is not unpacked. Run extraction first.');
-        }
-
-        return $save;
+        return $this->requireSaveByName(TestSaveNames::SAVE_ADVANCED_CREATIVE);
     }
 
     // =========================================================================
